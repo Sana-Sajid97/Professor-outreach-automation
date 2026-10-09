@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+private_profile/
+credentials.json
+token.json
+client_secret*.json
+*.sqlite
+*.db
+output/
+exports/
+.DS_Store
+Thumbs.db
