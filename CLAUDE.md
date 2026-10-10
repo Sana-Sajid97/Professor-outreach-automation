@@ -6,7 +6,7 @@ Build a reliable, beginner-friendly US graduate admissions research and professo
 Support an applicant with a BS in Human Nutrition and Dietetics, CGPA 3.85/4.00, and interests in public/community nutrition, food insecurity, maternal/pregnancy nutrition, diabetes/metabolic health, childhood obesity, clinical nutrition, nutrition epidemiology, and AI/ML as a supporting quantitative method. Prioritize Spring 2027 and also research Fall 2027.
 
 ## Rules
-1. Read README.md, prompts/MASTER_BUILD_PROMPT.md, prompts/PROFILE_TEMPLATE.md, and docs/WORKFLOW.md before coding.
+1. Read README.md, prompt.md, ONE_CLICK_SPEC.md, WORKFLOW.md, SAFETY_AND_PRIVACY.md, and professors_template.csv from the repository root before coding.
 2. Inspect the repository, propose a short phased plan, then implement Phase 1.
 3. Build a usable MVP before complex integrations. Make it beginner-friendly and Windows-compatible.
 4. Prefer official university, faculty, lab, program, and publication sources.
