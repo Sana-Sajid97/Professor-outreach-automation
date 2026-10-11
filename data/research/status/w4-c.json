@@ -1,10 +1,10 @@
 {
  "agent": "w4-c",
- "updated_at": "2026-10-11T08:46:44Z",
+ "updated_at": "2026-10-11T08:47:21Z",
  "professors": 1,
- "programs": 2,
- "searches_used": 3,
+ "programs": 3,
+ "searches_used": 5,
  "search_budget": 24,
- "now_working_on": "TWU done (PhD needs MS); starting Case Western Reserve",
+ "now_working_on": "CWRU done (IELTS 7.0); starting University of Cincinnati",
  "done": false
 }

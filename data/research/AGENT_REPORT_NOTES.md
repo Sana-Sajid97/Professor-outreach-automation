@@ -17,3 +17,17 @@ These are the agents' own summaries. Check the facts in the raw files and on off
     - Cordeiro (UMass): produce prescription.
     - Mena (UNH): obesity and food insecurity in children under 6; F-1 assistantships.
   - Spring 2027: UConn and UMass are closed, and Buffalo is closed for F-1 students. UNH MS closes 2026-10-15. Montclair (Nov 1/15) and Maine (Nov 1) are still open, with limited spring funding.
+- **w3-b (Penn State, Purdue, Michigan State, U Michigan):** 17 records.
+  - New faculty:
+    - Penn State: Bruening, Petersen, Hohman, Thurber
+    - Purdue: Biruete, Campbell, Mattes
+    - Michigan State: Strakovsky, Alaimo, Costlow
+    - U Michigan: Bauer, Baylin, Peterson, Jones
+  - Top fits:
+    - **Gernand (Penn State):** maternal nutrition + AI placenta software; 2024 paper PMID 39776848; NIH grant
+    - **Kate Bauer (U Michigan):** food insecurity; 2026 paper PMID 42524720; NIH/HRSA/DoD/Kellogg funding
+    - **Savage Williams (Penn State):** childhood obesity and pregnancy; Healthy Mom Zone trial recruiting through May 2027
+    - **Strakovsky (Michigan State):** maternal nutrition
+    - **Biruete (Purdue):** kidney and clinical nutrition
+  - Also strong: Bruening (Penn State; NIH/USDA/CDC/HRSA funding) and Petersen (Penn State; trial NCT05071807).
+  - Michigan IELTS: department pages cite a Rackham minimum of 6.5 (not confirmed on Rackham's own page). Purdue's deadline is still unverified.
