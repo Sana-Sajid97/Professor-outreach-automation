@@ -3,12 +3,12 @@
 *Built overnight, 11 Oct 2026. Highest priority first.*
 
 ## 🔴 1. GitHub: nothing could be pushed (needs you)
-- Every attempt to push to `Sana-Sajid97/Professor-outreach-automation` was refused with **403**, from both git and the GitHub connector ("Resource not accessible by integration"). **The Claude GitHub App is not installed on Sana's repository.**
-- Fix it in one of two ways:
-  - reconnect GitHub at https://claude.ai/customize/connectors?auth_start=github&auth_start_force=1, or
-  - have Sana install the app on her repository: https://github.com/apps/claude/installations/select_target.
-- Then ask Claude to push the branch `claude/scholarship-application-automation-2yiu9t`. All work is committed there locally.
-- **Backup:** a private Claude artifact holds a downloadable copy of the whole project (link in the session summary), in case the cloud session's container is recycled first.
+- Every push to `Sana-Sajid97/Professor-outreach-automation` was refused with **403**: "Claude doesn't have GitHub access to Sana-Sajid97/Professor-outreach-automation". **The Claude GitHub App is not installed on Sana's repository.** GitHub still shows only Sana's last commit (`01fb9e7`); the 22 new commits exist only in the cloud session and in the backup below.
+- Fix it:
+  1. Sana, as the repository owner, installs the Claude GitHub App on the repository: https://github.com/apps/claude/installations/select_target
+  2. Connect or reconnect GitHub for the Claude account that runs the sessions: https://claude.ai/connect-github
+  3. Ask Claude to push the branch `claude/scholarship-application-automation-2yiu9t`.
+- **Backup:** a private page, "Sana's Outreach Backup" (https://claude.ai/artifact/3MSjLQxRNPwgNEnuRfMtjn), builds a ZIP of the whole project (without the portfolio PDF) plus the 22 commits as a patch series, with restore steps. Restoring the patches was tested: it gives exactly the same files.
 
 ## 🔴 2. Privacy: the public repository contains Sana's portfolio PDF
 - `Sana Sajid - Portfolio (1) (1).pdf` (phone number, transcript, certificates) is committed to a **public** repository. Her CLAUDE.md and SAFETY_AND_PRIVACY.md say personal documents must stay out of public GitHub.
