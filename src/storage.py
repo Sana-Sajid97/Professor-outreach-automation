@@ -10,6 +10,7 @@ Design choices for non-programmers on Windows:
 from __future__ import annotations
 
 import csv
+import io
 import json
 import os
 import shutil
@@ -44,7 +45,7 @@ def read_csv_rows(path: Path) -> tuple[list[dict], list[str]]:
         dialect = csv.Sniffer().sniff(sample, delimiters=",;\t") if sample.strip() else csv.excel
     except csv.Error:
         dialect = csv.excel
-    reader = csv.DictReader(text.splitlines(), dialect=dialect)
+    reader = csv.DictReader(io.StringIO(text, newline=""), dialect=dialect)  # keeps line breaks inside cells
     header = [h.strip().lstrip("﻿") for h in (reader.fieldnames or [])]
     rows = []
     for row in reader:

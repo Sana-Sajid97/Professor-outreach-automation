@@ -8,7 +8,15 @@ Date of this research run: **2026-10-11**. Use `"date_checked": "2026-10-11"` on
 - BS Human Nutrition & Dietetics, PMAS-Arid Agriculture University Rawalpindi, Nov 2021 - Aug 2025, CGPA 3.85/4.00.
 - IELTS Academic overall **6.5** (subscores unknown). Programs that require IELTS 7.0 overall are a poor fit unless she retakes the test; record the exact minimum.
 - Experience: clinical nutrition counseling and diet planning for underserved patients (diabetes, hypertension, obesity, renal); community nutrition-awareness internship with lifestyle surveys; final-year project assessing patients (COPD, diabetes, hypertension, pregnancy); "Cinnamon Bites" glycemic-control product at a national innovation expo; AI-assisted renal diet plan (hackathon honorable mention); XGBoost + SHAP machine-learning project on the ADNI Alzheimer's dataset; Python teaching (Stanford Code in Place section leader).
-- Goal: a **fully funded** PhD, or a funded MS (graduate research or teaching assistantship), in the USA. **Spring 2027** is the first priority and **Fall 2027** is the second.
+- **GOAL (clarified by the applicant's family on 2026-10-11; this overrides everything else):**
+  - She wants a **FULLY FUNDED position through an ASSISTANTSHIP ONLY**: a graduate research assistantship (GRA/RA), graduate assistantship (GA) or teaching assistantship (GTA/TA) that pays a stipend **and** waives tuition. The degree can be an MS (thesis) or a PhD.
+  - She is **NOT** targeting external or generic scholarships (Fulbright, AAUW and the like). Do not research those.
+  - **Spring 2027 and Fall 2027 are EQUALLY important.** Target both.
+  - **Every US state counts, and ANY university counts.** Ranking does not matter: regional public universities, land-grant universities, HBCUs and smaller schools are all welcome. What matters is real assistantship funding open to international (F-1) students, and IELTS 6.5 being accepted.
+  - The most valuable evidence is:
+    - (a) a program or department statement that admitted students (including international students) receive assistantships with tuition waivers;
+    - (b) a professor with active grant funding (NIH, USDA-NIFA, NSF, foundations) or an explicit recruiting statement;
+    - (c) advertised GRA/GTA openings.
 
 ## Topic vocabulary (use these keys in `matched_topics`)
 
@@ -54,6 +62,7 @@ Date of this research run: **2026-10-11**. Use `"date_checked": "2026-10-11"` on
  "fall_2027_status": "Accepting - intl deadline 2026-12-01 (url) | Not verified",
  "application_deadline": "2026-12-01 (Fall 2027, international, priority for funding)",
  "recruiting_evidence": "Not verified", "funding_or_assistantship_evidence": "Not verified",
+ "funding_signal": "e.g. 'PI on active NIH R01 (2024-2029) per university news (url)' or Not verified",
  "eligibility_notes": "Graduate school minimum IELTS 6.5 overall (url); GRE not required (url)",
  "source_urls": ["https://...", "https://..."], "date_checked": "2026-10-11",
  "confidence_notes": "What is still unverified or uncertain.", "research_agent": "<your agent id>"}
@@ -70,6 +79,8 @@ Date of this research run: **2026-10-11**. Use `"date_checked": "2026-10-11"` on
  "gre_policy": "Required | Optional | Not required | Not verified",
  "funding_summary": "Quoted or paraphrased evidence about assistantships, waivers and stipends, or Not verified", "funding_source_url": "",
  "application_fee_usd": "", "advisor_contact_expected": "Yes | No | Not verified",
+ "assistantship_types": "GRA | GTA | GA | RA - quote", "assistantship_covers": "stipend amount / tuition waiver / health insurance - quote",
+ "international_eligible_for_assistantships": "Yes | No | Not stated", "assistantship_deadline": "date to be considered for funding",
  "notes": "", "source_urls": ["https://..."], "date_checked": "2026-10-11", "research_agent": "<your agent id>"}
 ```
 

@@ -147,9 +147,9 @@ def load_settings(root: Path | None = None, environ: dict[str, str] | None = Non
 
     Environment variables win over `.env` values.
     """
-    root = Path(root) if root else ROOT
-    values = load_dotenv(root / ".env")
     env = os.environ if environ is None else environ
+    root = Path(root) if root else Path(env.get("OUTREACH_ROOT") or ROOT)
+    values = load_dotenv(root / ".env")
     for key, value in env.items():
         values[key] = value
 

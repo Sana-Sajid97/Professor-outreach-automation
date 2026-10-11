@@ -1,0 +1,506 @@
+[
+  {
+    "topic": "1 Footprint - method and limits",
+    "fact": "Search limits for this check: the web search tool will not search for a private person by name, so her name-based footprint (LinkedIn, news, competition result pages) could not be checked through web search. GitHub facts below come from the GitHub REST API search endpoints (repository and user metadata only). Repository file contents could not be read because those repositories are not attached to this session. Event facts come from event pages, not from pages that name her.",
+    "quote": "",
+    "source_url": "",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - LinkedIn",
+    "fact": "Not verified. A web search aimed at linkedin.com/in/the-sana-sajid did not return that profile. The tool declined to search by name and returned only unrelated Rawalpindi dietitian listings. Whether the profile exists and what it says could not be confirmed.",
+    "quote": "",
+    "source_url": "",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - GitHub account thesanasajid",
+    "fact": "GitHub user 'thesanasajid' (id 285357078) exists and has 7 public repositories as of 2026-10-11: Final-Year-Project (created 2026-05-17), AI-Based-Early-Risk-Prediction-for-Chronic-Diseases (2026-05-17), tre-alzheimers-biomarkers (2026-05-17), thesanasajid (profile README repo, 2026-05-18), Stanford_Code_In_Place_2026_Section_Leader (2026-05-31), HealthML-Diabetes-Risk-Prediction-System (2026-06-01) and NutriCoach-AI (2026-08-30). The first three were created within about 15 minutes of each other on 2026-05-17 (06:43, 06:47 and 06:57 UTC). Commit history was not inspected.",
+    "quote": "",
+    "source_url": "https://github.com/thesanasajid",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - GitHub account Sana-Sajid97",
+    "fact": "GitHub user 'Sana-Sajid97' (id 241413922) exists and has 6 public repositories as of 2026-10-11: cubic-builders-2025 (created 2025-12-06, last push 2025-12-07), Final-Year-Project (2026-01-16), Diabetes-Prediction-App (2026-02-09, Python), AI-Based-Early-Risk-Prediction-for-Chronic-Diseases (2026-02-11, Python), tre-alzheimers-biomarkers (2026-05-04, Jupyter Notebook) and Professor-outreach-automation (2026-10-09, this outreach tool). None of the first five has a repository description except cubic-builders-2025.",
+    "quote": "",
+    "source_url": "https://github.com/Sana-Sajid97",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - GitHub duplication across two accounts",
+    "fact": "Three repository names appear on BOTH accounts: Final-Year-Project, tre-alzheimers-biomarkers and AI-Based-Early-Risk-Prediction-for-Chronic-Diseases. The thesanasajid copies have descriptions; the Sana-Sajid97 copies have none. Across both accounts every repository has 0 forks. Only two have a star (1 each): cubic-builders-2025 and thesanasajid/Final-Year-Project. A professor who follows a link may see two parallel accounts with duplicate projects.",
+    "quote": "",
+    "source_url": "https://github.com/thesanasajid",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - repo Final-Year-Project (thesanasajid)",
+    "fact": "The repository description calls the final-year project an internship report from Fatima Memorial Hospital (FMH), Lahore. It covers clinical nutrition experience, patient assessments, Medical Nutrition Therapy, diet planning and ward case studies. The API returns the description truncated.",
+    "quote": "Final-Year Project - Internship Report (FMH Lahore) This repository contains my BS Human Nutrition & Dietetics final year internship report completed at Fatima Memorial Hospital, Lahore. It includes clinical nutrition experience, patient assessments, Medical Nutrition Therapy (MNT), diet planning, and case studies from multiple hospital wards.",
+    "source_url": "https://github.com/thesanasajid/Final-Year-Project",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - repo tre-alzheimers-biomarkers (thesanasajid)",
+    "fact": "The description says the project uses ADNI and CDC data. It tests whether 20 TRE-related biomarkers predict Alzheimer's stages as well as a full 351-feature model, and reports a Macro F1 of 0.6858 for the compact set against 0.6734 for the full model. Language: Jupyter Notebook. Also on Sana-Sajid97 (created 2026-05-04), with no description there.",
+    "quote": "This project uses ADNI and CDC data to test whether 20 TRE-related biomarkers can predict Alzheimer's stages as well as a full 351-feature model. The compact feature set performed slightly better (Macro F1: 0.6858 vs 0.6734), showing that key metabolic, cognitive, and brain structure markers retain most diagnostic power.",
+    "source_url": "https://github.com/thesanasajid/tre-alzheimers-biomarkers",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - CHECK: ADNI data in public repos",
+    "fact": "Not verified, so treat this as a check item and not as a finding. The repository files were not readable in this run. ADNI data are generally released under a data use agreement that limits redistribution. That is background knowledge, not checked by search here. The applicant should confirm that both public tre-alzheimers-biomarkers repositories contain only code and aggregate results, with no participant-level ADNI data, and that they acknowledge ADNI as its terms require.",
+    "quote": "",
+    "source_url": "https://github.com/Sana-Sajid97/tre-alzheimers-biomarkers",
+    "confidence": "low",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - repo NutriCoach-AI (thesanasajid)",
+    "fact": "The repository (created 2026-08-30, Python, license 'Other') is described as a bilingual, rule-based Type 2 diabetes nutrition chatbot. The description lists a safety layer, a 'simulated research study', statistical analysis and intent evaluation, which means no real participants were involved.",
+    "quote": "NutriCoach T2D is a bilingual, rule-based AI nutrition chatbot for Type 2 Diabetes support. It provides food guidance, healthy swaps, meal ideas, GI explanations, and visual nutrition tools. The project includes a safety layer, simulated research study, statistical analysis, and intent evaluation, with fully local and privacy-focused operation.",
+    "source_url": "https://github.com/thesanasajid/NutriCoach-AI",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - repo AI-Based-Early-Risk-Prediction-for-Chronic-Diseases (thesanasajid)",
+    "fact": "The repository (Python, about 5 KB) is described as machine-learning risk prediction for diabetes and cardiovascular disorders from routine clinical data. It uses interpretable models (logistic regression, random forest) and sorts people into low, medium and high risk. Its small size suggests only a few files. HealthML-Diabetes-Risk-Prediction-System (about 6 KB) and Stanford_Code_In_Place_2026_Section_Leader have no description.",
+    "quote": "This project uses machine learning to predict early risk of diseases like diabetes and cardiovascular disorders using routine clinical data. It classifies individuals into low, medium, and high risk to support preventive healthcare and early intervention. The system uses interpretable models (Logistic Regression, Random Forest)",
+    "source_url": "https://github.com/thesanasajid/AI-Based-Early-Risk-Prediction-for-Chronic-Diseases",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - repo cubic-builders-2025 (Sana-Sajid97)",
+    "fact": "The hackathon repository was created 2025-12-06 and last pushed 2025-12-07. Its description is generic and does not name the hackathon or the project topic, so no evidence links it to the Healthy Diet Hackathon or to a renal-diet project.",
+    "quote": "Our project for this hackathon focuses on delivering a solution that is practical, user-centric, and built to solve real-world challenges using modern technology.",
+    "source_url": "https://github.com/Sana-Sajid97/cubic-builders-2025",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - Stanford Code in Place 2026",
+    "fact": "Her role as section leader is not publicly verified: there is a GitHub repository named Stanford_Code_In_Place_2026_Section_Leader (created 2026-05-31), but no Stanford page naming her was searched or seen. The official Code in Place site describes the role. The only prerequisite is knowing the first half of CS106A (Python through lists and dictionaries). Section leaders get training, commit at least 2 hours a week for 6 weeks and meet a small section of about 10 students. The 2026 course started in April 2026. A third-party slides repository reports about 1,000 volunteer instructors and 17,000 students from 180+ countries in 2026; that figure is unverified.",
+    "quote": "at least 2 hours each week over the 6 week period ... Class starts April 2026",
+    "source_url": "https://codeinplace.stanford.edu/",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - Code in Place scale (third-party)",
+    "fact": "A third-party GitHub README of section slides (CIP 2023-2026) reports about 1,000 volunteer instructors and 17,000 students from over 180 countries for 2026, with sections of about 15 students over Zoom. This is not an official Stanford figure.",
+    "quote": "Section Slides for CIP 2023-2026.",
+    "source_url": "https://github.com/dwctsai/stanford-code-in-place",
+    "confidence": "low",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - lablab.ai AI Genesis hackathon (Nov 2025)",
+    "fact": "The event is real and very large. The lablab.ai recap says it ran online November 14-19, 2025, with an on-site part on November 18-19 at Festival Arena Dubai, linked to the /function1 conference. It reports about 4,841 participants, 600 teams and 259 AI applications. Partners were Google, AppliedAI and Qdrant, and prizes totalled more than $45,500. Another page gives 4,842 participants, 605 teams and 260 applications. A /function1 page gives conflicting dates (online from October 26, finale November 2-3). Her team's project page was NOT found in this search, so her participation is not publicly verified here.",
+    "quote": "Get ready for AI GENESIS, running November 14-19, 2025, online & onsite live coding",
+    "source_url": "https://lablab.ai/event/ai-genesis",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - Healthy Diet Hackathon / Renal AI Wellness (Dec 2025)",
+    "fact": "Not found. An extended web search for a 'Healthy Diet Hackathon' in December 2025 with a renal AI wellness honorable mention returned no event page, project page or results list. The event may exist but is not indexed, so a professor could not verify it from a quick search. A certificate or project link in her CV or portfolio would be the only evidence.",
+    "quote": "",
+    "source_url": "",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "1 Footprint - CALICO, iCodeGuru webinars, Meta Hacker Cup 2025",
+    "fact": "Not verified. No search was run for these three items because the 14-search budget went to admissions-critical topics. Her participation and what each activity involves (whether it is open-entry or selective) are unknown.",
+    "quote": "",
+    "source_url": "",
+    "confidence": "low",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 University - THE World University Rankings 2026",
+    "fact": "PMAS-Arid Agriculture University Rawalpindi is listed in the 1001-1200 band of the Times Higher Education World University Rankings 2026. Dawn's report on the 56 Pakistani universities in the THE rankings also names it.",
+    "quote": "",
+    "source_url": "https://www.timeshighereducation.com/world-university-rankings/pmas-arid-agriculture-university-rawalpindi",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 University - THE 2026 (news confirmation)",
+    "fact": "Dawn reports that 56 Pakistani universities feature in the THE World University Rankings. The search summary says PMAS-Arid Agriculture University Rawalpindi is named in that report in the same 1001-1200 band.",
+    "quote": "",
+    "source_url": "https://www.dawn.com/news/2034379/56-pakistani-varsities-feature-in-the-world-university-rankings",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 University - QS rankings",
+    "fact": "No overall QS World University Ranking was found for the university. Its QS TopUniversities profile shows a SUBJECT ranking only: #101-150 in the QS World University Rankings by Subject 2026 (the subject was not shown in the result). An aggregator (GoToUniversity) gives conflicting QS subject positions: 301 in Agricultural Sciences and 201-250 in Forestry and Wildlife.",
+    "quote": "",
+    "source_url": "https://www.topuniversities.com/universities/arid-agriculture-university",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 University - US News Best Global Universities",
+    "fact": "US News Best Global Universities lists Arid Agriculture University at #1798 overall and #30 in Pakistan.",
+    "quote": "",
+    "source_url": "https://www.usnews.com/education/best-global-universities/arid-agriculture-university-529662",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 University - HEC recognition",
+    "fact": "uniRank describes Pir Mehr Ali Shah Arid Agriculture University as officially recognized by the Higher Education Commission (HEC) of Pakistan. HEC's own recognized-universities list was not seen in this run. An aggregator claim that HEC ranks it 7th in Pakistan is unconfirmed.",
+    "quote": "",
+    "source_url": "https://www.unirank.org/pk/uni/pir-mehr-ali-shah-arid-agriculture-university/",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 Credential - Pakistani four-year bachelor's equivalency",
+    "fact": "Syracuse University's graduate admissions page treats a four-year bachelor's degree from Pakistan (and the other countries it lists) as equivalent to a U.S. bachelor's degree. Three-year degrees may need an evaluation. The search summary also says Syracuse does not automatically require a WES evaluation. Her 4-year BS (2021-2025) falls in the four-year category.",
+    "quote": "A bachelor's degree requiring four years of study is recognized as equivalent to a U.S. bachelor's degree. Applicants holding three-year degrees from these countries may be required to submit a credential evaluation from an approved agency.",
+    "source_url": "https://www.syracuse.edu/admissions-aid/application-process/international/graduate/equivalence-us-bachelors/",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 Credential - three-year/two-year Pakistani degrees are the problem case",
+    "fact": "Wayne State University warns that some three-year general degrees from Pakistan (and other countries) may not equal a four-year U.S. bachelor's. Pakistan's HEC equates old two-year BA/BSc degrees (14 years of schooling) with today's two-year associate degree. Her four-year BS (16 years of schooling) avoids this problem. It is still worth stating '4-year BS (16 years of education)' explicitly in applications.",
+    "quote": "Some three-year general degrees (from Canada, India, Pakistan, France, Lebanon, etc.) may not be equivalent to a four-year U.S. bachelor's degree.",
+    "source_url": "https://gradschool.wayne.edu/admissions/international",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 Credential - HEC equivalence of two-year degrees",
+    "fact": "HEC's equivalence FAQ says a two-year associate degree from a chartered university is equivalent to the old BA/BSc (14 years of schooling). This is a Pakistani equivalence rule, not a U.S. evaluation.",
+    "quote": "equivalent to generally old BA/BSc (14 years schooling)",
+    "source_url": "https://www.hec.gov.pk/english/services/students/DES/Pages/FAQs/FAQs-Local.aspx",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 Credential - course-by-course evaluation REQUIRED at some schools",
+    "fact": "Wayne State University's Graduate School requires every applicant with a non-U.S. bachelor's degree to submit an official course-by-course evaluation. It accepts reports from WES, ECE and SpanTran (LSAC for LLM applicants only). The quote comes from Wayne State's international admissions pages; the search summary did not say which of its two pages holds it.",
+    "quote": "All applicants with a bachelor's degree from a non-U.S. institution must submit an official course-by-course transcript evaluation of that degree",
+    "source_url": "https://gradschool.wayne.edu/admissions/international-process-transcripts",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 Credential - course-by-course evaluation REQUIRED (Augusta)",
+    "fact": "Augusta University's Graduate School requires a course-by-course evaluation (WES, ECE or others) for all college coursework completed outside the United States.",
+    "quote": "An official course-by-course credential/transcript evaluation is required for all college coursework completed at colleges/universities outside the United States.",
+    "source_url": "https://www.augusta.edu/gradschool/international-applicants.php",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 Credential - NOT required at some schools (UIC)",
+    "fact": "Per the search summary, the University of Illinois Chicago does not require third-party evaluations. It notes that Pakistani institutions often issue a separate mark sheet for each year or semester, and that WES or ECE reports will not be used in place of certified translations. Practical point: she should hold official copies of every semester mark sheet plus the degree.",
+    "quote": "",
+    "source_url": "https://admissions.uic.edu/graduate-professional/requirements-deadlines/international-requirements",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 Credential - nutrition programs seen in wave 1 (Rutgers, UNCG)",
+    "fact": "From wave-1 program records, not re-searched in this run. The Rutgers Nutritional Sciences apply page says transcripts from outside the US, Canada, UK, New Zealand and Australia should be evaluated by WES. UNC Greensboro's Graduate School does not review an application until it receives a NACES course-by-course evaluation, and it advises international applicants to apply at least 30 days before the department deadline. For a Spring 2027 Nov 15 deadline that means about Oct 16, 2026. An evaluation takes time, so it should be ordered early.",
+    "quote": "",
+    "source_url": "https://grs.uncg.edu/international-applicants",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "2 Credential - dietetics (RDN) tracks",
+    "fact": "From a wave-1 record, not re-searched. Montana State's combined MS/Dietetic Internship requires a verification statement from an ACEND-accredited didactic program (DPD), which a Pakistani BS normally does not provide. US RDN-track programs are therefore a poor fit compared with research MS/PhD programs.",
+    "quote": "",
+    "source_url": "https://fdn.montana.edu/fsnk/graduate/dietetics/msdiprogram.html",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 English - TOEFL iBT new 1-6 scale",
+    "fact": "ETS moved the TOEFL iBT to a 1-6 scale in half-point steps for tests from January 21, 2026. Score reports give four section scores and an overall score; the overall is the average of the sections, rounded to the nearest half band. The scale is aligned more closely with CEFR levels. Wave-1 university pages give slightly different cut-over dates (UNC: Jan 26, 2026; Rutgers: Jan 22, 2026), so each school's page should be checked.",
+    "quote": "",
+    "source_url": "https://www.ets.org/toefl/institutions/ibt/score-scale-update.html",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 English - TOEFL transition period and conversions",
+    "fact": "From January 2026 to January 2028, TOEFL score reports show the CEFR level, the 1-6 scores and a comparable 0-120 total. ETS's comparison table maps roughly 6 to 114+, 5.5 to 107+, 5 to 95+, 4.5 to 86+, 4 to 72+ and 3.5 to 58+ (0-120 total). Minor differences between ETS pages were noted for the writing and speaking columns.",
+    "quote": "",
+    "source_url": "https://www.ets.org/toefl/institutions/ibt/score-scale-update.html",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 English - how nutrition programs state new-scale TOEFL minimums (wave 1)",
+    "fact": "From wave-1 program records, not re-searched. UConn accepts iBT 79 or 4.5 on the new scale. UNC Chapel Hill accepts 90 or 5. Ohio State accepts 79 or 4.0. Montana State accepts 80 or 4.2. NC State asks for a new-scale total of 4 with 4 per section. Rutgers lists new-scale section minimums of 4.5, 4.5, 4 and 4.",
+    "quote": "",
+    "source_url": "https://grad.uconn.edu/admissions/requirements/",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 English - Duolingo English Test acceptance",
+    "fact": "From wave-1 program records, not re-searched. The Duolingo English Test is accepted for admission by every nutrition program checked that listed it: UConn 110, UNC Chapel Hill 110, UNC Greensboro 110, NC State 110 (one page says 120), Ohio State 120, Rutgers 120 and Montana State 120. The typical minimum is 110-120. DET acceptance for TEACHING assistantships is narrower (see the TA records).",
+    "quote": "",
+    "source_url": "https://grs.uncg.edu/international-applicants",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 English - IELTS 6.5 vs 7.0 in nutrition programs",
+    "fact": "From the 37 wave-1 program records, 26 have a verified IELTS overall minimum: 17 list 6.5 (UConn, UNC Greensboro, NC State, East Carolina, UAB, Ohio State, UMN Nutrition MS/PhD, Montana State) and 9 list 7.0 (Yale, Rutgers Nutritional Sciences MS/PhD, UNC Chapel Hill MS/PhD, UMN School of Public Health programs, UC Davis campus-wide). IELTS 6.5 meets the published minimum at roughly two-thirds of the programs checked. Montana State's Graduate School warns that most departments set higher scores, especially for assistantship funding.",
+    "quote": "",
+    "source_url": "https://www.montana.edu/gradschool/policy/admissions_intl.html",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 English - score validity",
+    "fact": "From wave-1 records: UNC Chapel Hill and UNC Greensboro accept English scores no more than 2 years old, and UNC does not accept the IELTS One Skill Retake. The date of her IELTS test was not provided. If it is close to 2 years old by the application date, a retake is needed anyway.",
+    "quote": "",
+    "source_url": "https://gradschool.unc.edu/admissions/instructions/",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 English - spoken English rules for TEACHING assistantships (key for GTA funding)",
+    "fact": "Universities set separate, higher spoken-English bars for international students to work as TAs, often well above admission minimums. Examples follow; several pages may be dated. Michigan State: TOEFL speaking 27 (old) or 5.5 (new) or IELTS speaking 8.0; otherwise a score of 50 on the MSU Speaking Test. UConn: TOEFL speaking 27, IELTS speaking 8.0 or PTE speaking 76; intermediate scores need a microteaching test. Baylor: TOEFL speaking 25 or IELTS 7.5; below that, a teaching-in-English course. Nebraska-Lincoln: TOEFL speaking 22 or IELTS speaking 6.5 to enter a 2-week ITA institute; a waiver needs TOEFL 28 or IELTS 8.5. UC San Diego: TOEFL 5.0-6.0 (new iBT), IELTS 8-9 or Duolingo 150-160 clears a student to teach. With IELTS 6.5 overall (subscores unknown), she would probably not clear these bars without a retake or campus test. Graduate RESEARCH assistantships usually have no such speaking requirement, but this was not verified in this run.",
+    "quote": "",
+    "source_url": "https://grad.msu.edu/academics/policies-and-procedures/msu-policy-affecting-international-teaching-assistants",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 English - TA rules: UConn",
+    "fact": "UConn's ITA policy: a TOEFL speaking subscore of 27, IELTS speaking band 8.0 or PTE speaking 76 qualifies a student to teach. Intermediate scores require a microteaching test.",
+    "quote": "",
+    "source_url": "https://ita.uconn.edu/english-proficiency-policy-for-ita/",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 English - TA rules: Florida (USF) - IELTS and Duolingo not accepted",
+    "fact": "USF's International Teaching Assistant Handbook says Florida's state-mandated minimum is a TOEFL iBT speaking score of 5.5 or a TOEIC speaking score of 160, and IELTS, OPI and Duolingo scores are not accepted to demonstrate spoken proficiency. A school-run assessment is open to students with lower TOEFL or TOEIC scores, or with IELTS 6.5+ or Duolingo scores, and must be passed before the teaching appointment starts. At USF, her IELTS alone cannot qualify her to teach; she would need TOEFL or TOEIC speaking scores or a pass on USF's assessment. The rule is state-mandated, but whether every Florida public university applies it the same way was not verified.",
+    "quote": "OPI, IELTS, or Duolingo scores are not accepted for demonstration of English proficiency.",
+    "source_url": "https://www.usf.edu/graduate-studies/funding/graduate-assistantships-resource-center/international-teaching-assistant-handbook.aspx",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 English - TA rules: Arizona State",
+    "fact": "ASU's ITA certification requires a SPEAK score of 55, an IELTS speaking score of 8 or a qualifying TOEFL speaking score. An English-test waiver granted for admission does not carry over to spoken-English certification.",
+    "quote": "The TOEFL waiver offered to students for admission purposes does not extend to spoken English certification.",
+    "source_url": "https://learnenglish.asu.edu/international-teaching-assistant-ita",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 English - TA rules: Minnesota, Iowa State, Baylor, Nebraska, UCSD",
+    "fact": "Minnesota uses TOEFL or IELTS speaking subscores, its own SETTA test or an ITA course, converted to an English Language Proficiency rating that limits teaching duties. Iowa State exempts some native speakers and people with 2 years of US TA experience; others take a speaking course based on their scores. Baylor: TOEFL speaking 25 or IELTS 7.5. Nebraska: TOEFL speaking 22 or IELTS speaking 6.5 to enter its ITA institute. UC San Diego: IELTS 8-9 or Duolingo 150-160, or exemption through a prior English-medium degree.",
+    "quote": "",
+    "source_url": "https://cei.umn.edu/programs/spoken-english-test-teaching-assistants-setta",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 GRE - nutrition programs",
+    "fact": "The GRE is mostly NOT required. All 25 wave-1 nutrition and public-health program records with a verified GRE policy list 'Not required', and none lists 'Required'. In this run, UT Austin's nutrition graduate admissions page says the GRE has been permanently waived. Exception: San Jose State's MS Nutrition Science handbook ranks applicants partly on GRE scores. (Fulbright Pakistan via USEFP requires the GRE, but it is out of scope.)",
+    "quote": "",
+    "source_url": "https://nutrition.utexas.edu/academics/graduate-programs/graduate-program-admissions",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 Visa - social-media vetting for F/M/J applicants (June 2025)",
+    "fact": "In June 2025 the State Department told all F, M and J visa applicants to set every social media account to public. A June 18, 2025 cable told consular officers to carry out comprehensive vetting of online presence. A secondary blog says a March 2026 notice repeats the requirement, so it appears still in force. Implication (not a sourced fact): her public online presence (LinkedIn, GitHub and other accounts) may be reviewed, so it should match her CV and DS-160.",
+    "quote": "All individuals applying for an F, M, or J nonimmigrant visa are requested to adjust the privacy settings on all of their social media accounts to 'public' to facilitate vetting",
+    "source_url": "https://mx.usembassy.gov/student-visa-social-media-vetting/",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 Visa - vetting cable wording (Time)",
+    "fact": "Time reports that the June 18, 2025 cable told consular officers to conduct comprehensive and thorough vetting of online activity. It also says refusing to make accounts public could be read as evasion.",
+    "quote": "could be construed as an effort to evade or hide certain activity",
+    "source_url": "https://time.com/7295949/international-student-visas-colleges-universities-social-media-state-department-trump/",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 Visa - where Pakistani applicants must interview",
+    "fact": "The U.S. Embassy and Consulates in Pakistan visa page tells nonimmigrant applicants to book interviews in their country of residence or nationality. In practice she should plan to interview in Pakistan (Islamabad or Karachi) rather than in a third country.",
+    "quote": "Applicants for U.S. nonimmigrant visas should schedule their visa interview appointments at the U.S. Embassy or Consulate in their country of residence or nationality.",
+    "source_url": "https://pk.usembassy.gov/visas/",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 Visa - interview waivers restricted",
+    "fact": "A secondary source (TrackMyOPT blog) says the State Department has severely restricted interview waivers (dropbox appointments) for nonimmigrant visas in 2026. A first-time F-1 applicant should expect an in-person interview. The official State Department notice on interview waivers was not found in this run.",
+    "quote": "",
+    "source_url": "https://www.trackmyopt.com/blog/f1-visa-interview-waivers-restricted-2026",
+    "confidence": "low",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 Visa - Presidential Proclamation 10998 (39 countries, from Jan 1, 2026)",
+    "fact": "Proclamation 10998, effective January 1, 2026, restricts entry and visa issuance for nationals of 39 countries and for Palestinian Authority travel documents. For the partially restricted tier it partly suspends immigrant visas, B-1/B-2 visas and F, M and J student visas. Pakistan is NOT among the 19 fully suspended countries the State Department named, and it was not among the visible partial-tier names, but the partial list was cut off in the results. Most likely Pakistan is not covered, but this needs a final check on travel.state.gov.",
+    "quote": "partially suspending the issuance of all immigrant visas, nonimmigrant B-1/B-2 visitor visas, and F, M, J student and exchange visitor visas",
+    "source_url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 Visa - immigrant-visa pause list includes Pakistan (not F-1)",
+    "fact": "Search results say Pakistan is on a separate State Department pause list for IMMIGRANT visas (the '75-country visa freeze'), alongside Brazil, Colombia, Egypt, Ghana, Russia, Thailand and Uzbekistan. It is described as welfare-related. The results do not show it covering F or J student visas. The exact source page within the results was not identifiable; this URL is the comparison article in the results.",
+    "quote": "",
+    "source_url": "https://mandamuslawyers.com/39-country-travel-ban-vs-75-country-visa-freeze-comparison/",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 Visa - Islamabad interview cancellations (March 2026)",
+    "fact": "A trade news site (VisaHQ) reported that the U.S. Embassy in Islamabad cancelled all visa interviews from March 9 to 13, 2026, for a security review. This is a single source and unconfirmed. Such disruptions argue for booking a visa appointment as soon as the I-20 arrives, especially for a Spring 2027 (January) start. Current Islamabad and Karachi F-1 wait times were NOT checked.",
+    "quote": "",
+    "source_url": "https://www.visahq.com/news/2026-03-10/us/us-embassy-in-islamabad-cancels-visa-interviews-9-13-march-amid-security-review/",
+    "confidence": "low",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "3 Visa - F-1 'duration of status' change (unconfirmed)",
+    "fact": "A Pakistani education consultancy says DHS ends 'duration of status' for F-1 students from September 15, 2026. Students would get a fixed admit-until date capped at four years, so a 5-year PhD would need an extension. This was NOT confirmed against a DHS, USCIS or Federal Register notice in this run and should be verified before relying on it.",
+    "quote": "",
+    "source_url": "https://www.royalvision.com.pk/new/f1-visa-new-rule-2026/",
+    "confidence": "low",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - Emory Nutrition and Health Sciences",
+    "fact": "Emory's strongest applicants have strong GPAs, letters from people who know their research or work, research interests aligned with Emory faculty, and research experience. Students are admitted by the program, not by individual faculty, and choose mentors in year 2 after three rotations. At rotation-model programs, cold-emailing for a guaranteed advisor matters less than the application itself.",
+    "quote": "strong GPAs, great letters of recommendation from people who know their research and/or work abilities, research interests that align well with Emory faculty, and research experience",
+    "source_url": "https://nutrition.emory.edu/admissions/index.html",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - Emory admission model",
+    "fact": "Emory admits students to the program, not to individual faculty labs. Mentors are chosen in the second year after three research rotations.",
+    "quote": "students are admitted by the program and NOT by individual faculty. Our students select their mentors during their second year after doing three research rotations.",
+    "source_url": "https://nutrition.emory.edu/admissions/index.html",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - San Jose State MS Nutrition Science criteria",
+    "fact": "San Jose State's MS Nutrition Science handbook ranks applicants on overall GPA, core science GPA, GRE scores, letter of intent, letters of recommendation, and research or professional experience.",
+    "quote": "",
+    "source_url": "https://www.sjsu.edu/nufspkg/docs/graduate-program/graduate-handbook.pdf",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - statement should name research interests and faculty (UT Austin)",
+    "fact": "UT Austin's nutrition graduate admissions page asks applicants to name their research interests and/or the faculty they want to work with, and says the GRE has been permanently waived.",
+    "quote": "mention your research interests and/or faculty with whom you wish to work",
+    "source_url": "https://nutrition.utexas.edu/academics/graduate-programs/graduate-program-admissions",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - PhD statement names desired advisor (TWU)",
+    "fact": "The PhD in Nutrition page at twu.edu (Texas Woman's University) asks for a statement explaining study and research interests, including the desired advisor. The search summary labelled this 'Texas Tech', but the URL is TWU.",
+    "quote": "explanation of study and research interests (including desired advisor)",
+    "source_url": "https://twu.edu/nutrition-food-sciences/graduate-programs/phd-in-nutrition/",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - contact faculty; admission limited by funding (NC State)",
+    "fact": "NC State's nutrition graduate page recommends contacting faculty whose research interests the applicant. It says admission is limited by faculty time and financial resources, so funded places depend on a faculty member having money and room.",
+    "quote": "admission to the program is limited by faculty time commitments and financial resources",
+    "source_url": "https://cals.ncsu.edu/food-bioprocessing-and-nutrition-sciences/students/graduate/nutrition-science/",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - admission depends on an individual professor's space (LSU)",
+    "fact": "LSU's School of Nutrition and Food Sciences PhD page says admission depends on space in an individual professor's program. This is a mentor-based model, where contact with a professor before applying matters.",
+    "quote": "admission depends upon the availability of space in the program of each individual professor",
+    "source_url": "https://www.lsu.edu/agriculture/nfs/programs/doctorate.php",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - community-nutrition RA posting (Utah State, hosted on byu.edu)",
+    "fact": "A Utah State community nutrition research-assistant recruitment posting requires a bachelor's degree and a 3.5 GPA in the last 60 credit hours. It asks for interest in public or community nutrition research and prefers experience in quantitative survey research, qualitative data collection or analysis, journal-article writing, scientific reports, grant proposals and literature reviews. The posting date was not shown.",
+    "quote": "Required Qualifications: Bachelor's Degree from an accredited university; Must have a 3.5 GPA in the last 60 credit hours; Previous experience with (or knowledge of): conducting quantitative survey research, conducting qualitative data collection and/or analysis, writing academic journal articles",
+    "source_url": "https://ndfs.byu.edu/00000176-fc7b-de6c-aff7-feff4ab90002/usu-pdrf-recruitment",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - statistics software is core (Loma Linda PhD Nutrition)",
+    "fact": "Loma Linda University's PhD in Nutrition requires statistics coursework in SAS and R or in SPSS. Applied statistics in these packages is a standard expectation of nutrition doctoral training.",
+    "quote": "STAT 548 Analytical Applications of SAS and R, or STAT 549 Analytical Applications of SPSS",
+    "source_url": "https://publichealth.llu.edu/academics/doctor-philosophy-phd/phd-nutrition",
+    "confidence": "high",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - GRA job description: statistical software",
+    "fact": "Kean University's general graduate research assistant job description asks for proficiency in statistical software (SPSS, R, SAS) or qualitative analysis tools. Prior research experience is preferred but not required. The posting is not nutrition-specific.",
+    "quote": "proficiency in using statistical software (e.g., SPSS, R, SAS) or qualitative analysis tools",
+    "source_url": "https://www.kean.edu/division-academic-affairs/graduate-assistantship-program/graduate-research-assistant-job",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - GRA posting: SPSS and R (UW, 2020)",
+    "fact": "A 2020 University of Washington graduate research assistant posting (not nutrition) lists experience with statistical analysis and data management, particularly in SPSS and R.",
+    "quote": "experience with statistical analyses and data management (particularly SPSS and R)",
+    "source_url": "https://sites.uw.edu/gfis/2020/04/27/uw-cerse-graduate-research-assistant/",
+    "confidence": "low",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - publications/posters",
+    "fact": "No .edu source in this run explicitly required publications or posters for nutrition RA or graduate admission. The closest signals are research experience (Emory, San Jose State) and preferred journal-article and report writing (the Utah State RA posting). A first-author abstract, poster or preprint would directly answer these 'research experience' criteria.",
+    "quote": "",
+    "source_url": "https://nutrition.emory.edu/admissions/index.html",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - PhD vs MS entry",
+    "fact": "From a wave-1 record, not re-searched. Montana State's Exercise and Nutrition Sciences PhD notes that applicants typically have a related master's degree. It also strongly encourages contacting potential mentors before applying. For a BS-only applicant, a funded thesis MS can be the more realistic entry point at some schools.",
+    "quote": "",
+    "source_url": "https://www.montana.edu/fsnk/graduate/exerciseandnutritionsciencesphd/index.html",
+    "confidence": "medium",
+    "date_checked": "2026-10-11"
+  },
+  {
+    "topic": "4 Programs look for - academic CV format",
+    "fact": "Not verified. No search was run for official .edu CV-format guidance because of the search budget.",
+    "quote": "",
+    "source_url": "",
+    "confidence": "low",
+    "date_checked": "2026-10-11"
+  }
+]

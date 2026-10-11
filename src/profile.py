@@ -217,7 +217,7 @@ def parse_profile(pages: list[str], links: list[str], source_name: str = "", tod
         ],
         "evidence": [],
         "signature_lines": [],
-        "email_preferences": {"greeting": "Dear Dr. {last_name},", "max_words": 230, "mention_cv_attached": True},
+        "email_preferences": {"greeting": "Dear Dr. {last_name},", "max_words": 220, "mention_cv_attached": True},
         "warnings": [],
     }
 
