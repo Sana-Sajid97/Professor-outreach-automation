@@ -100,3 +100,15 @@ These are the agents' own summaries. Check the facts in the raw files and on off
     - Kruskall is a dietetic internship director; the UNLV clinical nutrition MS subplan is on hold.
     - Chavira-Mendoza is a "College Assistant Professor", likely teaching-track, so she may not be able to advise a thesis.
   - Nobody was found to have moved.
+- **w4-c (more funded programs):**
+  - New funded options:
+    - **Memphis MS** (full tuition, fees, insurance and stipend; Apr 1)
+    - **Baylor PhD ENS** ($30k plus tuition; BS accepted; **Oct 15 priority**, then Feb 1; mentor required: April Stull)
+    - **FIU PhD** (stipend, waiver and insurance; Feb 15; ask whether a master's or GRE is needed)
+    - **Cincinnati MS** (Mar 1; Seung-Yeon Lee, food insecurity)
+    - **Louisville PhD Public Health Sciences** (full package; Mar 1; David Johnson, food security)
+  - Not a fit:
+    - TWU and IU PhDs require a master's.
+    - Case Western needs IELTS 7.0 (fully funded at $39k).
+    - Iowa Epidemiology needs 7.0 and gives partial tuition only.
+    - SLU looks self-funded.

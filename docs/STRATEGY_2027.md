@@ -23,6 +23,9 @@
 | UConn (CT) | Health Promotion Sciences PhD | "All HPS PhD students are fully funded" | About Dec 1 | IELTS 6.5 |
 | Univ. of Georgia (GA) | Foods & Nutrition PhD | Apply by Dec 10 for full funding consideration | Dec 10 | IELTS 6.5, no band below 6.0 |
 | UIUC (IL) | Nutritional Sciences (DNS) | Assistantships, fellowships; faculty RA route | Dec 15 (for funding) | 6.5 = *limited status* (7.5 for full) |
+| **Baylor (TX)** | PhD Exercise & Nutrition Sciences (BS accepted, minimum GPA 3.50) | $30,000 stipend plus a tuition scholarship; a faculty mentor is required (April Stull: functional foods for prediabetes) | **Oct 15 priority** (older page; check now), then Feb 1 | IELTS 6.5 |
+| FIU (FL) | PhD Dietetics & Nutrition | A 20 hours/week assistantship gives a stipend, tuition waiver and insurance. Sources conflict on whether a master's is needed and on the GRE, so ask the PhD director (Coccia). | Feb 15 | IELTS 6.5 |
+| Louisville (KY) | PhD Public Health Sciences (no nutrition degree; food-security faculty) | Every assistantship includes a stipend, insurance and full tuition | Mar 1 | IELTS 6.5 |
 
 ## 2. Tier B: funded thesis-MS / PhD through assistantships (Jan–May deadlines)
 | University (state) | Funding evidence (summarised) | Deadline (confirm) | English |
@@ -46,6 +49,8 @@
 | Auburn (AL): Nutrition MS/PhD | Assistantships (often 25% time) | Mar 1 (rolling) | IELTS 6.5 |
 | Kentucky (KY): Dietetics & Human Nutrition MS / Nutritional Sciences PhD | MS: stipend and scholarship (Mar 1); PhD: apply for assistantships after admission | Mar 1 (MS); Apr 15 (PhD, international) | PhD IELTS 6.5 |
 | Buffalo (NY): Nutrition MS | Assistantships "may" provide a stipend and tuition scholarship | Mar 15 | IELTS 6.5 |
+| **Memphis (TN): MS Nutrition (Nutrition Science track, thesis)** | A full-time assistantship covers full tuition, fees, health insurance and a stipend | Apr 1 (international) | IELTS 6.5 |
+| Cincinnati (OH): MS Nutrition Sciences | Assistantships give a partial or full tuition scholarship plus a stipend (food insecurity: Seung-Yeon Lee) | Mar 1 (international and assistantships) | IELTS 6.5 |
 | LSU (LA): Nutrition & Food Sciences | GA: full tuition waiver and $23,000 for 9 months (fees not waived) | May 1 (international; department says March) | IELTS 6.5 |
 | Utah State (UT): NDFS MS/PhD | "All students typically receive some kind of assistantship" | Rolling | IELTS 6.5 |
 | Clemson (SC): FNPS MS/PhD | GRA awarded directly by PIs | Rolling | IELTS 6.5 |
@@ -76,7 +81,7 @@ Also note: **federal SNAP-Ed funding ended on 30 Sep 2025.** Many community-nutr
 - UConn, UMass, Buffalo (closed for F-1 applicants), URI, NC State, Tennessee, Kentucky, Kansas State, KUMC, Oklahoma State, LSU, Arkansas, Virginia Tech and Georgia: all passed.
 
 ## 4. Not realistic at IELTS 6.5 (unless you retake: 7.0+ overall)
-UNC Chapel Hill, UC Davis, UC Berkeley, UCLA, UC Irvine, University of Washington, University of Arizona, Hawaii PhD, Cornell, Harvard Chan, Tufts Friedman, Yale, Rutgers, Maryland, Johns Hopkins (also needs work experience), Delaware PhD, UVM (funded assistantships need TOEFL 100 or IELTS 7.0) and UW–Madison. A higher score would bring these back.
+UNC Chapel Hill, Case Western (fully funded at $39,000, but needs IELTS 7.0), UC Davis, UC Berkeley, UCLA, UC Irvine, University of Washington, University of Arizona, Hawaii PhD, Cornell, Harvard Chan, Tufts Friedman, Yale, Rutgers, Maryland, Johns Hopkins (also needs work experience), Delaware PhD, UVM (funded assistantships need TOEFL 100 or IELTS 7.0) and UW–Madison. A higher score would bring these back.
 
 **Do not cold-email:** University of Minnesota Nutrition faculty. The department discourages contact before the second review round, and the tool blocks these drafts.
 

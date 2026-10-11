@@ -28,6 +28,9 @@
   - **New Mexico State:** spring I-20 deadline Dec 21.
 - **Decision:** spend about one week emailing these professors. If no funded offer appears by about **Nov 10**, put all effort into Fall 2027, which has far more fully funded options (Texas A&M, Penn State, Ohio State, Purdue, Emory, Michigan, ASU, Oregon State, UMass, UConn and others).
 
+## 🟠 3b. A Fall 2027 deadline in 4 days
+- **Baylor PhD in Exercise & Nutrition Sciences:** a $30,000 stipend plus tuition, open to bachelor's applicants, IELTS 6.5. It shows an **Oct 15 priority deadline** (from an older page; the other date is Feb 1). Check the official page today. If the date is real, email April Stull (functional foods for prediabetes) now, since a faculty mentor is required.
+
 ## 🟠 4. English test (affects admission AND funding)
 - IELTS 6.5 meets many programs' minimums, but:
   - several strong programs require 7.0;
