@@ -284,7 +284,17 @@ def print_summary(report: PipelineReport, print_fn=print) -> None:
     print_fn("Next: open exports\\review_latest.html, check each email, then run:  python -m src.cli approve")
 
 
+def _safe_console() -> None:
+    """Never crash on names with unusual letters when the Windows console uses an old code page."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(errors="replace")
+        except (AttributeError, ValueError):
+            pass
+
+
 def main(argv: list[str] | None = None) -> int:
+    _safe_console()
     parser = argparse.ArgumentParser(
         prog="python -m src.run_pipeline",
         description="One-click run: validate, deduplicate, score and draft emails. Never sends email.",

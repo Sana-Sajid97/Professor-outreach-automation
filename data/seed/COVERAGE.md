@@ -1,11 +1,11 @@
 # Research coverage
 
-Built 2026-10-11 from 89 raw professor records and 144 raw program records.
+Built 2026-10-11 from 100 raw professor records and 144 raw program records.
 
-- Professor leads: **72** (all `needs_verification`)
+- Professor leads: **78** (all `needs_verification`)
 - Programs: **143**
 - Leads with an email seen in search results (still to be confirmed on the official page): 8
-- Leads with a recent publication recorded: 13
+- Leads with a recent publication recorded: 20
 - Duplicates merged: 0
 
 | State | Professors | Programs |
@@ -19,8 +19,8 @@ Built 2026-10-11 from 89 raw professor records and 144 raw program records.
 | CT | 3 | 4 |
 | DE | 0 | 2 |
 | DC | 2 | 1 |
-| FL | 1 | 2 |
-| GA | 2 | 2 |
+| FL | 3 | 2 |
+| GA | 6 | 2 |
 | HI | 1 | 2 |
 | ID | 1 | 1 |
 | IL | 1 | 6 |

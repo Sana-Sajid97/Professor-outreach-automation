@@ -441,7 +441,8 @@ def cmd_programs(settings: Settings, args) -> int:
     rows = []
     for p in programs:
         text = f"{p.get('spring_2027_deadline', '')} {p.get('fall_2027_deadline', '')} {p.get('assistantship_deadline', '')}"
-        upcoming = [d for d in find_dates(text) if d >= today]
+        checked = p.get("date_checked", "")
+        upcoming = [d for d in find_dates(text) if d >= today and d.isoformat() != checked]  # ignore "checked on <date>" notes
         rows.append((min(upcoming) if upcoming else date.max, p))
     rows.sort(key=lambda t: t[0])
     for when, p in rows[: args.limit]:
@@ -610,7 +611,17 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _safe_console() -> None:
+    """Never crash on names with unusual letters when the Windows console uses an old code page."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(errors="replace")
+        except (AttributeError, ValueError):
+            pass
+
+
 def main(argv: list[str] | None = None) -> int:
+    _safe_console()
     parser = build_parser()
     args = parser.parse_args(argv)
     if not getattr(args, "func", None):
