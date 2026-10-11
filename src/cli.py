@@ -493,6 +493,40 @@ def cmd_check_funding(settings: Settings, args) -> int:
     return 0
 
 
+def cmd_preview(settings: Settings, args) -> int:
+    """Preview emails for top UNVERIFIED leads without changing anything (nothing can be sent from it)."""
+    from .drafting import build_draft
+    from .review import write_review_page
+    from .scoring import apply_scores
+    from .suppression import SuppressionList
+    from .validate import contact_discouraged
+
+    records = _load(settings)
+    profile = _profile(settings)
+    today = date.today()
+    apply_scores(records, profile, today)
+    suppression = SuppressionList.load(settings.suppression_path)
+    pool = [
+        r for r in records
+        if r.get("workflow_status") in {m.DISCOVERED, m.NEEDS_VERIFICATION, m.VERIFIED}
+        and not suppression.is_suppressed(r) and not contact_discouraged(r)
+    ]
+    pool.sort(key=lambda r: -float(r.get("fit_score") or 0))
+    previews = []
+    for r in pool[: args.limit]:
+        copy = dict(r)
+        draft = build_draft(copy, profile, today)
+        copy["email_subject"] = "[PREVIEW - VERIFY FIRST] " + draft.subject
+        copy["email_draft"] = draft.body
+        copy["workflow_status"] = "preview_only"
+        previews.append(copy)
+    path = write_review_page(previews, settings.exports_dir / "preview_latest.html", "PREVIEW ONLY - not verified, do not send", today)
+    print(f"Preview of {len(previews)} email(s): {path}")
+    print("These professors are NOT verified yet. Nothing was saved and nothing can be sent from the preview.")
+    print("Next: python -m src.cli verify   (on your own PC), then run the pipeline to create real drafts.")
+    return 0
+
+
 # ----------------------------------------------------------------------------- parser
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="python -m src.cli", description="Professor outreach assistant (drafts only by default; never sends without your approval).")
@@ -535,6 +569,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--limit", type=int, default=30)
     sp.add_argument("--force", action="store_true", help="rewrite existing drafts (clears approval)")
     add("review", cmd_review, "make the HTML review page (exports/review_latest.html)")
+    sp = add("preview", cmd_preview, "preview emails for the best UNVERIFIED leads (read-only; nothing is saved or sent)")
+    sp.add_argument("--limit", type=int, default=20)
     sp = add("approve", cmd_approve, "read each draft and approve it by typing 'yes'")
     sp.add_argument("--ids")
     sp = add("send", cmd_send, "send approved emails (manual outbox by default; never automatic)")

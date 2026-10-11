@@ -26,7 +26,7 @@ SHORT_TOPIC = {
     "community_nutrition": "community nutrition",
     "food_insecurity": "food insecurity",
     "maternal_nutrition": "maternal nutrition",
-    "diabetes_metabolic": "diabetes and metabolic health",
+    "diabetes_metabolic": "diabetes prevention",
     "childhood_obesity": "childhood obesity",
     "clinical_nutrition": "clinical nutrition",
     "nutrition_epidemiology": "nutrition epidemiology",
@@ -118,7 +118,8 @@ def research_focus(record: dict, applicant_topics: set[str]) -> tuple[str, list[
     scored.sort()
     chosen = [s for s in scored if s[0] < 2][:2] or scored[:1]
     chosen.sort(key=lambda s: s[1])
-    phrases = [_lower_first(s[2].rstrip(".")) for s in chosen]
+    phrases = [_lower_first(_tidy_phrase(s[2])) for s in chosen]
+    phrases = [p for p in phrases if p]
     if len(phrases) == 2 and len(phrases[0]) + len(phrases[1]) > 150:
         phrases = phrases[:1]
     topics: list[str] = []
@@ -126,16 +127,28 @@ def research_focus(record: dict, applicant_topics: set[str]) -> tuple[str, list[
         for t in s[3]:
             if t not in topics:
                 topics.append(t)
-    return " and ".join(phrases), topics
+    if len(phrases) == 2:
+        joiner = ", as well as " if (" and " in phrases[0] or " and " in phrases[1]) else " and "
+        return phrases[0] + joiner + phrases[1], topics
+    return (phrases[0] if phrases else ""), topics
 
 
 def _lower_first(text: str) -> str:
     if not text:
         return text
-    first = text.split()[0]
+    words = text.split()
+    first = words[0]
     if first.isupper() or (len(first) > 1 and any(c.isupper() for c in first[1:])):
-        return text  # acronym or proper noun such as "SNAP" or "WIC"
+        return text  # acronym or brand such as "SNAP" or "mHealth"
+    if len(words) > 1 and words[1][:1].isupper():
+        return text  # proper noun such as "Head Start" or "Native American"
     return text[0].lower() + text[1:]
+
+
+def _tidy_phrase(text: str) -> str:
+    """Drop parenthetical lists and stray spaces from a research phrase."""
+    text = re.sub(r"\s*\([^)]*\)", "", text)
+    return re.sub(r"\s+", " ", text).strip(" ,;.")
 
 
 def order_topics(topics: list[str], research_text: str) -> list[str]:
@@ -161,6 +174,7 @@ def _publication(record: dict, today: date) -> tuple[str, str]:
     """(year, title) of the most recent relevant publication recorded, or ('', '')."""
     for n in (1, 2):
         title = clean(record.get(f"relevant_publication_{n}")).rstrip(".")
+        title = title.replace("\u201c", "\u2018").replace("\u201d", "\u2019").replace('"', "'")
         year_text = clean(record.get(f"publication_{n}_year"))
         try:
             year = int(year_text[:4]) if year_text else None
@@ -226,8 +240,19 @@ def choose_evidence(profile: dict, professor_topics: list[str]) -> list[dict]:
             if item not in chosen and set(item.get("topics", {})) != first_topics:
                 chosen.append(item)
                 break
-    if not chosen and ml_items:
-        chosen.append(dict(ml_items[0]))
+    if not chosen:
+        # No CV line matches this professor's topics: use the strongest general nutrition experience,
+        # then quantitative skills.
+        general = sorted(
+            [e for e in pool if e.get("topics", {}).get("clinical_nutrition") == "strong" or e.get("topics", {}).get("community_nutrition") == "strong"],
+            key=lambda e: (-int(e.get("priority", 1)), e.get("id", "")),
+        )
+        if general:
+            chosen.append(general[0])
+        if ml_items and (len(chosen) < 2):
+            item = dict(ml_items[0])
+            item["_quant"] = bool(chosen)
+            chosen.append(item)
     return chosen[:2]
 
 
@@ -297,6 +322,9 @@ def build_draft(record: dict, profile: dict, today: date) -> Draft:
         focus_topics or record_topics or list(match_topics(record.get("research_interests", ""))),
         clean(record.get("research_interests")),
     )
+    pub_topics = match_topics(" ".join(clean(record.get(f"relevant_publication_{n}")) for n in (1, 2)))
+    if "ai_ml" in pub_topics and pub_topics["ai_ml"].is_strong and "ai_ml" not in professor_topics:
+        professor_topics.append("ai_ml")  # their own recent paper uses data-science methods
     if not focus:
         warnings.append("No research interests to quote; the email will be generic. Add research_interests first.")
         focus = "nutrition"
@@ -315,11 +343,13 @@ def build_draft(record: dict, profile: dict, today: date) -> Draft:
     else:
         intro = f"My name is {name}, and I recently completed a {degree_short} at {place}."
     if v == 0:
-        interest = f"I am writing because your research on {focus} closely aligns with my interest in {interest_phrase}."
+        focus_text = f"{focus}," if ", as well as " in focus else focus
+        interest = f"I am writing because your research on {focus_text} closely aligns with my interest in {interest_phrase}."
         if pub:
             interest += f" {paper[0].upper() + paper[1:]} is especially relevant to the questions I hope to study."
     else:
-        interest = f"I am reaching out because your work on {focus} matches the research I hope to pursue in graduate school, particularly in {interest_phrase}."
+        focus_text = f"{focus}," if ", as well as " in focus else focus
+        interest = f"I am reaching out because your work on {focus_text} matches the research I hope to pursue in graduate school, particularly in {interest_phrase}."
         if pub:
             interest += f" I noticed {paper} which is closely related to the questions I hope to study."
     personal = collapse_spaces(record.get("personal_note", ""))

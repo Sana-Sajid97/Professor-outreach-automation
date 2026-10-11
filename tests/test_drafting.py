@@ -95,3 +95,16 @@ def test_draft_hash_changes_with_text(record):
     assert h == draft_hash(dict(rec))
     assert h != draft_hash(dict(rec, email_draft="B changed"))
     assert h != draft_hash(dict(rec, institutional_email="other@testing.edu"))
+
+
+def test_ml_paper_makes_ml_evidence_lead(profile, today):
+    rec = make_record(research_interests="gestational diabetes biomarkers", relevant_publication_1="A machine learning framework for glucose responses")
+    background = build_draft(rec, profile, today).body.split("\n\n")[2]
+    assert "ML model" in background.split(".")[1]
+
+
+def test_research_phrases_are_tidied(profile, today):
+    rec = make_record(research_interests="Head Start obesity prevention; whole-food trials (lentils, beef, berries)")
+    body = build_draft(rec, profile, today).body
+    assert "Head Start obesity prevention" in body  # proper noun kept
+    assert "(lentils" not in body  # parenthetical list removed

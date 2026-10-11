@@ -246,3 +246,15 @@ def test_cache_avoids_second_request(tmp_path):
     calls = len(session.calls)
     again = client.get("https://c.edu/p")
     assert again.from_cache and len(session.calls) == calls
+
+
+def test_list_like_cv_lines_are_held_back():
+    text = """
+  PROJECT
+     ●     Assessed patients, symptoms, gave diet plans, took follow-ups, and responses for COPD, diabetes, hypertension, pregnancy, diabetes.
+     ●     Provided nutrition counseling for underserved patients.
+"""
+    profile = parse_profile([text], [], "cv.txt")
+    flags = {e["text"][:8]: (e["use_in_emails"], e["needs_rewrite"]) for e in profile["evidence"]}
+    assert flags["Assessed"] == (False, True)
+    assert flags["Provided"] == (True, False)

@@ -397,6 +397,8 @@ def extract_evidence(pages: list[str]) -> list[dict]:
         matches = match_topics(topic_text)
         topics = {k: ("strong" if m.is_strong else "weak") for k, m in matches.items()}
         section_key = collapse_spaces(item["section"]).lower()
+        sentence = first_person(text)
+        needs_rewrite = bool(sentence) and _reads_badly(sentence)
         evidence.append(
             {
                 "id": f"E{len(evidence) + 1:02d}",
@@ -404,13 +406,23 @@ def extract_evidence(pages: list[str]) -> list[dict]:
                 "section": item["section"],
                 "context": item.get("context", ""),
                 "text": text,
-                "email_sentence": first_person(text),
+                "email_sentence": sentence,
                 "topics": topics,
                 "priority": SECTION_PRIORITY.get(section_key, 1),
-                "use_in_emails": True,
+                "use_in_emails": not needs_rewrite,
+                "needs_rewrite": needs_rewrite,
             }
         )
     return evidence
+
+
+def _reads_badly(sentence: str) -> bool:
+    """Long comma lists, 'etc.' or a repeated word read badly in an email; such lines need a human rewrite first."""
+    lowered = sentence.lower()
+    if "etc." in lowered or sentence.count(",") >= 6:
+        return True
+    words = [w for w in re.findall(r"[a-z]{5,}", lowered)]
+    return len(words) != len(set(words)) and any(words.count(w) > 1 for w in set(words) if w not in {"nutrition", "patients", "students"})
 
 
 # ---------------------------------------------------------------- save / load
@@ -495,11 +507,17 @@ def summarize_profile(profile: dict) -> str:
         f"English:     {(profile.get('english_test') or {}).get('type', '')} {(profile.get('english_test') or {}).get('overall', '(not found)')}",
         f"Coursework:  {', '.join(profile.get('coursework', [])) or '(not found)'}",
         f"Evidence:    {len(profile.get('evidence', []))} experience statements "
-        f"({sum(1 for e in profile.get('evidence', []) if e.get('email_sentence'))} usable in emails)",
+        f"({sum(1 for e in profile.get('evidence', []) if e.get('email_sentence') and e.get('use_in_emails', True))} usable in emails)",
     ]
     strengths = profile_topic_strength(profile)
     if strengths:
         lines.append("Topics your CV supports: " + ", ".join(f"{k} ({v})" for k, v in sorted(strengths.items())))
+    rewrite = [e["id"] for e in profile.get("evidence", []) if e.get("needs_rewrite")]
+    if rewrite:
+        lines.append(
+            f"NOTE: {len(rewrite)} sentence(s) read like long lists ({', '.join(rewrite)}). They are kept out of emails until you "
+            "rewrite 'email_sentence' in profile.json and set \"use_in_emails\": true."
+        )
     for w in profile.get("warnings", []):
         lines.append("WARNING: " + w)
     return "\n".join(lines)

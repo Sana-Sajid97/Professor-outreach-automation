@@ -304,3 +304,20 @@ def test_saving_while_file_locked_gives_clear_message(tmp_path, monkeypatch):
     monkeypatch.setattr(os, "replace", locked)
     with pytest.raises(UserFacingError, match="Excel"):
         save_records(path, [rec])
+
+
+def test_preview_is_read_only(tmp_path, monkeypatch, profile):
+    from src import cli
+    from src.config import load_settings
+
+    shutil.copytree(ROOT / "data" / "sample", tmp_path / "data" / "sample")
+    monkeypatch.setenv("OUTREACH_ROOT", str(tmp_path))
+    settings = load_settings()
+    settings.ensure_folders()
+    write_profile(settings, profile)
+    assert cli.main(["init", "--sample"]) == 0
+    before = settings.tracker_path.read_bytes()
+    assert cli.main(["preview", "--limit", "3"]) == 0
+    assert settings.tracker_path.read_bytes() == before  # nothing saved
+    page = (settings.exports_dir / "preview_latest.html").read_text(encoding="utf-8")
+    assert "PREVIEW" in page and "mail.google.com" not in page  # no send buttons on a preview

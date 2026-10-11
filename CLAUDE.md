@@ -5,6 +5,13 @@ Build a reliable, beginner-friendly US graduate admissions research and professo
 ## Objective
 Support an applicant with a BS in Human Nutrition and Dietetics, CGPA 3.85/4.00, and interests in public/community nutrition, food insecurity, maternal/pregnancy nutrition, diabetes/metabolic health, childhood obesity, clinical nutrition, nutrition epidemiology, and AI/ML as a supporting quantitative method. Prioritize Spring 2027 and also research Fall 2027.
 
+**Clarified goals (11 Oct 2026, from the applicant's family):**
+- Funding must come **only** from an **assistantship**: a research assistantship (GRA/RA), graduate assistantship (GA) or teaching assistantship (GTA/TA) with a stipend and tuition waiver.
+- External or generic scholarships are **not** targeted.
+- **Spring 2027 and Fall 2027 are equally important.**
+- Every US state counts, and **any university** counts, not only top-ranked ones.
+- Prioritise professors with grant funding and programs that fund international (F-1) students and accept IELTS 6.5.
+
 ## Rules
 1. Read README.md, prompt.md, ONE_CLICK_SPEC.md, WORKFLOW.md, SAFETY_AND_PRIVACY.md, and professors_template.csv from the repository root before coding.
 2. Inspect the repository, propose a short phased plan, then implement Phase 1.

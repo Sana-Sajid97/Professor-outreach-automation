@@ -1,0 +1,6 @@
+# Core packages (pure Python, install cleanly on Windows, macOS and Linux)
+openpyxl>=3.1,<4        # Excel export/import
+pypdf>=4.0,<7           # read your CV/portfolio PDF (layout mode needs 4.0+)
+requests>=2.31,<3       # polite web access for verification (on your own PC)
+beautifulsoup4>=4.12,<5 # read faculty web pages
+pytest>=8,<10           # run the tests: python -m pytest
