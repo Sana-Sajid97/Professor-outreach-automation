@@ -31,3 +31,13 @@ These are the agents' own summaries. Check the facts in the raw files and on off
     - **Biruete (Purdue):** kidney and clinical nutrition
   - Also strong: Bruening (Penn State; NIH/USDA/CDC/HRSA funding) and Petersen (Penn State; trial NCT05071807).
   - Michigan IELTS: department pages cite a Rackham minimum of 6.5 (not confirmed on Rackham's own page). Purdue's deadline is still unverified.
+- **w3-d (Oregon State, ASU, Utah State, Colorado State, WSU, Idaho):** 21 records.
+  - New faculty: Emily Ho (OSU); Vega-López, Johnston, Sweazea and Whisner (ASU); Savoie-Roskos and Wengreen (USU); Monsivais and Amram (WSU).
+  - Top fits:
+    - **Stotz (CSU):** diabetes nutrition-education trials and food insecurity in GDM prevention; NIH K01DK128023 and ADA funding.
+    - **Ohri-Vachaspati (ASU):** school meals and child food insecurity.
+    - **Vega-López (ASU):** diabetes risk reduction for low-income Hispanic women.
+    - **Johnston (ASU):** vinegar and glucose control; matches Cinnamon Bites.
+    - **Atoloye (USU):** SNAP and food access; USU has rolling admission, so it is the realistic **Spring** option.
+  - **SNAP-Ed ended Sep 30, 2025**, which may affect positions it funded.
+  - The WSU NEP PhD admits for fall only (Jan 31); whether a master's is required is unclear.

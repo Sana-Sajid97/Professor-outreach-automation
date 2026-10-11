@@ -1,10 +1,10 @@
 {
  "agent": "w4-c",
- "updated_at": "2026-10-11T08:47:21Z",
- "professors": 1,
- "programs": 3,
- "searches_used": 5,
+ "updated_at": "2026-10-11T08:48:29Z",
+ "professors": 5,
+ "programs": 4,
+ "searches_used": 7,
  "search_budget": 24,
- "now_working_on": "CWRU done (IELTS 7.0); starting University of Cincinnati",
+ "now_working_on": "Cincinnati done; starting Saint Louis University",
  "done": false
 }
