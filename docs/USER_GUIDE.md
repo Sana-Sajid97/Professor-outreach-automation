@@ -24,12 +24,13 @@
 2. **Run the pipeline** (`4_run_pipeline.bat`). The review page opens in your browser.
 3. **Review each draft properly:**
    - Click the profile link. Check the name, title and email.
-   - Read the **abstract** of the paper the email mentions. If you have something genuine to say about it, add one sentence in the `personal_note` column of the tracker, then run `outreach draft --ids R0012 --force`.
+   - Read the **abstract** of the paper the email mentions. If you have something genuine to say about it, add it as one sentence with `outreach set --id R0012 --field personal_note --value "Your sentence."`, then run `outreach draft --ids R0012 --force`.
+   - Check that the research topic named in the email matches the official profile. If the recorded interests are wrong, fix them with `outreach set --id R0012 --field research_interests --value "..."` and redraft.
    - Check that the program and intake (Spring or Fall 2027) are right.
 4. **Approve** (`5_approve_drafts.bat`). Type `yes` only for emails you would sign your name to.
 5. **Send from Gmail.** Use the **Open in Gmail** button on the outbox page, **attach your CV PDF**, and press Send. Then record it: `outreach mark-sent --ids R0012,R0015`.
 6. **Replies:** `outreach mark-replied --id R0012 --note "Wants a call on Friday"`. Reply personally and quickly (within 24 hours).
-7. **Follow-ups:** `outreach followups --draft` writes one short, polite follow-up for anyone with no reply after 10 days. Send it the same way, then `outreach mark-sent --ids …`.
+7. **Follow-ups:** `outreach followups --draft` writes one short, polite follow-up for anyone with no reply after 10 days. It goes back to `draft_ready`, so approve it (`5_approve_drafts.bat`), send it from the outbox, then `outreach mark-sent --ids …`. There is never a second follow-up.
 8. **No or opt-out:** `outreach opt-out --id R0020`. They are never contacted again.
 
 ## The fit score (0–10)
@@ -46,7 +47,12 @@ The score helps you decide **who to email first**. It is **not** a prediction of
 Missing evidence earns 0 points; nothing is guessed. A high score with **low confidence** means "promising, but check the facts".
 
 ## Spreadsheet exports
-`exports\professors_<date>.xlsx` has these sheets: **Summary** (best first), **All fields** (with a status dropdown), **Drafts**, **Programs** (deadlines, IELTS, funding) and **Status counts**. These are snapshots for viewing. The live data is `workspace\tracker.csv`.
+`exports\professors_<date>.xlsx` has these sheets: **Summary** (best first), **All fields**, **Drafts**, **Programs** (deadlines, IELTS, funding) and **Status counts**. These are snapshots for viewing: changes typed into them are **not** read back. The live data is `workspace\tracker.csv`.
+
+## Changing a record safely
+- Change one field: `outreach set --id R0012 --field research_interests --value "maternal nutrition; food insecurity"`. Run `outreach set --id R0012 --field x --value y` with a wrong field name to see the list of fields you can change. Emails are changed only with `outreach confirm-email`, and statuses only with the status commands (`mark-sent`, `not-a-fit`, `close` and so on).
+- Add a dated note: `outreach note --id R0012 --text "Met her at a webinar on 3 Nov"`.
+- **Do not edit and re-save `workspace\tracker.csv` in Excel.** Excel can rewrite dates (2026-10-21 becomes 21/10/2026), the text encoding and long numbers. The tool repairs dates it can read safely when it loads the file. Ambiguous ones such as 05/06/2026 are flagged by `outreach validate` for you to fix. If something goes wrong, the last 30 versions are in `workspace\backups`.
 
 ## Adding professors yourself
 Add rows to a CSV or Excel file that uses the column names from `professors_template.csv`, then run `outreach import --file my_new_profs.xlsx`. Duplicates (same email, same profile URL, or same name and university) are merged automatically. Fill in at least `professor_name`, `university`, `faculty_profile_url` and `research_interests`, plus sources.

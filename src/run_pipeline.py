@@ -26,7 +26,7 @@ from .scoring import apply_scores
 from .storage import assign_missing_ids, load_records, read_any, save_records
 from .suppression import SuppressionList
 from .textutil import clean, find_dates
-from .tracker import log_event, refresh_follow_ups
+from .tracker import log_event, reconcile_with_log, refresh_follow_ups
 from .validate import has_errors, issues_by_record, summarize_issues, validate_all
 
 
@@ -52,8 +52,8 @@ def _intake_rank(record: dict, intake: str, today: date) -> int:
     """Lower is earlier in the queue: open intakes first, the requested intake before the other."""
     from .scoring import _intake_available
 
-    spring = _intake_available(record.get("spring_2027_status", ""), today)
-    fall = _intake_available(record.get("fall_2027_status", ""), today)
+    spring = _intake_available(record.get("spring_2027_status", ""), today, "spring")
+    fall = _intake_available(record.get("fall_2027_status", ""), today, "fall")
     wanted = intake.lower()
     if "spring" in wanted and spring:
         return 0
@@ -129,10 +129,13 @@ def run(
             input_file = seed
             report.messages.append(f"Started your tracker from the researched leads in {seed.relative_to(settings.root)}.")
     if input_file:
+        from .sending import reset_approval_for_import
+
         new = read_any(Path(input_file))
         for r in new:
             if not clean(r.get("record_source")):
                 r["record_source"] = Path(input_file).name
+            reset_approval_for_import(r)
         records.extend(new)
         report.imported = len(new)
     assign_missing_ids(records)
@@ -166,6 +169,8 @@ def run(
     # 4. suppression, follow-ups
     suppression = SuppressionList.load(settings.suppression_path)
     report.suppressed = suppression.apply(records, today)
+    for rid in reconcile_with_log(records, settings):
+        report.messages.append(f"{rid}: the outreach log shows this email was sent; status restored to 'sent'.")
     report.follow_ups_due = refresh_follow_ups(records, today, settings)
 
     # 5. dedupe

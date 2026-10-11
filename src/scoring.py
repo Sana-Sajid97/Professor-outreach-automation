@@ -14,17 +14,29 @@ Rubric (from WORKFLOW.md):
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import date
 
 from .profile import profile_topic_strength
-from .textutil import clean, find_dates, is_blank_or_unknown
+from .textutil import clean, find_dates, find_month_days, is_blank_or_unknown, meaningful
 from .topics import TOPICS, core_topics, match_topics, topic_label
 from .validate import ielts_minimum
 
 DISCLAIMER = "Prioritisation aid only - not an admission probability."
-_NEGATIVE_INTAKE = ("no spring", "not offered", "fall only", "does not admit", "not accepting", "closed", "passed", "n/a")
-_POSITIVE_INTAKE = ("accepting", "open", "rolling", "deadline", "admits", "yes")
+# Intake status texts are free text written during research. Whole words only; unknown beats everything.
+_UNKNOWN_INTAKE = re.compile(r"\bnot verified\b|\bnot yet\b|\bnot posted\b|\bunknown\b|\bunclear\b|\bconflicting\b|\bunconfirmed\b")
+_HARD_NO_INTAKE = re.compile(
+    r"^no\b|\bno spring\b|\bnot offered\b|\bfall only\b|\bdoes not admit\b|\bnot accepting\b|\bnot open\b|\bno longer\b|\bn/a\b"
+    r"|\b(?:likely|probably) (?:closed|passed)\b|\b(?:closed|passed) for international\b"  # the international date is the one that counts
+)
+# Research dates ("as of 2026-10-11", "checked Oct 11, 2026") are not deadlines.
+_RESEARCH_DATE = re.compile(
+    r"\b(?:as of|checked(?: on)?|accessed(?: on)?|updated(?: on)?|retrieved(?: on)?|verified(?: on)?)\s+"
+    r"(?:20\d\d-\d{1,2}-\d{1,2}|[a-z]{3,9}\.? \d{1,2}(?:st|nd|rd|th)?,? 20\d\d|\d{1,2} [a-z]{3,9},? 20\d\d|\d{1,2}/\d{1,2}/20\d\d)"
+)
+_PASSED_INTAKE = re.compile(r"\bpassed\b|\bclosed\b|\bexpired\b")
+_POSITIVE_INTAKE = re.compile(r"^yes\b|\baccepting\b|\bopen\b|\brolling\b|\badmits\b|\bapply anytime\b|\byear-round\b")
 
 
 @dataclass
@@ -41,17 +53,39 @@ class FitResult:
     notes: list[str] = field(default_factory=list)
 
 
-def _intake_available(text: str, today: date) -> bool | None:
-    """True if the status text says the intake is open, False if closed, None if unknown."""
+def _cycle_year(month: int, intake: str) -> int | None:
+    """Year of a standing deadline (written without a year) in the 2027 application cycle."""
+    if intake == "spring":  # Spring 2027 deadlines run from about March 2026 to January 2027
+        return 2026 if month >= 3 else 2027
+    if intake == "fall":  # Fall 2027 deadlines run from about August 2026 to July 2027
+        return 2026 if month >= 8 else 2027
+    return None
+
+
+def _intake_available(text: str, today: date, intake: str = "") -> bool | None:
+    """True if the status text says the intake is still open, False if not, None if unknown.
+
+    intake ("spring" or "fall") lets standing deadlines without a year ("December 1") be placed in the 2027 cycle.
+    """
     t = clean(text).lower()
-    if is_blank_or_unknown(t) or t.startswith("not verified"):
+    if is_blank_or_unknown(t) or _UNKNOWN_INTAKE.search(t):
         return None
-    if any(neg in t for neg in _NEGATIVE_INTAKE):
+    if _HARD_NO_INTAKE.search(t):
         return False
-    dates = find_dates(t)
+    t = _RESEARCH_DATE.sub(" ", t)
+    dates = list(find_dates(t))
+    for month, day in find_month_days(t):
+        year = _cycle_year(month, intake)
+        if year:
+            try:
+                dates.append(date(year, month, day))
+            except ValueError:
+                pass
     if dates:
-        return any(d >= today for d in dates)
-    if any(pos in t for pos in _POSITIVE_INTAKE):
+        return any(d >= today for d in dates)  # "priority date passed; final 2027-01-15" is still open
+    if _PASSED_INTAKE.search(t):
+        return False
+    if _POSITIVE_INTAKE.search(t):
         return True
     return None
 
@@ -63,10 +97,10 @@ def _has_evidence(text: str) -> bool:
 
 def score_record(record: dict, profile: dict, today: date) -> FitResult:
     research_text = " ".join(
-        clean(record.get(f, "")) for f in ("research_interests", "relevant_publication_1", "relevant_publication_2")
+        meaningful(record.get(f, "")) for f in ("research_interests", "relevant_publication_1", "relevant_publication_2")
     )
     matches = match_topics(research_text)
-    interests_only = match_topics(clean(record.get("research_interests", "")))
+    interests_only = match_topics(meaningful(record.get("research_interests", "")))
     pub_text = " ".join(clean(record.get(f, "")) for f in ("relevant_publication_1", "relevant_publication_2"))
     pub_matches = match_topics(pub_text)
     applicant_topics = set(profile.get("research_interests") or TOPICS.keys())
@@ -113,8 +147,8 @@ def score_record(record: dict, profile: dict, today: date) -> FitResult:
     # ---- 3. program fit / eligibility (0-2)
     program = 0
     program_bits = []
-    spring = _intake_available(record.get("spring_2027_status", ""), today)
-    fall = _intake_available(record.get("fall_2027_status", ""), today)
+    spring = _intake_available(record.get("spring_2027_status", ""), today, "spring")
+    fall = _intake_available(record.get("fall_2027_status", ""), today, "fall")
     if clean(record.get("program_url")) and (spring or fall):
         program += 1
         open_terms = [t for t, ok in (("Spring 2027", spring), ("Fall 2027", fall)) if ok]

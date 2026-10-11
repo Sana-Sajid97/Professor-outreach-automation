@@ -13,7 +13,7 @@ from datetime import date
 from pathlib import Path
 
 from .errors import UserFacingError
-from .textutil import EMAIL_FIND_RE, clean, collapse_spaces
+from .textutil import EMAIL_FIND_RE, collapse_spaces
 from .topics import TOPICS, match_topics
 
 PROFILE_SCHEMA_VERSION = 1

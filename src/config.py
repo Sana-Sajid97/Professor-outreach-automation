@@ -172,7 +172,7 @@ def load_settings(root: Path | None = None, environ: dict[str, str] | None = Non
             "small batches; large volumes from a personal account risk spam flags."
         )
     s.follow_up_days = max(3, _as_int(values.get("FOLLOW_UP_DAYS"), s.follow_up_days))
-    s.max_follow_ups = max(0, min(2, _as_int(values.get("MAX_FOLLOW_UPS"), s.max_follow_ups)))
+    s.max_follow_ups = max(0, min(1, _as_int(values.get("MAX_FOLLOW_UPS"), s.max_follow_ups)))  # 0 or 1
     s.min_fit_for_draft = max(0, min(10, _as_int(values.get("MIN_FIT_FOR_DRAFT"), s.min_fit_for_draft)))
     s.request_delay_seconds = max(1.0, _as_float(values.get("REQUEST_DELAY_SECONDS"), s.request_delay_seconds))
     s.contact_email = values.get("CONTACT_EMAIL", "").strip()

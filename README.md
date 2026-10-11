@@ -41,10 +41,12 @@ python -m src.run_pipeline --intake "Spring 2027" --limit 30 --mode drafts
 - Validation of names, URLs, institutional emails, official (.edu) domains, stale dates, placeholders, IELTS requirements, and "do not contact" department policies.
 - Duplicate detection by institutional email, profile URL, and name + university, keeping outreach history.
 - A transparent **0–10 fit score**, where every point is explained (topic 0–3, background 0–2, program 0–2, funding 0–2, recent paper 0–1). It is a prioritisation aid, **not an admission probability**.
-- Personalised drafts built **only** from verified facts and your own CV sentences. At most one polite follow-up.
+- Personalised drafts built **only** from the record's own fields (research interests and publications, each with a source link to confirm on the official profile) and your own CV sentences. Nothing else is added. At most one polite follow-up, which must be approved like any email.
 - Statuses: discovered, needs_verification, verified, draft_ready, approved, sent, follow_up_due, replied, closed, not_a_fit, bounced, opted_out, do_not_contact. Opt-outs and bounces are **suppressed forever**.
-- Safe sending: approval of the exact text, a daily limit (default 30), and Gmail API sending **off by default**.
-- **85 automated tests** (`python -m pytest`).
+- Safe sending: approval of the exact text, a daily limit (default 30), and Gmail API sending **off by default**. Send buttons appear only on the outbox page, only for approved emails that pass every check.
+- No double sends: every send is written to the outreach log at once. An email with the same address and subject is never sent twice, and if the tracker could not be saved after a send, the next run restores the record to `sent` from the log.
+- Safe editing without Excel: `outreach set --id R0012 --field research_interests --value "..."` and `outreach note --id R0012 --text "..."`. If the tracker was re-saved in Excel, readable dates (21/10/2026) are repaired on load, and ambiguous ones are flagged.
+- **165 automated tests** (`python -m pytest`), including regression tests for every issue found in an independent code review and checks of the drafts written for all 186 researched leads.
 
 ## What needs your PC or credentials (not tested live yet)
 - `verify` (official-page checks), `discover` (OpenAlex; needs a free API key) and `check-funding` (NIH RePORTER) need internet on your PC. The cloud environment where this was built blocks outside websites, so they were tested only with sample data.

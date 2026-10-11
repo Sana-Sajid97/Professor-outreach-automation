@@ -51,7 +51,8 @@ def test_openalex_keeps_only_senior_us_authors(today):
     assert rec["university"] == "Test University"
     assert rec["workflow_status"] == "discovered"
     assert rec["institutional_email"] == ""  # never guessed
-    assert "diabetes" in rec["research_interests"]
+    assert rec["research_interests"] == ""  # never filled from the search query; copied from the official profile later
+    assert "diabetes" in rec["notes"]  # what the search was about is kept as a note
 
 
 class FakeAPIClient:

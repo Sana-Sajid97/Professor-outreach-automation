@@ -153,7 +153,9 @@ class FakeSession:
         if value is None:
             return FakeResponse(404, "not found", url=url)
         if isinstance(value, list):
-            return value.pop(0) if len(value) > 1 else value[0]
+            value = value.pop(0) if len(value) > 1 else value[0]
+        if isinstance(value, Exception):
+            raise value
         return value
 
     def get(self, url, headers=None, timeout=None, allow_redirects=True, params=None):

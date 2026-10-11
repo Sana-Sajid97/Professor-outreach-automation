@@ -16,6 +16,7 @@
 - Alternatively, delete the PDF from the repository. It still exists in the history, so purging it fully needs a history rewrite (GitHub's "Removing sensitive data" guide).
 - The tool reads the CV from the private `private_profile/` folder, so the PDF does not need to be in the repository.
 - I did **not** delete or move it, because that is Sana's decision.
+- **Also public once pushed:** `docs/PROFILE_REVIEW.md` (the candid professor's-eye review of her profile, requested for GitHub) and `docs/STRATEGY_2027.md` name her CGPA, English score, weaknesses and target professors. That is fine in a **private** repository. If the repository must stay public, move these two files into `private_profile/` (ignored by Git) before pushing.
 
 ## 🟠 3. Spring 2027: act this week or let it go
 - **No January research-assistant position is confirmed anywhere** (see `docs/STRATEGY_2027.md` §3). Most international spring deadlines have passed (Aug 1 to Oct 15), and federal SNAP-Ed funding (which paid many community-nutrition assistants) ended 30 Sep 2025.

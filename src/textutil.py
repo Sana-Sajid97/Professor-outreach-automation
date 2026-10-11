@@ -50,6 +50,23 @@ def is_blank_or_unknown(value: str) -> bool:
     return v in {"", "not verified", "unknown", "n/a", "na", "none", "tbd", "not found", "not stated", "?"}
 
 
+_PLACEHOLDER_START_RE = re.compile(
+    r"^(?:not verified|not captured|not found|not listed|not available|not stated|not known|unknown|n/?a\b|none\b|tbd\b)",
+    re.IGNORECASE,
+)
+
+
+def is_placeholder(value: str) -> bool:
+    """True for empty values and research notes that stand in for a missing fact,
+    e.g. 'Not verified (advisor on a 2023 thesis)' or 'Not captured in search results'."""
+    return is_blank_or_unknown(value) or bool(_PLACEHOLDER_START_RE.match(collapse_spaces(value)))
+
+
+def meaningful(value: str) -> str:
+    """The value, or '' when it is only a placeholder such as 'Not verified ...'."""
+    return "" if is_placeholder(value) else clean(value)
+
+
 def strip_accents(text: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFKD", text) if not unicodedata.combining(c))
 
@@ -316,16 +333,115 @@ def find_dates(text: str) -> list[date]:
     return out
 
 
+_MONTH_DAY_RE = re.compile(
+    r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})(?:st|nd|rd|th)?\b(?!,?\s*(?:20\d\d|'\d\d))",
+    re.IGNORECASE,
+)
+
+
+def find_month_days(text: str) -> list[tuple[int, int]]:
+    """(month, day) pairs written WITHOUT a year, e.g. 'December 1' or 'Feb 15th' (standing deadlines)."""
+    out = []
+    for m in _MONTH_DAY_RE.finditer(clean(text)):
+        month = _MONTHS.get(m.group(1).lower())
+        day = int(m.group(2))
+        if month and 1 <= day <= 31 and (month, day) not in out:
+            out.append((month, day))
+    return out
+
+
 def parse_date(text: str) -> date | None:
     dates = find_dates(text)
     return dates[0] if dates else None
 
 
-def parse_iso(text: str) -> date | None:
-    try:
-        return datetime.strptime(clean(text)[:10], "%Y-%m-%d").date()
-    except ValueError:
+_NUMERIC_DMY_RE = re.compile(r"^(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{4}|\d{2})(?:[ T].*)?$")
+_NUMERIC_YMD_RE = re.compile(r"^(20\d\d)[/.](\d{1,2})[/.](\d{1,2})(?:[ T].*)?$")
+_EXCEL_DMONY_RE = re.compile(r"^(\d{1,2})[-\s]([A-Za-z]{3,9})[-\s](\d{4}|\d{2})(?:[ T].*)?$")  # 21-Oct-2026 / 21-Oct-26
+
+
+def _year(text: str) -> int:
+    return int(text) + 2000 if len(text) == 2 else int(text)
+
+
+def _day_month_order(first: int, second: int, day_first: bool | None) -> tuple[int, int] | None:
+    """(month, day) for a numeric date like 21/10 or 10/21, or None when it cannot be known."""
+    if first > 12 and second <= 12:
+        return second, first
+    if second > 12 and first <= 12:
+        return first, second
+    if first == second:
+        return first, second
+    if day_first is True:
+        return second, first
+    if day_first is False:
+        return first, second
+    return None  # e.g. 05/06/2026: May 6 or 5 June? Never guess.
+
+
+def parse_iso(text: str, day_first: bool | None = None) -> date | None:
+    """Read a date written by this tool (YYYY-MM-DD), and also the forms Excel writes when it re-saves a CSV
+    (21/10/2026, 10/21/26, 21-Oct-2026). An ambiguous date such as 05/06/2026 is only read when day_first is known."""
+    value = clean(text)
+    if not value:
         return None
+    try:
+        return datetime.strptime(value[:10], "%Y-%m-%d").date()
+    except ValueError:
+        pass
+    m = _NUMERIC_YMD_RE.match(value)
+    if m:
+        return _safe_date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    m = _NUMERIC_DMY_RE.match(value)
+    if m:
+        order = _day_month_order(int(m.group(1)), int(m.group(2)), day_first)
+        return _safe_date(_year(m.group(3)), order[0], order[1]) if order else None
+    m = _EXCEL_DMONY_RE.match(value)
+    if m and _MONTHS.get(m.group(2).lower()):
+        return _safe_date(_year(m.group(3)), _MONTHS[m.group(2).lower()], int(m.group(1)))
+    dates = find_dates(value)
+    return dates[0] if len(dates) == 1 else None
+
+
+TRACKER_DATE_FIELDS = ("date_checked", "last_contact_date", "follow_up_date", "approved_on")
+
+
+def detect_day_first(values: list[str]) -> bool | None:
+    """Look at numeric dates such as 21/10/2026 to learn whether a file writes the day or the month first."""
+    day_first = month_first = 0
+    for value in values:
+        m = _NUMERIC_DMY_RE.match(clean(value))
+        if not m:
+            continue
+        a, b = int(m.group(1)), int(m.group(2))
+        if a > 12 >= b:
+            day_first += 1
+        elif b > 12 >= a:
+            month_first += 1
+    if day_first and not month_first:
+        return True
+    if month_first and not day_first:
+        return False
+    return None
+
+
+def normalize_tracker_dates(records: list[dict]) -> list[tuple[str, str, str]]:
+    """Rewrite the tracker's date columns as YYYY-MM-DD (undoing an Excel re-save).
+    Returns (record_id, field, value) for dates that could not be read safely; those are left unchanged."""
+    values = [clean(r.get(f)) for r in records for f in TRACKER_DATE_FIELDS if clean(r.get(f))]
+    day_first = detect_day_first(values)
+    unreadable = []
+    for record in records:
+        for field_name in TRACKER_DATE_FIELDS:
+            value = clean(record.get(field_name))
+            if not value or re.fullmatch(r"20\d\d-\d\d-\d\d", value):
+                continue
+            parsed = parse_iso(value, day_first)
+            if parsed:
+                record[field_name] = parsed.isoformat()
+            else:
+                unreadable.append((clean(record.get("record_id")), field_name, value))
+    return unreadable
 
 
 def short_hash(*parts: str) -> str:

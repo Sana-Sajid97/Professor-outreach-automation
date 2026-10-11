@@ -7,7 +7,9 @@ for a human to check by hand.
 Notes from Python's own robotparser (verified for this project):
 - it reports Crawl-delay but never waits, so this client does the waiting itself;
 - fractional delays such as "2.5" are ignored by robotparser, so we parse them ourselves;
-- robots.txt is fetched with our own User-Agent and a timeout, then passed to parse().
+- robots.txt is fetched with our own User-Agent and a timeout, then passed to parse();
+- if robots.txt cannot be fetched (network error, 5xx, 429), the site is treated as "disallow" (RFC 9309);
+- redirects are followed one hop at a time (at most 5), and robots.txt and the rate limit are checked for every hop.
 """
 
 from __future__ import annotations
@@ -15,15 +17,16 @@ from __future__ import annotations
 import hashlib
 import json
 import random
-import re
 import time
 from dataclasses import dataclass
 from pathlib import Path
 from urllib import robotparser
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 
 DEFAULT_TIMEOUT = 20
 MAX_RETRIES = 3
+MAX_REDIRECTS = 5
+REDIRECT_CODES = {301, 302, 303, 307, 308}
 CACHE_TTL_SECONDS = 7 * 24 * 3600
 
 
@@ -134,7 +137,7 @@ class PoliteClient:
             else:
                 rp = None  # 404 and other 4xx: no robots.txt, everything allowed
         except Exception:
-            rp = None
+            rp, disallow_all = None, True  # robots.txt unreachable (network error): assume disallow (RFC 9309)
         entry = (rp, crawl_delay, disallow_all)
         self._robots[base] = entry
         return entry
@@ -150,30 +153,53 @@ class PoliteClient:
     # ------------------------------------------------------------------ main entry point
     def get(self, url: str, use_cache: bool = True) -> FetchResult:
         parts = urlsplit(url)
-        host = parts.netloc.lower()
-        if parts.scheme not in {"http", "https"} or not host:
+        if parts.scheme not in {"http", "https"} or not parts.netloc:
             return FetchResult(url, False, error="Not a valid web address.")
         if use_cache:
             cached = self._read_cache(url)
             if cached:
                 return cached
-        if host in self._blocked_hosts:
-            return FetchResult(url, False, error="This site asked us to slow down or blocked automated access; skipped for now.")
-        if not self.allowed(url):
-            return FetchResult(url, False, error="The site's robots.txt does not allow automated access to this page. Check it by hand.", blocked_by_robots=True)
-        _, crawl_delay, _ = self._robots_for(url)
+        current = url
+        hops = 0
+        attempt = 0
         last_error = ""
-        for attempt in range(MAX_RETRIES):
+        while attempt < MAX_RETRIES:
+            host = urlsplit(current).netloc.lower()
+            if host in self._blocked_hosts:
+                return FetchResult(url, False, error="This site asked us to slow down or blocked automated access; skipped for now.", final_url=current)
+            if not self.allowed(current):
+                return FetchResult(
+                    url, False, error="The site's robots.txt does not allow automated access to this page (or could not be read). Check it by hand.",
+                    blocked_by_robots=True, final_url=current,
+                )
+            _, crawl_delay, _ = self._robots_for(current)
             self._wait_turn(host, crawl_delay)
             try:
-                resp = self.session.get(url, headers=self._headers(), timeout=self.timeout, allow_redirects=True)
+                resp = self.session.get(current, headers=self._headers(), timeout=self.timeout, allow_redirects=False)
             except Exception as exc:  # network errors, timeouts
                 last_error = f"Network problem: {exc.__class__.__name__}"
                 self._sleep(_backoff(attempt))
+                attempt += 1
                 continue
             status = getattr(resp, "status_code", 0)
+            if status in REDIRECT_CODES:
+                location = ""
+                try:
+                    location = (getattr(resp, "headers", {}) or {}).get("Location", "") or ""
+                except AttributeError:
+                    location = ""
+                hops += 1
+                if not location:
+                    return FetchResult(url, False, status, error="The page redirects without saying where to.", final_url=current)
+                if hops > MAX_REDIRECTS:
+                    return FetchResult(url, False, status, error="Too many redirects; check the page by hand.", final_url=current)
+                target = urljoin(current, location)
+                if urlsplit(target).scheme not in {"http", "https"}:
+                    return FetchResult(url, False, status, error="The page redirects to something that is not a web page.", final_url=current)
+                current = target  # robots.txt and the rate limit are checked again for the new address
+                continue
             if status == 200:
-                result = FetchResult(url, True, status, resp.text or "", final_url=str(getattr(resp, "url", url) or url))
+                result = FetchResult(url, True, status, resp.text or "", final_url=current)
                 self._write_cache(result)
                 return result
             if status in (429, 503):
@@ -183,17 +209,19 @@ class PoliteClient:
                     self._blocked_hosts.add(host)
                     break
                 self._sleep(retry_after if retry_after is not None else _backoff(attempt))
+                attempt += 1
                 continue
             if status in (401, 403):
-                return FetchResult(url, False, status, error="Access denied (login, CAPTCHA or block). Not bypassed - check by hand.")
-            if status == 404:
-                return FetchResult(url, False, status, error="Page not found (404). The person may have moved or the URL changed.")
+                return FetchResult(url, False, status, error="Access denied (login, CAPTCHA or block). Not bypassed - check by hand.", final_url=current)
+            if status in (404, 410):
+                return FetchResult(url, False, status, error=f"Page not found (HTTP {status}). The person may have moved or the URL changed.", final_url=current)
             if 500 <= status < 600:
                 last_error = f"Server error (HTTP {status})."
                 self._sleep(_backoff(attempt))
+                attempt += 1
                 continue
-            return FetchResult(url, False, status, error=f"Unexpected response (HTTP {status}).")
-        return FetchResult(url, False, error=last_error or "Could not fetch the page.")
+            return FetchResult(url, False, status, error=f"Unexpected response (HTTP {status}).", final_url=current)
+        return FetchResult(url, False, error=last_error or "Could not fetch the page.", final_url=current)
 
     def get_json(self, url: str, params: dict | None = None, method: str = "GET", json_body: dict | None = None) -> tuple[int, dict | None, str]:
         """For official APIs (OpenAlex, NIH RePORTER). Polite delay + retries; no robots check needed for APIs."""
@@ -257,6 +285,7 @@ def _parse_crawl_delay(robots_text: str, user_agent: str) -> float:
     agent_token = user_agent.split("/")[0].lower()
     current: list[str] = []
     delays: dict[str, float] = {}
+    last_key = ""
     for raw in robots_text.splitlines():
         line = raw.split("#", 1)[0].strip()
         if not line or ":" not in line:
@@ -264,13 +293,14 @@ def _parse_crawl_delay(robots_text: str, user_agent: str) -> float:
         key, _, value = line.partition(":")
         key, value = key.strip().lower(), value.strip()
         if key == "user-agent":
-            current = [value.lower()]
+            current = current + [value.lower()] if last_key == "user-agent" else [value.lower()]  # grouped agents
         elif key == "crawl-delay" and current:
             try:
                 for agent in current:
                     delays[agent] = float(value)
             except ValueError:
-                continue
+                pass
+        last_key = key
     for agent, delay in delays.items():
         if agent != "*" and agent and agent in agent_token:
             return min(delay, 120.0)

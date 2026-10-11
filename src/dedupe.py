@@ -19,6 +19,7 @@ from difflib import SequenceMatcher
 from .models import STATUS_RANK
 from .textutil import (
     clean,
+    is_generic_email,
     join_multi,
     name_key,
     name_tokens,
@@ -61,6 +62,22 @@ def _keys(record: dict) -> list[tuple[str, str]]:
     if nk and uk:
         keys.append(("name+university", f"{nk}|{uk}"))
     return keys
+
+
+def _surnames(name: str) -> set[str]:
+    tokens = name_tokens(name)
+    if not tokens:
+        return set()
+    last = tokens[-1]
+    out = {last.replace("-", "")}
+    if len(tokens) >= 3:
+        out.add(tokens[-2] + last.replace("-", ""))  # "Chandler Laney" == "Chandler-Laney"
+    return out
+
+
+def same_surname(a: str, b: str) -> bool:
+    sa, sb = _surnames(a), _surnames(b)
+    return not sa or not sb or bool(sa & sb)
 
 
 def names_compatible(a: str, b: str) -> bool:
@@ -136,7 +153,13 @@ def find_duplicates(records: list[dict]) -> DedupeResult:
     for i, record in enumerate(records):
         for key in _keys(record):
             for j in owners.get(key, []):
-                if key[0] == "name+university" or names_compatible(records[j].get("professor_name", ""), record.get("professor_name", "")):
+                a_name, b_name = records[j].get("professor_name", ""), record.get("professor_name", "")
+                if key[0] == "email":
+                    # One personal address belongs to one person: Kate/Katherine, "J. Michael Brown"/"Michael Brown".
+                    same = not is_generic_email(key[1]) and same_surname(a_name, b_name)
+                else:
+                    same = key[0] == "name+university" or names_compatible(a_name, b_name)
+                if same:
                     union(j, i)
                     reasons.setdefault(frozenset((j, i)), set()).add(key[0])
                 else:

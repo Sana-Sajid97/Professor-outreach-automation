@@ -40,12 +40,13 @@ def read_csv_rows(path: Path) -> tuple[list[dict], list[str]]:
     if not path.exists():
         raise UserFacingError(f"File not found: {path}")
     text = read_text_any_encoding(path)
-    sample = text[:4096]
-    try:
-        dialect = csv.Sniffer().sniff(sample, delimiters=",;\t") if sample.strip() else csv.excel
-    except csv.Error:
-        dialect = csv.excel
-    reader = csv.DictReader(io.StringIO(text, newline=""), dialect=dialect)  # keeps line breaks inside cells
+    # Standard CSV quoting ("" inside quoted cells) always; only the separator is detected, from the header line.
+    # (csv.Sniffer is not used: it can guess the quoting wrong and silently corrupt cells.)
+    header_line = text.split("\n", 1)[0]
+    delimiter = max([",", ";", "\t"], key=lambda d: header_line.count(d)) if header_line.strip() else ","
+    if header_line.count(delimiter) == 0:
+        delimiter = ","
+    reader = csv.DictReader(io.StringIO(text, newline=""), dialect=csv.excel, delimiter=delimiter)  # keeps line breaks
     header = [h.strip().lstrip("﻿") for h in (reader.fieldnames or [])]
     rows = []
     for row in reader:
@@ -120,10 +121,15 @@ def read_any(path: Path) -> list[dict]:
 
 
 def load_records(path: Path) -> list[dict]:
+    """Read the tracker. Dates that Excel rewrote (21/10/2026 and so on) are turned back into YYYY-MM-DD."""
+    from .textutil import normalize_tracker_dates
+
     path = Path(path)
     if not path.exists():
         return []
-    return read_any(path)
+    records = read_any(path)
+    normalize_tracker_dates(records)  # anything unreadable is reported by the validator
+    return records
 
 
 def ordered_columns(records: list[dict]) -> list[str]:

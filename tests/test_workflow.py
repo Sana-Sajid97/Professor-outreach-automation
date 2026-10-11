@@ -53,6 +53,8 @@ def test_sent_schedules_one_follow_up(settings, today):
     later = today + timedelta(days=settings.follow_up_days)
     assert refresh_follow_ups([rec], later, settings) == [rec["record_id"]]
     assert rec["workflow_status"] == m.FOLLOW_UP_DUE
+    set_status(rec, m.DRAFT_READY, later, settings)  # follow-up drafted
+    set_status(rec, m.APPROVED, later, settings)  # and approved like any email
     set_status(rec, m.SENT, later, settings)  # the follow-up was sent
     assert rec["follow_up_count"] == "1"
     assert rec["follow_up_date"] == ""  # no second follow-up by default

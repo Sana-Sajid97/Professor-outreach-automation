@@ -94,7 +94,7 @@ def to_records(people: dict[str, dict], today: date, min_works: int = 1) -> list
             {
                 "professor_name": person["name"],
                 "university": institution,
-                "research_interests": "; ".join(topic_label(t) for t in sorted(person["topics"])),
+                "research_interests": "",  # filled in only from the official profile (outreach set ... --field research_interests)
                 "relevant_publication_1": works[0]["title"] if works else "",
                 "publication_1_url": works[0]["doi"] if works else "",
                 "publication_1_year": str(works[0]["year"] or "") if works else "",
@@ -106,9 +106,13 @@ def to_records(people: dict[str, dict], today: date, min_works: int = 1) -> list
                 "workflow_status": m.DISCOVERED,
                 "verification_status": m.VER_NOT,
                 "record_source": "openalex",
-                "research_fit_explanation": f"Senior author of {len(works)} recent US paper(s) on {', '.join(topic_label(t) for t in sorted(person['topics']))} (from OpenAlex).",
+                "research_fit_explanation": f"Senior author of {len(works)} recent US paper(s) found by an OpenAlex search for {', '.join(topic_label(t) for t in sorted(person['topics']))}.",
                 "next_action": f'Find the official faculty page: search "{person["name"]}" "{institution}" faculty profile, then add faculty_profile_url and run verify.',
-                "notes": "Lead from OpenAlex. Not verified: confirm the person is current faculty who supervises graduate students.",
+                "notes": (
+                    "Lead from OpenAlex (found by searching: " + ", ".join(topic_label(t) for t in sorted(person["topics"])) + "). "
+                    "Not verified: confirm the person is current faculty who supervises graduate students, then copy their "
+                    "research interests from the official profile."
+                ),
             }
         )
         records.append(record)

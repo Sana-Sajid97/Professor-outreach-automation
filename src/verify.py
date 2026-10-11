@@ -15,6 +15,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from datetime import date
+from urllib.parse import unquote
 
 from . import models as m
 from .textutil import (
@@ -27,6 +28,7 @@ from .textutil import (
     join_multi,
     name_tokens,
     normalize_email,
+    normalize_url,
     registrable_domain,
     split_multi,
     strip_accents,
@@ -34,11 +36,12 @@ from .textutil import (
 )
 
 OBFUSCATED_RE = re.compile(
-    r"([A-Za-z0-9._%+-]+)\s*(?:\[\s*at\s*\]|\(\s*at\s*\)|\{\s*at\s*\}|<\s*at\s*>|\s+at\s+|\s*@\s*)\s*"
-    r"([A-Za-z0-9-]+(?:\s*(?:\[\s*dot\s*\]|\(\s*dot\s*\)|\{\s*dot\s*\}|\s+dot\s+|\.)\s*[A-Za-z0-9-]+)+)",
-    re.IGNORECASE,
+    # "name [at] uni [dot] edu", "name(at)uni.edu", "name {at} uni.edu", and upper-case "NAME AT UNI DOT EDU".
+    # A bare lower-case " at " is NOT accepted: ordinary sentences ("Smith at nutrition.uni.edu") would become fake emails.
+    r"([A-Za-z0-9._%+-]+)\s*(?:\[\s*at\s*\]|\(\s*at\s*\)|\{\s*at\s*\}|<\s*at\s*>|\s+AT\s+)\s*"
+    r"([A-Za-z0-9-]+(?:\s*(?:\[\s*dot\s*\]|\(\s*dot\s*\)|\{\s*dot\s*\}|\s+DOT\s+|\.)\s*[A-Za-z0-9-]+)+)",
 )
-DOT_RE = re.compile(r"\s*(?:\[\s*dot\s*\]|\(\s*dot\s*\)|\{\s*dot\s*\}|\s+dot\s+|\.)\s*", re.IGNORECASE)
+DOT_RE = re.compile(r"\s*(?:\[\s*dot\s*\]|\(\s*dot\s*\)|\{\s*dot\s*\}|\s+DOT\s+|\.)\s*", re.IGNORECASE)
 TITLE_RE = re.compile(
     r"\b((?:Distinguished |Regents'? |University |Endowed |Clinical |Research |Adjunct |Emerit(?:us|a) )?"
     r"(?:Assistant |Associate |Full )?Professor(?: Emerit(?:us|a))?)\b"
@@ -54,6 +57,7 @@ class PageCheck:
     emails: list[tuple[str, str]] = field(default_factory=list)  # (email, how it was found)
     titles: list[str] = field(default_factory=list)
     emeritus: bool = False
+    final_url: str = ""
 
 
 @dataclass
@@ -96,8 +100,8 @@ def extract_emails(html: str) -> list[tuple[str, str]]:
     for a in soup.find_all("a", href=True):
         href = a["href"].strip()
         if href.lower().startswith("mailto:"):
-            for part in href[7:].split("?")[0].split(","):
-                add(part, "mailto link")
+            for part in unquote(href[7:]).split("?")[0].split(","):
+                add(part.strip(), "mailto link")
         elif "/cdn-cgi/l/email-protection#" in href:
             add(decode_cloudflare(href.split("#", 1)[1]), "Cloudflare-protected email")
     for tag in soup.find_all(attrs={"data-cfemail": True}):
@@ -136,43 +140,86 @@ def name_on_page(text: str, professor_name: str) -> bool:
     return last in plain and (first in plain or len(tokens) == 1)
 
 
+STRONG, SURNAME_ONLY, NO_MATCH = 3, 1, 0
+
+
+def _surname_variants(tokens: list[str]) -> set[str]:
+    last = tokens[-1]
+    variants = {last.replace("-", "")}
+    variants.update(part for part in last.split("-") if len(part) >= 3)
+    if len(tokens) >= 3:  # "Paula Chandler Laney" may be written chandlerlaney
+        variants.add(tokens[-2] + last.replace("-", ""))
+    return {v for v in variants if v}
+
+
 def email_matches_person(email: str, professor_name: str) -> int:
-    """Higher = the email's local part looks more like this person's name (0 = no sign)."""
-    local = re.sub(r"[^a-z]", "", strip_accents(email_local(email)).lower())
-    tokens = [re.sub(r"[^a-z]", "", t) for t in name_tokens(professor_name)]
-    tokens = [t for t in tokens if t]
-    if not tokens or not local:
-        return 0
-    first, last = tokens[0], tokens[-1]
-    score = 0
-    last_parts = [p for p in re.split(r"-", strip_accents(name_tokens(professor_name)[-1]).lower()) if p] if name_tokens(professor_name) else []
-    if last in local or any(len(p) >= 3 and p in local for p in last_parts):
-        score += 3
-    if first in local:
-        score += 2
-    elif local.startswith(first[:1]) and (last in local or any(len(p) >= 3 and p in local for p in last_parts)):
-        score += 1
-    return score
+    """How well an email's local part fits this person's name.
+
+    STRONG       first name + surname (jane.smith, smith_jane, janesmith) or initial(s) + surname
+                 (jsmith, jqsmith, smithj, j.smith)
+    SURNAME_ONLY just the surname (smith, smith2): accepted only on the professor's own profile page
+    NO_MATCH     anything else, including addresses that CONTRADICT the name (john.smith for Jane Smith,
+                 jkim for Hyun Kim, mgarcia for Lucia Garcia)
+    """
+    tokens = [re.sub(r"[^a-z-]", "", strip_accents(t).lower()) for t in name_tokens(professor_name)]
+    tokens = [t for t in tokens if t.strip("-")]
+    local = strip_accents(email_local(email)).lower()
+    if len(tokens) < 2 or not local:
+        return NO_MATCH
+    first = tokens[0].replace("-", "")
+    initials = {first[0]} | {t[0] for t in tokens[1:-1]}
+    parts = [p for p in re.split(r"[._+\-]+|\d+", local) if p]
+    joined = "".join(parts)
+    if joined == tokens[-1].replace("-", ""):
+        return SURNAME_ONLY  # the whole surname alone, e.g. perez-escamilla@ for Rafael Perez-Escamilla
+    # Every surname variant is checked and the best answer wins, so the result never depends on checking order.
+    results = [_match_for_surname(sn, first, initials, parts, joined) for sn in sorted(_surname_variants(tokens))]
+    return max((r for r in results if r is not None), default=NO_MATCH)
 
 
-def choose_email(emails: list[tuple[str, str]], professor_name: str, page_url: str) -> tuple[str, str, str]:
+def _match_for_surname(sn: str, first: str, initials: set[str], parts: list[str], joined: str) -> int | None:
+    # first name and surname as separate parts, in either order
+    if first in parts and sn in parts:
+        return STRONG
+    # first name and surname written together
+    if joined in {first + sn, sn + first}:
+        return STRONG
+    # initial(s) + surname, or surname + initial(s): jsmith, jqsmith, smithj, j.smith
+    m = re.fullmatch(rf"([a-z]{{1,2}}){re.escape(sn)}", joined) or re.fullmatch(rf"{re.escape(sn)}([a-z]{{1,2}})", joined)
+    if m:
+        return STRONG if m.group(1)[0] == first[0] and set(m.group(1)) <= initials | {first[0]} else NO_MATCH
+    if sn in parts:
+        others = [p for p in parts if p != sn]
+        if not others:
+            return SURNAME_ONLY
+        # another full word that is not this person's first or middle name means a different person
+        if all(len(o) == 1 and o in initials for o in others):
+            return STRONG
+        return NO_MATCH
+    return None
+
+
+def choose_email(emails: list[tuple[str, str]], professor_name: str, page_url: str, own_profile: bool = True) -> tuple[str, str, str]:
     """Pick this professor's email among those on the page. Returns (email, how, reason) or ('', '', reason)."""
     site = registrable_domain(url_host(page_url))
-    candidates = []
+    scored = []
     for email, how in emails:
         if is_generic_email(email):
             continue
         if site and registrable_domain(email_domain(email)) != site:
             continue
-        candidates.append((email_matches_person(email, professor_name), email, how))
-    if not candidates:
+        scored.append((email_matches_person(email, professor_name), email, how))
+    if not scored:
         return "", "", "no institutional email for this person was found on the page"
-    candidates.sort(key=lambda c: -c[0])
-    best_score, best, how = candidates[0]
-    if best_score >= 3 or (best_score >= 2 and len(candidates) == 1):
-        return best, how, f"found on the official page ({how})"
-    if len(candidates) == 1 and best_score >= 1:
-        return best, how, f"found on the official page ({how}); it does not fully match the name, so double-check"
+    strong = [c for c in scored if c[0] == STRONG]
+    if len(strong) == 1:
+        return strong[0][1], strong[0][2], f"found on the official page ({strong[0][2]})"
+    if len(strong) > 1:
+        return "", "", "several emails on the page could belong to this person - check by hand"
+    surname_only = [c for c in scored if c[0] == SURNAME_ONLY]
+    if own_profile and len(surname_only) == 1:
+        c = surname_only[0]
+        return c[1], c[2], f"found on the professor's own profile page ({c[2]}); it shows only the surname, so double-check"
     return "", "", "emails on the page do not clearly belong to this person"
 
 
@@ -182,6 +229,7 @@ def check_page(client, url: str, professor_name: str) -> PageCheck:
         return PageCheck(url, False, error=result.error)
     text = page_text(result.text)
     check = PageCheck(url, True)
+    check.final_url = clean(getattr(result, "final_url", "")) or url
     check.name_found = name_on_page(text, professor_name)
     check.emails = extract_emails(result.text)
     check.titles = sorted(set(TITLE_RE.findall(text)))[:5]
@@ -207,7 +255,7 @@ def verify_record(record: dict, client, today: date) -> VerifyOutcome:
         return outcome
 
     profile_check = None
-    found_email, found_how, found_url = "", "", ""
+    found_email, found_url = "", ""
     for url in urls:
         if not url.lower().startswith(("http://", "https://")):
             continue
@@ -220,9 +268,11 @@ def verify_record(record: dict, client, today: date) -> VerifyOutcome:
         if not check.name_found:
             outcome.messages.append(f"{url}: the professor's name was not found on this page.")
             continue
-        email, how, reason = choose_email(check.emails, name, url)
+        # "own profile" only when this is the profile URL and it did not redirect somewhere else (e.g. a directory)
+        own_profile = url == clean(record.get("faculty_profile_url")) and normalize_url(check.final_url or url) == normalize_url(url)
+        email, _how, reason = choose_email(check.emails, name, url, own_profile=own_profile)
         if email:
-            found_email, found_how, found_url = email, how, url
+            found_email, found_url = email, url
             outcome.messages.append(f"Email {reason}: {email}")
             break
         outcome.messages.append(f"{url}: {reason}.")

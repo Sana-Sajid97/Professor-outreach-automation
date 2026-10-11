@@ -17,9 +17,10 @@ Run `python -m src.cli check-funding --limit 3` once to confirm it works.
 
 from __future__ import annotations
 
+import re
 from datetime import date
 
-from ..textutil import clean, name_tokens, normalize_university, strip_accents
+from ..textutil import clean, last_name, name_tokens, normalize_university, strip_accents
 
 API = "https://api.reporter.nih.gov/v2/projects/search"
 PROJECT_URL = "https://reporter.nih.gov/project-details/{appl_id}"
@@ -43,31 +44,46 @@ def build_query(first_name: str, last_name: str, fiscal_years: list[int], limit:
 
 
 def _org_matches(org_name: str, university: str) -> bool:
+    """Same institution: identical names, or one name continues the other with a campus
+    ("university michigan" / "university michigan ann arbor"). Shared words alone are NOT enough:
+    "Washington State University" must never match "University of Washington"."""
     a, b = normalize_university(org_name), normalize_university(university)
     if not a or not b:
         return False
-    if a in b or b in a:
+    if a == b:
         return True
-    words_a = {w for w in a.split() if len(w) > 3 and w not in {"university", "college", "school", "health", "sciences", "center"}}
-    words_b = {w for w in b.split() if len(w) > 3 and w not in {"university", "college", "school", "health", "sciences", "center"}}
-    return bool(words_a & words_b)
+    short, long = sorted((a, b), key=len)
+    return len(short.split()) >= 2 and long.startswith(short + " ")
+
+
+def _compact(text: str) -> str:
+    return re.sub(r"[^a-z]", "", strip_accents(clean(text)).lower())
+
+
+def _first_names_match(ours: str, theirs: str) -> bool:
+    """Full first name, or a shortened form of at least 3 letters (Chris / Christopher). An initial is not enough."""
+    words = strip_accents(clean(theirs)).lower().split()
+    ours, theirs = _compact(ours), _compact(words[0]) if words else ""
+    if len(ours) < 2 or len(theirs) < 2:
+        return False
+    if ours == theirs:
+        return True
+    short, long = sorted((ours, theirs), key=len)
+    return len(short) >= 3 and long.startswith(short)
 
 
 def matching_projects(data: dict, professor_name: str, university: str, today: date) -> list[dict]:
     tokens = name_tokens(professor_name)
-    if not tokens:
+    if len(tokens) < 2:
         return []
-    first, last = tokens[0], tokens[-1]
+    first = tokens[0]
+    surnames = {_compact(last_name(professor_name)), _compact(tokens[-1])} - {""}
     out = []
     for project in (data or {}).get("results") or (data or {}).get("data") or []:
-        pis = project.get("principal_investigators") or []
-        pi_match = False
-        for pi in pis:
-            pf = strip_accents(clean(pi.get("first_name"))).lower()
-            pl = strip_accents(clean(pi.get("last_name"))).lower()
-            if pl.replace(" ", "-") == last or pl == last.replace("-", " "):
-                if not pf or pf.startswith(first[:1]):
-                    pi_match = True
+        pi_match = any(
+            _compact(pi.get("last_name")) in surnames and _first_names_match(first, pi.get("first_name"))
+            for pi in (project.get("principal_investigators") or [])
+        )
         org = clean((project.get("organization") or {}).get("org_name"))
         end = clean(project.get("project_end_date"))[:10]
         active = not end or end >= today.isoformat()
@@ -95,10 +111,14 @@ def check_record(client, record: dict, today: date) -> tuple[str, str]:
     if len(tokens) < 2:
         return "", "name too short to search"
     years = [today.year - 1, today.year, today.year + 1]
-    status, data, error = client.get_json(API, method="POST", json_body=build_query(tokens[0], tokens[-1], years))
+    surname = strip_accents(last_name(record.get("professor_name", ""))).lower() or tokens[-1]
+    status, data, error = client.get_json(API, method="POST", json_body=build_query(tokens[0], surname, years))
     if status != 200 or data is None:
         return "", f"NIH RePORTER request failed: {error or status}"
     projects = matching_projects(data, record.get("professor_name", ""), record.get("university", ""), today)
     if not projects:
-        return "", "no active NIH project found for this name at this university (other funders such as USDA/NSF are not covered)"
+        return "", (
+            "no active NIH project matched this exact name and university (other funders such as USDA/NSF are not covered, "
+            "and a different spelling can hide a grant - search reporter.nih.gov by hand if it matters)"
+        )
     return evidence_text(projects), f"{len(projects)} active NIH project(s) found"

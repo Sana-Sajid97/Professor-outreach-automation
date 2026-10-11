@@ -119,11 +119,28 @@ TOPICS: dict[str, dict] = {
     },
 }
 
-_CHILD_WORDS = [
-    "child", "children", "childhood", "pediatric", "paediatric", "adolescent", "adolescents", "youth",
-    "kids", "preschool", "school-age", "school-aged", "early childhood", "infant", "toddler", "toddlers",
-]
-_WEIGHT_WORDS = ["obesity", "overweight", "weight", "bmi", "adiposity"]
+# Composite rule (WEAK evidence only): an obesity word within a few words of a child word,
+# e.g. "obesity among preschool children". Plain "weight" does not count ("infant birth weight" is not obesity).
+_CHILD_WORDS = {
+    "child", "children", "childhood", "pediatric", "paediatric", "adolescent", "adolescents", "adolescence",
+    "youth", "kids", "preschool", "preschoolers", "school-age", "school-aged", "toddler", "toddlers", "kindergarten",
+}
+_OBESITY_WORDS = {"obesity", "obese", "overweight", "adiposity", "bmi"}
+_NEAR_WINDOW = 6
+_WORD_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+
+
+def _near_pair(lowered: str) -> tuple[str, str] | None:
+    """An obesity word and a child word close together in the SAME clause (interests are separated by ';')."""
+    for clause in re.split(r"[;.!?|\n]+", lowered):
+        tokens = _WORD_RE.findall(clause)
+        obesity = [(i, t) for i, t in enumerate(tokens) if t in _OBESITY_WORDS]
+        kids = [(i, t) for i, t in enumerate(tokens) if t in _CHILD_WORDS]
+        for i, a in obesity:
+            for j, b in kids:
+                if abs(i - j) <= _NEAR_WINDOW:
+                    return a, b
+    return None
 
 
 def _compile(word: str) -> re.Pattern:
@@ -138,8 +155,6 @@ _PATTERNS = {
     }
     for key, spec in TOPICS.items()
 }
-_CHILD_PATTERNS = [(w, _compile(w)) for w in _CHILD_WORDS]
-_WEIGHT_PATTERNS = [(w, _compile(w)) for w in _WEIGHT_WORDS]
 
 
 @dataclass
@@ -170,13 +185,11 @@ def match_topics(text: str) -> dict[str, TopicMatch]:
         weak = [w for w, p in pats["weak"] if p.search(lowered)]
         if strong or weak:
             results[key] = TopicMatch(key, strong, weak)
-    # Composite rule: weight/obesity words + child words => childhood obesity.
-    if "childhood_obesity" not in results or not results["childhood_obesity"].strong:
-        weights = [w for w, p in _WEIGHT_PATTERNS if p.search(lowered)]
-        kids = [w for w, p in _CHILD_PATTERNS if p.search(lowered)]
-        if weights and kids:
-            m = results.setdefault("childhood_obesity", TopicMatch("childhood_obesity"))
-            m.strong.append(f"{weights[0]} + {kids[0]}")
+    # Composite rule: an obesity word near a child word => WEAK childhood-obesity evidence (never strong).
+    if "childhood_obesity" not in results:
+        pair = _near_pair(lowered)
+        if pair:
+            results["childhood_obesity"] = TopicMatch("childhood_obesity", [], [f"{pair[0]} near {pair[1]}"])
     # Short words such as 'ai' and 'ml' only count when written in capitals in the original text.
     if "ai_ml" in results:
         m = results["ai_ml"]

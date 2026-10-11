@@ -1,7 +1,7 @@
 # Emailing professors: what works, and how the drafts are built
 
 ## How the tool writes each draft
-- **Their research** is quoted from the record's `research_interests` and recorded publications. Both come from official pages or the publication record, with sources.
+- **Their research** is quoted from the record's `research_interests` and recorded publications. For the researched leads these were collected from search results of official pages and publication records, with source links. They are not checked again automatically, so open the official profile and confirm them before you approve. A paper is mentioned only if its title matches one of your topics. Leads found with OpenAlex start with no research interests: copy them from the official profile with `outreach set --id R0123 --field research_interests --value "..."`.
 - **Your experience** is copied word for word from your CV (`private_profile/profile.json`). The tool picks the one or two lines that best match the professor's topics. For data-heavy labs it adds your machine-learning project.
 - **The request** asks politely whether they expect to take a new student for Spring or Fall 2027, and whether a research or teaching assistantship might be available. It **never assumes** either.
 - **It never says "I read your paper".** It only mentions that the paper exists. Read at least the abstract before you send. If you have a genuine comment, add it as one sentence in `personal_note`.

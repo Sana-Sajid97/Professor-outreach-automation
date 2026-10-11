@@ -28,7 +28,7 @@ from .errors import UserFacingError
 from .review import write_review_page
 from .suppression import SuppressionList
 from .textutil import clean, email_domain, normalize_email, split_multi
-from .tracker import log_event, sent_count_on, set_status
+from .tracker import already_sent, gmail_draft_already_created, log_event, sent_count_on, set_status
 
 TEST_DOMAINS = (".example", "example.com", "example.org", "example.net", "example.edu", ".test", ".invalid")
 
@@ -156,7 +156,10 @@ def send(
     print_fn=print,
     gmail_service=None,
     sleep=time.sleep,
+    save_fn=None,
 ) -> SendReport:
+    """save_fn: saves the tracker. It is called before the first Gmail send (to make sure saving works) and after
+    every successful send, so a sent email is recorded at once and can never be sent twice."""
     report = SendReport(method)
     wanted = {i.strip().upper() for i in (ids or []) if i.strip()}
     ready = []
@@ -166,6 +169,17 @@ def send(
         if wanted and clean(record.get("record_id")).upper() not in wanted:
             continue
         problem = send_problem(record, suppression)
+        if not problem and normalize_email(record.get("institutional_email", "")) in {normalize_email(r.get("institutional_email", "")) for r in ready}:
+            problem = "another approved email in this batch goes to the same address"
+        if not problem and already_sent(settings, record.get("institutional_email", ""), record.get("email_subject", "")):
+            problem = (
+                "the outreach log shows this exact email (same address and subject) was already sent - not sending it again. "
+                "If it truly must go again (e.g. a temporary bounce), change the subject and approve it again"
+            )
+        if not problem and method == "gmail-drafts" and gmail_draft_already_created(
+            settings, record.get("institutional_email", ""), record.get("email_subject", "")
+        ):
+            problem = "a Gmail draft for this exact email already exists - send it from Gmail's Drafts folder (or use --method manual)"
         if problem:
             report.skipped.append((clean(record.get("record_id")), problem))
             continue
@@ -185,7 +199,9 @@ def send(
 
     if method == "manual":
         path = settings.exports_dir / f"outbox_{today.isoformat()}.html"
-        report.outbox_path = write_review_page(ready, path, f"Outbox - {len(ready)} approved email(s)", today)
+        report.outbox_path = write_review_page(
+            ready, path, f"Outbox - {len(ready)} approved email(s)", today, sendable_ids={clean(r.get("record_id")) for r in ready}
+        )
         print_fn(f"Open this page and send each email from Gmail yourself:\n  {report.outbox_path}")
         print_fn("After sending, record them with:  python -m src.cli mark-sent --ids " + ",".join(clean(r.get("record_id")) for r in ready))
         return report
@@ -219,6 +235,8 @@ def send(
         print_fn("Cancelled. Nothing was sent.")
         return report
 
+    if save_fn is not None:
+        save_fn()  # fails here (e.g. tracker open in Excel) BEFORE anything is sent or drafted
     for index, record in enumerate(ready):
         rid = clean(record.get("record_id"))
         try:
@@ -226,13 +244,23 @@ def send(
             if method == "gmail-drafts":
                 draft_id = create_draft(gmail_service, raw)
                 record["notes"] = f"{clean(record.get('notes'))} | {today.isoformat()}: Gmail draft created (id {draft_id}); send it from Gmail, then mark-sent.".strip(" |")
-                log_event(settings, record, "gmail_draft_created", f"draft_id={draft_id}")
+                log_event(settings, record, "gmail_draft_created", f"draft_id={draft_id}; subject={clean(record.get('email_subject'))}")
                 report.drafted.append(rid)
+                if save_fn is not None:
+                    save_fn()
             else:
                 message_id = send_raw(gmail_service, raw)
                 set_status(record, m.SENT, today, settings)
                 log_event(settings, record, "sent_via_gmail_api", f"message_id={message_id}; subject={clean(record.get('email_subject'))}")
                 report.sent.append(rid)
+                if save_fn is not None:
+                    try:
+                        save_fn()
+                    except UserFacingError as exc:
+                        raise UserFacingError(
+                            f"{rid} was sent and recorded in the outreach log, but the tracker could not be saved ({exc}). "
+                            "Sending stopped. The log prevents this email from being sent again."
+                        ) from exc
                 if index < len(ready) - 1:
                     sleep(random.uniform(45, 90))  # spread emails out; never bursts
         except UserFacingError:
@@ -253,7 +281,10 @@ def mark_sent(
     input_fn=input,
     print_fn=print,
     sent_on: date | None = None,
+    suppression: SuppressionList | None = None,
 ) -> int:
+    """Record emails you sent yourself. Only APPROVED emails (unchanged since approval) can be recorded."""
+    suppression = suppression or SuppressionList.load(settings.suppression_path)
     wanted = [i.strip().upper() for i in ids if i.strip()]
     chosen = [r for r in records if clean(r.get("record_id")).upper() in wanted]
     missing = set(wanted) - {clean(r.get("record_id")).upper() for r in chosen}
@@ -262,8 +293,15 @@ def mark_sent(
     ok = []
     for record in chosen:
         status = clean(record.get("workflow_status"))
-        if status not in {m.APPROVED, m.FOLLOW_UP_DUE}:
-            print_fn(f"{record.get('record_id')}: status is '{status}'. Only approved emails (or due follow-ups) can be marked as sent.")
+        if status != m.APPROVED:
+            print_fn(f"{record.get('record_id')}: status is '{status}'. Only approved emails can be marked as sent (approve it first).")
+            continue
+        problem = send_problem(record, suppression)
+        if problem:
+            print_fn(f"{record.get('record_id')}: cannot be recorded as sent - {problem}.")
+            continue
+        if already_sent(settings, record.get("institutional_email", ""), record.get("email_subject", "")):
+            print_fn(f"{record.get('record_id')}: the outreach log already shows this exact email as sent.")
             continue
         ok.append(record)
     if not ok:
@@ -274,10 +312,18 @@ def mark_sent(
         return 0
     day = sent_on or today
     for record in ok:
-        was_follow_up = clean(record.get("workflow_status")) == m.FOLLOW_UP_DUE
+        was_follow_up = bool(clean(record.get("last_contact_date")))
         set_status(record, m.SENT, day, settings)
         log_event(settings, record, "follow_up_sent" if was_follow_up else "sent", f"recorded by user; subject={clean(record.get('email_subject'))}")
     return len(ok)
+
+
+def reset_approval_for_import(record: dict) -> None:
+    """Imported or restored rows never carry approvals: everything must be re-approved in this tracker."""
+    record["approval_hash"] = ""
+    record["approved_on"] = ""
+    if clean(record.get("workflow_status")) == m.APPROVED:
+        record["workflow_status"] = m.DRAFT_READY
 
 
 def _ids(value: str) -> list[str]:

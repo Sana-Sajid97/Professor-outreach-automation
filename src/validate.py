@@ -21,6 +21,7 @@ from .textutil import (
     is_official_academic_host,
     is_valid_email,
     is_valid_url,
+    meaningful,
     normalize_email,
     parse_iso,
     registrable_domain,
@@ -172,9 +173,14 @@ def validate_record(
             add("date_checked", "warning", f"Information was last checked {(today - d).days} days ago. Re-verify before contacting.")
     elif advanced:
         add("date_checked", "warning", "No date_checked recorded.")
+    for field_name in ("follow_up_date", "last_contact_date", "approved_on"):
+        value = clean(record.get(field_name))
+        if value and not parse_iso(value):
+            add(field_name, "warning", f"The date '{value}' cannot be read safely (day or month first?). Write it as YYYY-MM-DD"
+                + (" - follow-up reminders do not work for this record until then." if field_name == "follow_up_date" else "."))
 
     # ---- research evidence
-    if not clean(record.get("research_interests")) and (advanced or status == m.NEEDS_VERIFICATION):
+    if not meaningful(record.get("research_interests", "")) and (advanced or status == m.NEEDS_VERIFICATION):
         add("research_interests", "error" if advanced else "warning", "Research interests are missing; the email cannot be personalised.")
 
     # ---- drafts
@@ -235,6 +241,18 @@ def validate_all(
         if count > 1:
             issues.append(Issue(rid, "record_id", "error", f"record_id {rid} is used {count} times."))
     from .textutil import name_key, normalize_url
+
+    active_by_email: dict[str, list[str]] = {}
+    for record in records:
+        email = normalize_email(record.get("institutional_email", ""))
+        if email and clean(record.get("workflow_status")) not in m.SUPPRESSED_STATUSES | {m.CLOSED, m.NOT_A_FIT}:
+            active_by_email.setdefault(email, []).append(clean(record.get("record_id")) or "(no id)")
+    for email, ids in active_by_email.items():
+        if len(ids) > 1:
+            for rid in ids:
+                issues.append(Issue(rid, "institutional_email", "error",
+                                    f"{email} is used by {len(ids)} active records ({', '.join(ids)}). Merge them (dedupe) "
+                                    "or close one, so nobody gets the same email twice."))
 
     by_url: dict[str, set[str]] = {}
     for record in records:

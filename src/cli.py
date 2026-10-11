@@ -39,6 +39,7 @@ def _ids(value: str | None) -> list[str]:
 
 def _load(settings: Settings):
     from .storage import load_records
+    from .suppression import SuppressionList
 
     records = load_records(settings.tracker_path)
     if not records:
@@ -46,6 +47,12 @@ def _load(settings: Settings):
             "Your tracker is empty. Start it with:  python -m src.cli init   (uses the researched leads), "
             "or add records with:  python -m src.cli import --file your_file.csv"
         )
+    # The suppression list always wins, whatever command runs next.
+    SuppressionList.load(settings.suppression_path).apply(records, date.today())
+    from .tracker import reconcile_with_log
+
+    for rid in reconcile_with_log(records, settings):
+        print(f"{rid}: the outreach log shows this email was sent, so its status was restored to 'sent'.")
     return records
 
 
@@ -132,10 +139,13 @@ def cmd_init(settings: Settings, args) -> int:
     source = Path(args.source) if args.source else (settings.sample_dir / "sample_professors.csv" if args.sample else settings.seed_dir / "professors_leads.csv")
     if not source.exists():
         raise UserFacingError(f"Starting file not found: {source}")
+    from .sending import reset_approval_for_import
+
     records = read_any(source)
     for r in records:
         if not r.get("record_source"):
             r["record_source"] = "sample" if args.sample else source.name
+        reset_approval_for_import(r)
     assign_missing_ids(records)
     save_records(settings.tracker_path, records, settings.backup_dir)
     print(f"Tracker created with {len(records)} record(s) from {source.name}: {settings.tracker_path}")
@@ -148,10 +158,13 @@ def cmd_import(settings: Settings, args) -> int:
 
     settings.ensure_folders()
     records = load_records(settings.tracker_path)
+    from .sending import reset_approval_for_import
+
     new = read_any(Path(args.file))
     for r in new:
         if not r.get("record_source"):
             r["record_source"] = Path(args.file).name
+        reset_approval_for_import(r)
     before = len(records)
     records.extend(new)
     assign_missing_ids(records)
@@ -230,6 +243,64 @@ def cmd_confirm_email(settings: Settings, args) -> int:
     confirm_email_manually(record, args.email, args.source_url, date.today())
     _save(settings, records)
     print(f"{args.id}: email confirmed as {record['institutional_email']} (source: {args.source_url}).")
+    return 0
+
+
+EDITABLE_FIELDS = [
+    "research_interests", "title", "department_or_school", "university", "state", "faculty_profile_url", "lab_url",
+    "relevant_publication_1", "publication_1_url", "publication_1_year", "relevant_publication_2", "publication_2_url",
+    "publication_2_year", "graduate_program", "program_url", "spring_2027_status", "fall_2027_status",
+    "recruiting_evidence", "funding_or_assistantship_evidence", "application_deadline", "eligibility_notes", "personal_note",
+]
+REVERIFY_FIELDS = {"faculty_profile_url", "university"}
+REDRAFT_FIELDS = {"research_interests", "relevant_publication_1", "relevant_publication_2", "publication_1_year", "publication_2_year", "personal_note", "title"}
+
+
+def cmd_set(settings: Settings, args) -> int:
+    """Change one field of one record safely (instead of editing tracker.csv in Excel)."""
+    from .textutil import is_valid_url
+    from .tracker import log_event, set_status
+
+    if args.field not in EDITABLE_FIELDS:
+        raise UserFacingError(
+            f"'{args.field}' cannot be changed with this command. Fields you can change: {', '.join(EDITABLE_FIELDS)}. "
+            "(Emails: use confirm-email. Statuses: use mark-sent, not-a-fit, close and so on.)"
+        )
+    value = (args.value or "").strip()
+    if value and args.field.endswith("_url") and not is_valid_url(value):
+        raise UserFacingError(f"'{value}' is not a full web address (it should start with https://).")
+    if value and args.field.endswith("_year") and not (value.isdigit() and len(value) == 4):
+        raise UserFacingError("A year must be four digits, for example 2025.")
+    records = _load(settings)
+    record = _get(records, args.id)
+    old = record.get(args.field, "")
+    record[args.field] = value
+    log_event(settings, record, "field_set", f"{args.field}: '{old[:80]}' -> '{value[:80]}'")
+    print(f"{args.id}: {args.field} updated.")
+    status = record.get("workflow_status", "")
+    if args.field in REVERIFY_FIELDS and status in {m.VERIFIED, m.DRAFT_READY, m.APPROVED} and value != old:
+        set_status(record, m.NEEDS_VERIFICATION, date.today(), settings, note=f"{args.field} changed; verify again")
+        record["verification_status"] = m.VER_PARTIAL if record.get("verification_status") == m.VER_VERIFIED else record.get("verification_status", "")
+        record["approval_hash"] = ""
+        print("  This changes who/where the person is, so the record needs verifying again (python -m src.cli verify).")
+    elif args.field in REDRAFT_FIELDS and status in {m.DRAFT_READY, m.APPROVED}:
+        print(f"  The current draft does not include this change yet. Rewrite it with:  python -m src.cli draft --ids {args.id} --force")
+    _save(settings, records)
+    return 0
+
+
+def cmd_note(settings: Settings, args) -> int:
+    from .tracker import log_event
+
+    records = _load(settings)
+    record = _get(records, args.id)
+    text = " ".join((args.text or "").split())
+    if not text:
+        raise UserFacingError("The note is empty.")
+    record["notes"] = f"{record.get('notes', '').strip()} | {date.today().isoformat()}: {text}".strip(" |")
+    log_event(settings, record, "note_added", text[:200])
+    _save(settings, records)
+    print(f"{args.id}: note added.")
     return 0
 
 
@@ -313,11 +384,16 @@ def cmd_draft(settings: Settings, args) -> int:
 def cmd_review(settings: Settings, args) -> int:
     from .review import write_review_page
 
+    from .sending import send_problem
+    from .suppression import SuppressionList
+
     records = _load(settings)
-    chosen = [r for r in records if r.get("workflow_status") in {m.DRAFT_READY, m.APPROVED, m.FOLLOW_UP_DUE} and r.get("email_draft")]
+    suppression = SuppressionList.load(settings.suppression_path)
+    chosen = [r for r in records if r.get("workflow_status") in {m.DRAFT_READY, m.APPROVED} and r.get("email_draft")]
     chosen.sort(key=lambda r: -float(r.get("fit_score") or 0))
     profile = _profile(settings) if settings.profile_path.exists() else {}
-    path = write_review_page(chosen, settings.exports_dir / "review_latest.html", "Drafts to review", date.today(), profile.get("email", ""))
+    sendable = {r.get("record_id") for r in chosen if r.get("workflow_status") == m.APPROVED and not send_problem(r, suppression)}
+    path = write_review_page(chosen, settings.exports_dir / "review_latest.html", "Drafts to review", date.today(), profile.get("email", ""), sendable_ids=sendable)
     print(f"Review page with {len(chosen)} email(s): {path}")
     print("Open it in your browser. Nothing is sent from that page.")
     return 0
@@ -340,11 +416,21 @@ def cmd_send(settings: Settings, args) -> int:
     from .sending import send
     from .suppression import SuppressionList
 
+    from .storage import save_records
+
     records = _load(settings)
     try:
-        report = send(records, settings, SuppressionList.load(settings.suppression_path), date.today(), args.method, args.limit, _ids(args.ids))
-    finally:
-        _save(settings, records)
+        report = send(
+            records, settings, SuppressionList.load(settings.suppression_path), date.today(), args.method, args.limit,
+            _ids(args.ids), save_fn=lambda: save_records(settings.tracker_path, records),  # quick save after each email
+        )
+    except BaseException:
+        try:
+            _save(settings, records)
+        except Exception:
+            pass  # keep the original error message; the outreach log still records every email sent
+        raise
+    _save(settings, records)
     if report.sent:
         print(f"Sent (confirmed by Gmail): {', '.join(report.sent)}")
     if report.drafted:
@@ -359,8 +445,11 @@ def cmd_send(settings: Settings, args) -> int:
 def cmd_mark_sent(settings: Settings, args) -> int:
     from .sending import mark_sent
 
+    from .suppression import SuppressionList
+
     records = _load(settings)
-    n = mark_sent(records, _ids(args.ids), settings, date.today(), sent_on=_today(args.date) if args.date else None)
+    n = mark_sent(records, _ids(args.ids), settings, date.today(), sent_on=_today(args.date) if args.date else None,
+                  suppression=SuppressionList.load(settings.suppression_path))
     _save(settings, records)
     print(f"{n} email(s) recorded as sent. Follow-up reminders were scheduled.")
     return 0
@@ -389,6 +478,12 @@ def cmd_suppress_email(settings: Settings, args) -> int:
     suppression = SuppressionList.load(settings.suppression_path)
     suppression.add({"institutional_email": args.email, "professor_name": args.name or "", "university": args.university or ""}, args.reason, date.today(), args.note or "")
     suppression.save(settings.suppression_path)
+    if settings.tracker_path.exists():
+        from .storage import load_records
+
+        records = load_records(settings.tracker_path)
+        if suppression.apply(records, date.today()):
+            _save(settings, records)
     print(f"{args.email} added to the suppression list ({args.reason}). They will never be emailed.")
     return 0
 
@@ -406,15 +501,20 @@ def cmd_followups(settings: Settings, args) -> int:
         _save(settings, records)
         return 0
     profile = _profile(settings)
+    from .tracker import set_status
+
     for r in due:
         print(f"{r.get('record_id')}: {r.get('professor_name')} ({r.get('university')}) - first email {r.get('last_contact_date')}")
         if args.draft:
             draft = build_follow_up(r, profile, today)
             r["email_subject"], r["email_draft"] = draft.subject, draft.body
+            set_status(r, m.DRAFT_READY, today, settings)  # follow-ups need approval like any email
+            r["approval_hash"] = ""
+            r["next_action"] = "Follow-up drafted: review and approve it (5_approve_drafts.bat), then send it from the outbox."
             log_event(settings, r, "follow_up_drafted", draft.subject)
     _save(settings, records)
     if args.draft:
-        print("Follow-up drafts written. Open them with 'review', send them yourself, then run mark-sent for those ids.")
+        print("Follow-up drafts written. Approve them (5_approve_drafts.bat), send them from the outbox, then run mark-sent.")
     else:
         print("Add --draft to write polite follow-up drafts for these.")
     return 0
@@ -514,6 +614,7 @@ def cmd_preview(settings: Settings, args) -> int:
     ]
     pool.sort(key=lambda r: -float(r.get("fit_score") or 0))
     previews = []
+    warnings: dict[str, list[str]] = {}
     for r in pool[: args.limit]:
         copy = dict(r)
         draft = build_draft(copy, profile, today)
@@ -521,7 +622,11 @@ def cmd_preview(settings: Settings, args) -> int:
         copy["email_draft"] = draft.body
         copy["workflow_status"] = "preview_only"
         previews.append(copy)
-    path = write_review_page(previews, settings.exports_dir / "preview_latest.html", "PREVIEW ONLY - not verified, do not send", today)
+        important = [w for w in draft.warnings if not w.startswith(("Tip:", "No recent publication"))]
+        if important:
+            warnings[copy.get("record_id", "")] = important
+    path = write_review_page(previews, settings.exports_dir / "preview_latest.html", "PREVIEW ONLY - not verified, do not send", today,
+                             warnings_by_id=warnings)
     print(f"Preview of {len(previews)} email(s): {path}")
     print("These professors are NOT verified yet. Nothing was saved and nothing can be sent from the preview.")
     print("Next: python -m src.cli verify   (on your own PC), then run the pipeline to create real drafts.")
@@ -560,6 +665,13 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--id", required=True)
     sp.add_argument("--email", required=True)
     sp.add_argument("--source-url", required=True, help="the official page where the email is shown")
+    sp = add("set", cmd_set, "change one field of one record (safer than editing tracker.csv in Excel)")
+    sp.add_argument("--id", required=True)
+    sp.add_argument("--field", required=True, help="e.g. research_interests, title, faculty_profile_url, personal_note")
+    sp.add_argument("--value", required=True, help='the new text in quotes, or "" to clear it')
+    sp = add("note", cmd_note, "add a dated note to a record")
+    sp.add_argument("--id", required=True)
+    sp.add_argument("--text", required=True)
     sp = add("validate", cmd_validate, "check all records for missing or suspicious data")
     sp.add_argument("--all", action="store_true", help="also show warnings")
     sp = add("dedupe", cmd_dedupe, "find and merge duplicate records")

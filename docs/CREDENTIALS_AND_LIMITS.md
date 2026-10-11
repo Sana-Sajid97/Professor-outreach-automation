@@ -20,7 +20,7 @@
 ## Honest status of each feature (11 Oct 2026)
 | Feature | Status |
 |---|---|
-| Core workflow (import, validate, dedupe, score, draft, review, approve, outbox, mark-sent, follow-ups, suppression, export) | **Implemented and tested.** 85 automated tests pass, including an end-to-end run on sample data. |
+| Core workflow (import, validate, dedupe, score, draft, review, approve, outbox, mark-sent, follow-ups, suppression, export) | **Implemented and tested.** 165 automated tests pass, including an end-to-end run on sample data. |
 | `verify` | Implemented and tested against realistic sample web pages, including mailto links, "[at]/[dot]" anti-spam text, Cloudflare-protected emails, robots.txt, rate limits and 404 errors. **Not yet run against live university websites**, because the cloud build environment blocks outside websites. The first real run on your PC is its first live test, so start with `--limit 5`. |
 | `discover` (OpenAlex) and `check-funding` (NIH) | Implemented from the official API documentation and tested with sample responses. **Not yet run live** (same reason). Try them with a small `--limit`. |
 | Gmail drafts and sending | Implemented and tested with a fake Gmail service. **Not yet tested with a real Google account.** Test by sending to yourself first. |
@@ -35,5 +35,6 @@
 - Every email needs your explicit approval after a full preview (recipient, subject, body, evidence). Editing an email after approval cancels the approval.
 - Daily sending limit (default 30). Sends are spaced out, and a failed send is never recorded as sent.
 - People who opt out, bounce, or must not be contacted are suppressed forever.
-- No CAPTCHA solving, no logins, no getting around blocks. Pages that refuse automated access are left for you to check by hand.
+- No CAPTCHA solving, no logins, no getting around blocks. Pages that refuse automated access are left for you to check by hand. If a site's robots.txt cannot be read, the site is treated as "no", and every redirect is checked against robots.txt again.
+- `check-funding` credits an NIH grant only when the first name, surname and institution all match, so a grant held by a different person with the same surname is never used. A "not found" is not proof of no funding: other funders (USDA, NSF, foundations) are not covered, and a different spelling can hide a grant.
 - Secrets live only in `.env` and `private_profile\`, which are never uploaded to GitHub.

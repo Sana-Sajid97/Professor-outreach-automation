@@ -65,14 +65,13 @@ def export_xlsx(records: list[dict], path: Path, programs: list[dict] | None = N
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Font, PatternFill
     from openpyxl.utils import get_column_letter
-    from openpyxl.worksheet.datavalidation import DataValidation
 
     wb = Workbook()
     header_font = Font(bold=True, color="FFFFFF")
     header_fill = PatternFill("solid", fgColor="2F5597")
     link_font = Font(color="0563C1", underline="single")
 
-    def write_sheet(ws, rows: list[dict], columns: list[str], status_dropdown: bool = False) -> None:
+    def write_sheet(ws, rows: list[dict], columns: list[str]) -> None:
         ws.append(columns)
         for cell in ws[1]:
             cell.font = header_font
@@ -93,17 +92,12 @@ def export_xlsx(records: list[dict], path: Path, programs: list[dict] | None = N
         ws.freeze_panes = "B2"
         if rows:
             ws.auto_filter.ref = f"A1:{get_column_letter(len(columns))}{len(rows) + 1}"
-        if status_dropdown and "workflow_status" in columns and rows:
-            col = get_column_letter(columns.index("workflow_status") + 1)
-            dv = DataValidation(type="list", formula1='"' + ",".join(m.WORKFLOW_STATUSES) + '"', allow_blank=True)
-            ws.add_data_validation(dv)
-            dv.add(f"{col}2:{col}{len(rows) + 1}")
 
     ordered = sort_for_review(records)
     ws = wb.active
     ws.title = "Summary"
     write_sheet(ws, ordered, [c for c in SUMMARY_COLUMNS])
-    write_sheet(wb.create_sheet("All fields"), ordered, ordered_columns(records), status_dropdown=True)
+    write_sheet(wb.create_sheet("All fields"), ordered, ordered_columns(records))  # a snapshot: no dropdowns that invite edits
     drafts = [r for r in ordered if clean(r.get("email_draft"))]
     write_sheet(wb.create_sheet("Drafts"), drafts, DRAFT_COLUMNS)
     if programs:

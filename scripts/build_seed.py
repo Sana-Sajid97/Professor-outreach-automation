@@ -26,7 +26,7 @@ sys.path.insert(0, str(ROOT))
 from src import models as m  # noqa: E402
 from src.dedupe import dedupe_records  # noqa: E402
 from src.storage import write_csv  # noqa: E402
-from src.textutil import clean, is_blank_or_unknown, join_multi, name_key, normalize_university, split_multi  # noqa: E402
+from src.textutil import clean, is_blank_or_unknown, is_placeholder, join_multi, name_key, normalize_university, split_multi  # noqa: E402
 
 RAW = ROOT / "data" / "research" / "raw"
 SEED = ROOT / "data" / "seed"
@@ -105,6 +105,10 @@ def to_record(raw: dict) -> dict:
         funding = signal if is_blank_or_unknown(funding) or funding.lower().startswith("not verified") else f"{funding} | {signal}"
     rec["funding_or_assistantship_evidence"] = funding
     notes = [text(raw.get("confidence_notes", "")), text(raw.get("email_evidence", ""))]
+    if rec["research_interests"] and is_placeholder(rec["research_interests"]):
+        # "Not verified (...)" is a research note, not research interests: keep it as a note, leave the field blank
+        notes.append(f"Research interests: {rec['research_interests']}")
+        rec["research_interests"] = ""
     rec["notes"] = " | ".join(n for n in notes if n)
     rec["record_source"] = f"research:{text(raw.get('research_agent', ''))}".rstrip(":")
     rec["workflow_status"] = m.NEEDS_VERIFICATION
@@ -138,8 +142,10 @@ def merge_into(base: dict, extra: dict) -> None:
                 base["publication_2_year"] = clean(extra.get("publication_1_year"))
         elif key in {"publication_1_url", "publication_1_year"} and current:
             continue
-        elif not current or is_blank_or_unknown(current):
-            base[key] = value
+        elif not current or is_placeholder(current):
+            # a real value replaces a placeholder such as "Not verified (...)"; between two placeholders keep the more informative
+            if not is_placeholder(value) or len(value) > len(current):
+                base[key] = value
 
 
 def best_program(programs: list[dict]) -> dict | None:
@@ -162,7 +168,7 @@ def program_to_professor_fields(program: dict) -> dict:
     spring_admission = text(program.get("spring_2027_admission")).lower()
     spring_deadline = text(program.get("spring_2027_deadline"))
     spring_status = text(program.get("spring_deadline_status"))
-    if spring_admission.startswith("no") or spring_status == "no_spring_admission":
+    if re.match(r"^no\b", spring_admission) or spring_status == "no_spring_admission":
         fields["spring_2027_status"] = "No spring admission (per program research)"
     elif spring_deadline and not is_blank_or_unknown(spring_deadline):
         fields["spring_2027_status"] = f"Spring deadline: {spring_deadline}" + (f" [{spring_status}]" if spring_status else "")
@@ -184,7 +190,7 @@ def program_to_professor_fields(program: dict) -> dict:
     deadline = text(program.get("assistantship_deadline")) or text(program.get("funding_deadline_note"))
     if deadline and not is_blank_or_unknown(deadline):
         fields["application_deadline"] = deadline[:200]
-    if text(program.get("advisor_contact_expected")).lower().startswith("no"):
+    if re.match(r"^no\b", text(program.get("advisor_contact_expected")).lower()):  # "No", not "Not verified"
         fields["notes"] = "Program research: the department discourages contacting faculty before review - do not cold-email."
     return fields
 
