@@ -1,1 +1,1 @@
-{"agent": "w3-a", "updated_at": "2026-10-11 step 24 (searches done, writing records)", "professors": 0, "programs": 0, "searches_used": 24, "now_working_on": "Writing professor records for TAMU, TTU, UT Austin, OSU", "done": false}
+{"agent": "w3-a", "updated_at": "2026-10-11 final", "professors": 17, "programs": 0, "searches_used": 24, "per_university": {"Texas A&M University": 7, "Texas Tech University": 2, "The University of Texas at Austin": 3, "Oklahoma State University": 5}, "now_working_on": "finished", "done": true}

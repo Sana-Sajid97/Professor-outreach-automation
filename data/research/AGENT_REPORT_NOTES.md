@@ -41,3 +41,12 @@ These are the agents' own summaries. Check the facts in the raw files and on off
     - **Atoloye (USU):** SNAP and food access; USU has rolling admission, so it is the realistic **Spring** option.
   - **SNAP-Ed ended Sep 30, 2025**, which may affect positions it funded.
   - The WSU NEP PhD admits for fall only (Jan 31); whether a master's is required is unclear.
+- **w3-a (Texas A&M, Texas Tech, UT Austin, Oklahoma State):** 17 new records.
+  - Top fits:
+    - **Rebecca Seguin-Fowler (Texas A&M IHA):** maternal and community cardiometabolic nutrition; $2.1M women's heart study; USDA Nutrition Hub; Harvesting Health trial.
+    - **Heidi Vanden Brink (Texas A&M):** adolescent PCOS and metabolic health; PI of recruiting trial NCT07780188.
+    - **Beth Racine (Texas A&M, El Paso):** food insecurity and SNAP.
+    - **Rachel Liebe (Oklahoma State):** household food insecurity and maternal mental health.
+    - **Jaimie Davis (UT Austin):** childhood obesity and food insecurity (TX Sprouts); now Interim Director of the School of Human Ecology.
+  - Szeszulski (Texas A&M) holds AHA awards.
+  - **Caveat:** Seguin-Fowler, Racine and Rethorst were not seen on the Texas A&M PhD training-faculty list, so ask whether they can be a primary advisor.

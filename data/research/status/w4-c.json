@@ -1,10 +1,10 @@
 {
  "agent": "w4-c",
- "updated_at": "2026-10-11T08:48:29Z",
+ "updated_at": "2026-10-11T08:49:00Z",
  "professors": 5,
- "programs": 4,
- "searches_used": 7,
+ "programs": 5,
+ "searches_used": 8,
  "search_budget": 24,
- "now_working_on": "Cincinnati done; starting Saint Louis University",
+ "now_working_on": "SLU done (weak); starting Indiana University Bloomington",
  "done": false
 }
