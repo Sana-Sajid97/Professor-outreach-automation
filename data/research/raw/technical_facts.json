@@ -1,0 +1,338 @@
+[
+  {
+    "topic": "A - OpenAlex: API key requirement",
+    "fact": "OpenAlex's official changelog says API keys became required for all API requests on February 13, 2026. The keys are free and come from openalex.org/settings/api.",
+    "quote": "API keys required — All API requests now require an API key. You can get your free key at openalex.org/settings/api.",
+    "source_url": "https://help.openalex.org/hc/en-us/articles/38868153578263-Changelog",
+    "as_of": "2026-02-13 (changelog entry date)",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: API key requirement (transition notice)",
+    "fact": "A changelog entry dated February 4, 2026 recommended keys first and announced that they would become required on February 13, 2026.",
+    "quote": "API keys are now recommended for all requests. Starting February 13, they become required.",
+    "source_url": "https://help.openalex.org/hc/en-us/articles/38868153578263-Changelog",
+    "as_of": "2026-02-04 (changelog entry date)",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: API key requirement (blog)",
+    "fact": "The OpenAlex blog post 'New Features and Usage-Based Pricing' (February 24, 2026) says API keys are required for all requests. The same release added usage-based pricing.",
+    "quote": "API keys are now required. As we announced in January, you'll need an API key for all requests.",
+    "source_url": "https://blog.openalex.org/openalex-api-new-features-and-usage-based-pricing/",
+    "as_of": "2026-02-24",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: keyless budget (conflicting official wording)",
+    "fact": "OpenAlex's own docs contradict each other. The developer and help pages still describe a small keyless budget of $0.10 per day, while the changelog says keys are required. Design rule: always send a free API key and treat keyless access as unsupported.",
+    "quote": "free daily usage—0.10/day with no key, or 10× that (1/day) with a free API key",
+    "source_url": "https://developers.openalex.org/api-reference/authentication",
+    "as_of": "Not shown in search result (page indexed 2026)",
+    "confidence": "medium"
+  },
+  {
+    "topic": "A - OpenAlex: polite pool / mailto retired",
+    "fact": "The mailto 'polite pool' no longer exists. The official deprecations page says it was replaced by API keys in February 2026 and that the mailto parameter is now ignored.",
+    "quote": "Before February 2026, OpenAlex used a \"polite pool\" system where you could get higher rate limits by including email in your requests. This system has been replaced by API keys.",
+    "source_url": "https://help.openalex.org/api/deprecations/",
+    "as_of": "Not shown in search result",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: legacy limits are retired",
+    "fact": "OpenAlex says that the old '100,000 calls per day' limit and 'polite pool' email addresses describe retired systems. Older docs and GitHub copies that cite 100,000 credits per day are out of date.",
+    "quote": "references around the web to older API tiers, such as a flat \"100,000 calls per day\" limit or \"polite pool\" email addresses, describe retired systems",
+    "source_url": "https://help.openalex.org/access/legacy-plans/",
+    "as_of": "Not shown in search result",
+    "confidence": "medium"
+  },
+  {
+    "topic": "A - OpenAlex: free daily budget and pricing",
+    "fact": "Pricing is usage-based. Each account with a free key gets $1 of API usage per day, with no payment method needed, and the budget resets at midnight UTC. Per 1,000 calls: single-entity lookups are free, list or filter calls cost $0.10, keyword search costs $1, semantic search costs $1, and content downloads cost $10.",
+    "quote": "Search requests cost more than list-and-filter requests, at $1 per 1,000 calls (vs. $0.10 per 1,000 for list+filter requests).",
+    "source_url": "https://help.openalex.org/access/pricing/",
+    "as_of": "Not shown in search result",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: what $1/day buys",
+    "fact": "The official example-costs table says the free $1 per day covers about 10,000 list-and-filter calls or about 1,000 direct API searches. A search on the openalex.org website costs about 18 credits, which brings the figure closer to 550. A reranked search costs $2 per 1,000 calls.",
+    "quote": "$1/day ≈ 1,000 searches",
+    "source_url": "https://help.openalex.org/access/example-costs/",
+    "as_of": "Not shown in search result",
+    "confidence": "medium"
+  },
+  {
+    "topic": "A - OpenAlex: paid tiers",
+    "fact": "Users who need more than the free $1 per day can buy prepaid usage in $1 increments. Prepaid usage is drawn only after the free daily budget is used up, and it expires 3 months after the most recent purchase. Annual plans also exist. Search summaries named them Member, Member+ and Partner, but those names were not confirmed on an official page.",
+    "quote": "Prepaid usage is only drawn down after the free daily budget runs out",
+    "source_url": "https://help.openalex.org/access/pricing/",
+    "as_of": "Not shown in search result",
+    "confidence": "medium"
+  },
+  {
+    "topic": "A - OpenAlex: rate limits and errors",
+    "fact": "Exceeding the daily budget or sending more than 100 requests per second returns HTTP 429, and the docs recommend exponential backoff. One developer error page also lists 403 for 'Rate limit exceeded', so the client should treat both 403 and 429 as rate-limit signals.",
+    "quote": "Two things return 429 Too Many Requests: exceeding your daily budget, or making more than 100 requests per second.",
+    "source_url": "https://help.openalex.org/api/authentication/",
+    "as_of": "Not shown in search result (indexed about 53 days before 2026-10-11)",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: rate-limit headers and endpoint",
+    "fact": "Responses include the headers X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Credits-Used and X-RateLimit-Reset (seconds until midnight UTC). A GET request to https://api.openalex.org/rate-limit?api_key=KEY returns the daily budget, the amount used and remaining, and resets_in_seconds.",
+    "quote": "X-RateLimit-Reset | Seconds until reset (midnight UTC)",
+    "source_url": "https://developers.openalex.org/api-reference/rate-limits/check-rate-limit-status",
+    "as_of": "Not shown in search result",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: base URL and how to send the key",
+    "fact": "The base URL is https://api.openalex.org. Send the key as the ?api_key=KEY query parameter or as an 'Authorization: Bearer KEY' header. Parameter names use snake_case.",
+    "quote": "filter, sort, group_by, per_page, api_key",
+    "source_url": "https://help.openalex.org/api/llm-quick-reference/",
+    "as_of": "Not shown (indexed about 8 days before 2026-10-11)",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: per_page maximum is now 100",
+    "fact": "per_page defaults to 25, and the supported maximum is now 100, not 200. The API still accepts per_page=200 as deprecated legacy behaviour that will be removed. page × per_page must not exceed 10,000; use cursor=* paging beyond that. Code should use per_page (snake_case) with a value of 100 or less.",
+    "quote": "meta.page / meta.per_page: current page and page size (default 25, max 100)",
+    "source_url": "https://help.openalex.org/api/paging/",
+    "as_of": "Not shown in search result (recent weeks per search index)",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: limits table",
+    "fact": "The official limits are: up to 100 OR values per filter (joined with |), per_page up to 100, and a basic paging limit of 10,000 results.",
+    "quote": "OR values per filter: 100; per_page max: 100; basic paging limit: 10,000 results.",
+    "source_url": "https://help.openalex.org/api/llm-quick-reference/",
+    "as_of": "Not shown (indexed about 8 days before 2026-10-11)",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: select= parameter",
+    "fact": "select= limits the fields returned, for example select=id,title.",
+    "quote": "select= - Limit returned fields (e.g., select=id,title)",
+    "source_url": "https://help.openalex.org/api/llm-quick-reference/",
+    "as_of": "Not shown (indexed about 8 days before 2026-10-11)",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: filter syntax",
+    "fact": "Filters are attribute:value pairs separated by commas, which combine with AND, and | separates OR values. Example: ?filter=publication_year:2024,is_oa:true. authorships.institutions.country_code and publication_year are documented works filters, so filter=authorships.institutions.country_code:US,publication_year:2024 follows the documented syntax. That exact combined URL was not tested live, and range syntax for publication_year (for example a year range or '>' comparison) was not verified in this run.",
+    "quote": "?filter=publication_year:2024,is_oa:true",
+    "source_url": "https://help.openalex.org/api/filtering/",
+    "as_of": "Not shown in search result",
+    "confidence": "medium"
+  },
+  {
+    "topic": "A - OpenAlex: country filter recommendation",
+    "fact": "For a whole country or institution, OpenAlex recommends the authorships.institutions.country_code or authorships.institutions.lineage filter because it counts by affiliation and is exact.",
+    "quote": "use the authorships.institutions.country_code or authorships.institutions.lineage filter instead: it counts by affiliation and is exact",
+    "source_url": "https://help.openalex.org/api/collections/",
+    "as_of": "Not shown in search result",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: search parameters",
+    "fact": "search= runs keyword full-text search, as in /works?search=microplastics on the Quickstart page. Only one of search, search.exact or search.semantic is allowed per request. Semantic search is in beta, with a 2,000-character input cap, at most 50 results and 1 request per second. A help-center article says exact (unstemmed) search was disabled, so do not rely on search.exact without a live test.",
+    "quote": "only one search parameter is allowed per request: search, search.exact, or search.semantic",
+    "source_url": "https://developers.openalex.org/guides/searching",
+    "as_of": "Not shown in search result",
+    "confidence": "medium"
+  },
+  {
+    "topic": "A - OpenAlex: bulk data remains free",
+    "fact": "The full OpenAlex dataset is still free (CC0) to download as a snapshot. The usage-based pricing applies to the API.",
+    "quote": "The data itself remains completely free — you can still download, share, and build on the full 480M-work dataset at no cost.",
+    "source_url": "https://blog.openalex.org/openalex-api-new-features-and-usage-based-pricing/",
+    "as_of": "2026-02-24",
+    "confidence": "high"
+  },
+  {
+    "topic": "B - NIH RePORTER API v2: endpoint, criteria, response fields, rate limit, project URL",
+    "fact": "Not verified. The shared WebSearch budget (200 calls per turn, shared by all agents) ran out after Section A, so nothing in this section was checked against an official page in this run. Still open: the endpoint POST /v2/projects/search; the criteria field names (pi_names with any_name/first_name/last_name, org_names, fiscal_years, include_active_projects, advanced_text_search); the response field names (appl_id, project_num, project_title, fiscal_year, organization.org_name, principal_investigators[].full_name, project_start_date, project_end_date, award_amount, agency_ic_admin); the rate-limit guidance; whether a key is needed; and the project page URL format https://reporter.nih.gov/project-details/<appl_id>. Treat every field name as unconfirmed in code until it is checked against a live response. Official place to check: the API documentation on api.reporter.nih.gov (starting point only; link not checked in this run).",
+    "quote": "",
+    "source_url": "",
+    "as_of": "",
+    "confidence": "low"
+  },
+  {
+    "topic": "C - NCBI E-utilities: rate limits and tool/email parameters",
+    "fact": "Not verified. The shared WebSearch budget (200 calls per turn, shared by all agents) ran out after Section A, so nothing in this section was checked against an official page in this run. Still open: the requests-per-second limit without an API key and with an API key, and the required or recommended 'tool' and 'email' parameters. Until verified, the client should throttle conservatively and make the rate configurable. Official place to check: the E-utilities documentation on ncbi.nlm.nih.gov (starting point only; link not checked in this run).",
+    "quote": "",
+    "source_url": "",
+    "as_of": "",
+    "confidence": "low"
+  },
+  {
+    "topic": "D - Gmail API: InstalledAppFlow is the desktop OAuth flow",
+    "fact": "google_auth_oauthlib.flow.InstalledAppFlow is Google's helper for apps installed on a desktop OS. Usage: InstalledAppFlow.from_client_secrets_file('<client secrets json>', scopes=[...]) and then flow.run_local_server(). This was read from the copy of Google's google-auth-oauthlib library bundled in the Google Cloud SDK on this machine (version not recorded). Upstream: https://github.com/googleapis/google-auth-library-python-oauthlib",
+    "quote": "This flow is useful for\n    local development or applications that are installed on a desktop operating\n    system.",
+    "source_url": "file:///opt/google-cloud-sdk/lib/third_party/google_auth_oauthlib/flow.py",
+    "as_of": "Bundled library copy read 2026-10-11 (version unknown)",
+    "confidence": "high"
+  },
+  {
+    "topic": "D - Gmail API: run_local_server() signature and defaults",
+    "fact": "In the bundled copy, run_local_server(host='localhost', bind_addr=None, port=8080, ..., open_browser=True, redirect_uri_trailing_slash=True, timeout_seconds=None) starts a local http server, opens the browser and waits for the redirect. timeout_seconds=None means it waits forever. The server fails fast if the port is already in use, and the redirect URI uses the port actually bound, so port=0 lets the OS pick a free port (tested offline). Design: call run_local_server(port=0, timeout_seconds=300) or similar. The pip release the user installs may have different defaults (not verified).",
+    "quote": "timeout_seconds (int): It will raise an error after the timeout timing\n                if there are no credentials response. The value is in seconds.\n                When set to None there is no timeout.",
+    "source_url": "file:///opt/google-cloud-sdk/lib/third_party/google_auth_oauthlib/flow.py",
+    "as_of": "Bundled library copy read 2026-10-11 (version unknown)",
+    "confidence": "medium"
+  },
+  {
+    "topic": "D - Gmail API: console/OOB copy-paste flow is deprecated",
+    "fact": "Do not use run_console() or the out-of-band (urn:ietf:wg:oauth:2.0:oob) copy-paste flow. Google's library says the OOB flow was blocked for new clients from Feb 28, 2022 and deprecated for all clients from Oct 3, 2022. Use run_local_server().",
+    "quote": "The OAuth out-of-band (OOB) flow is deprecated. New clients will be unable to\n          use this flow starting on Feb 28, 2022. This flow will be deprecated\n          for all clients on Oct 3, 2022. Migrate to an alternative flow.",
+    "source_url": "file:///opt/google-cloud-sdk/lib/third_party/google_auth_oauthlib/flow.py",
+    "as_of": "Bundled library copy read 2026-10-11 (version unknown)",
+    "confidence": "high"
+  },
+  {
+    "topic": "D - Gmail API: offline access gives a refresh token",
+    "fact": "Flow.authorization_url() sets access_type='offline' by default, which the library says is required to obtain a refresh token. The app should store the resulting token file (for example token.json, already in .gitignore) locally and never commit it.",
+    "quote": "specifies that \"offline\" access is\n        desired. This is required in order to obtain a refresh token.",
+    "source_url": "file:///opt/google-cloud-sdk/lib/third_party/google_auth_oauthlib/flow.py",
+    "as_of": "Bundled library copy read 2026-10-11 (version unknown)",
+    "confidence": "high"
+  },
+  {
+    "topic": "D - Gmail API: client secrets JSON format",
+    "fact": "The client-secrets JSON loaded by from_client_secrets_file must have a top-level 'web' or 'installed' key containing auth_uri, token_uri and client_id. Otherwise the library raises ValueError. The setup checker can validate the downloaded credentials.json the same way before starting the flow.",
+    "quote": "raise ValueError(\"Client secrets must be for a web or installed app.\")",
+    "source_url": "file:///opt/google-cloud-sdk/lib/third_party/google_auth_oauthlib/helpers.py",
+    "as_of": "Bundled library copy read 2026-10-11 (version unknown)",
+    "confidence": "high"
+  },
+  {
+    "topic": "D - Gmail API: handling an expired or revoked refresh token",
+    "fact": "When a refresh token is invalid, expired or revoked, the OAuth 2.0 token endpoint returns error 'invalid_grant' (RFC 6749 section 5.2, as implemented in oauthlib). google-auth raises google.auth.exceptions.RefreshError when a token refresh fails. Design: catch RefreshError, delete the local token.json, and re-run InstalledAppFlow.run_local_server() with a plain-language message to the user. This is needed whatever Google's Testing-mode token lifetime turns out to be, since that lifetime is not verified here.",
+    "quote": "The provided authorization grant (e.g. authorization code, resource\n    owner credentials) or refresh token is invalid, expired, revoked, does\n    not match the redirection URI used in the authorization request, or was\n    issued to another client.",
+    "source_url": "file:///opt/google-cloud-sdk/lib/third_party/oauthlib/oauth2/rfc6749/errors.py",
+    "as_of": "Bundled oauthlib and google-auth copies read 2026-10-11 (versions unknown); also google/auth/exceptions.py class RefreshError",
+    "confidence": "high"
+  },
+  {
+    "topic": "D - Gmail API: scopes, methods, testing-mode token expiry, scope classification, quotas",
+    "fact": "Not verified. These items were not researched because the shared WebSearch budget (200 per turn, all agents) ran out after Section A: (1) the exact scope URIs and which ones users.drafts.create and users.messages.send accept (gmail.compose, gmail.send); (2) how to call users.drafts.create and users.messages.send (request body format); (3) the Python quickstart package list and code; (4) whether refresh tokens expire after 7 days when the OAuth consent screen is External and in Testing status; (5) whether gmail.send and gmail.compose are 'restricted' or 'sensitive' scopes, plus the unverified-app warning screen and 100-user cap; (6) per-user quota units for messages.send and drafts.create. Until verified, keep scopes and quotas as configurable constants marked 'unverified'. See the separate entry on handling an expired or revoked refresh token.",
+    "quote": "",
+    "source_url": "",
+    "as_of": "",
+    "confidence": "low"
+  },
+  {
+    "topic": "E - Gmail sending limits and Google bulk-sender guidelines",
+    "fact": "Not verified. The shared WebSearch budget (200 calls per turn, shared by all agents) ran out after Section A, so nothing in this section was checked against an official page in this run. Still open: daily recipient or message limits for a consumer @gmail.com account and for Google Workspace; the 2024 bulk-sender guidelines (the 5,000-messages-per-day threshold and one-click unsubscribe); and whether they matter for about 30 personal academic emails per day. Until verified, keep the daily cap a user-configurable constant set far below any published limit, and do not cite a number in the docs. Official place to check: Gmail and Google Workspace help pages on support.google.com (starting point only; links not checked in this run).",
+    "quote": "",
+    "source_url": "",
+    "as_of": "",
+    "confidence": "low"
+  },
+  {
+    "topic": "F - CAN-SPAM Act: does it apply to non-commercial academic inquiry emails",
+    "fact": "Not verified. The shared WebSearch budget (200 calls per turn, shared by all agents) ran out after Section A, so nothing in this section was checked against an official page in this run. Still open: the FTC's definition of 'commercial electronic mail message' and the 'primary purpose' test, and whether individual non-commercial academic inquiries are covered. Do not state in the docs whether CAN-SPAM applies until an exact FTC quote is captured. Keep opt-out and do-not-contact handling either way, as CLAUDE.md requires. Official place to check: the FTC's CAN-SPAM compliance guidance on ftc.gov (starting point only; link not checked in this run).",
+    "quote": "",
+    "source_url": "",
+    "as_of": "",
+    "confidence": "low"
+  },
+  {
+    "topic": "G - robots.txt: Python robotparser targets RFC 9309 (version-dependent)",
+    "fact": "In CPython 3.13.16 and 3.14.5, the urllib.robotparser docstring says it implements RFC 9309. The locally installed 3.11.17 and 3.12.3 builds still cite the older robotstxt.org draft (http://www.robotstxt.org/norobots-rfc.txt) and behave differently (see the longest-match entry). This was verified by reading the stdlib source that ships with each Python and running offline tests. Re-check on any PC with: python -c \"import urllib.robotparser, inspect; print(inspect.getsource(urllib.robotparser))\". Upstream: https://github.com/python/cpython/blob/main/Lib/urllib/robotparser.py",
+    "quote": "The robots.txt Exclusion Protocol is implemented as specified in RFC 9309",
+    "source_url": "file:///usr/lib/python3.13/urllib/robotparser.py",
+    "as_of": "CPython 3.13.16 stdlib source (build dated 2026-10-01), read 2026-10-11",
+    "confidence": "high"
+  },
+  {
+    "topic": "G - robots.txt: Python crawl_delay() behaviour",
+    "fact": "RobotFileParser.crawl_delay(useragent) returns the Crawl-delay value as an int for the best-matching group: an agent-specific group wins over '*', and the agent is matched case-insensitively on the token before '/'. It returns None if there is no Crawl-delay or if the file has not been read or parsed yet. It also returns None if the value is not a whole number, so 'Crawl-delay: 2.5' gives None. This was tested offline on Python 3.11.17, 3.12.3, 3.13.16 and 3.14.5 with the same result. Design: parse decimal delays yourself, or apply a conservative minimum delay when crawl_delay() returns None.",
+    "quote": "if line[1].strip().isdecimal():\n                            entry.delay = int(line[1])",
+    "source_url": "file:///usr/lib/python3.13/urllib/robotparser.py",
+    "as_of": "CPython 3.13.16 stdlib source, read 2026-10-11",
+    "confidence": "high"
+  },
+  {
+    "topic": "G - robots.txt: Python never enforces the delay",
+    "fact": "urllib.robotparser only reports Crawl-delay and Request-rate. It never sleeps or throttles; the module source contains no sleep call. The crawler must enforce the delay itself, for example with time.sleep between requests to the same host. request_rate() returns a namedtuple, so 'Request-rate: 1/5' gives RequestRate(requests=1, seconds=5).",
+    "quote": "RequestRate = collections.namedtuple(\"RequestRate\", \"requests seconds\")",
+    "source_url": "file:///usr/lib/python3.13/urllib/robotparser.py",
+    "as_of": "CPython 3.13.16 stdlib source, read 2026-10-11",
+    "confidence": "high"
+  },
+  {
+    "topic": "G - robots.txt: Python read() has no timeout and uses the default urllib User-Agent",
+    "fact": "RobotFileParser.read() calls urllib.request.urlopen(self.url) with no timeout and no custom User-Agent, so the request is sent as 'Python-urllib/3.x', which some sites block. Network failures such as DNS errors raise URLError instead of being handled. Design: fetch robots.txt yourself with requests, a timeout and a descriptive User-Agent, then pass the lines to RobotFileParser.parse(), and apply status-code rules explicitly.",
+    "quote": "f = urllib.request.urlopen(self.url)",
+    "source_url": "file:///usr/lib/python3.13/urllib/robotparser.py",
+    "as_of": "CPython 3.13.16 stdlib source, read 2026-10-11",
+    "confidence": "high"
+  },
+  {
+    "topic": "G - robots.txt: Python handling of HTTP errors (RFC 9309 sections 2.3.1.3 and 2.3.1.4 as cited by CPython)",
+    "fact": "Offline simulation on Python 3.11-3.14 shows the following. A 401 or 403 on robots.txt sets disallow_all, so can_fetch returns False. Other 4xx codes (404, 410 and 429) set allow_all, so can_fetch returns True. On 500 or 503, 3.13.16 sets disallow_all, citing RFC 9309 2.3.1.4; the older builds set neither flag, but can_fetch still returns False because the file was never parsed. Design caution: robotparser treats a 429 (Too Many Requests) on robots.txt as allow-all, so the tool should treat 429 as 'back off and retry later', not as permission. The RFC 9309 wording is quoted from CPython source comments; the RFC text itself was not verified (no search budget left).",
+    "quote": "# RFC 9309, Section 2.3.1.3: the crawler MAY access any\n                # resources on the server.  ...  # RFC 9309, Section 2.3.1.4: the crawler MUST assume\n                # complete disallow.",
+    "source_url": "file:///usr/lib/python3.13/urllib/robotparser.py",
+    "as_of": "CPython 3.13.16 stdlib source, read 2026-10-11",
+    "confidence": "high"
+  },
+  {
+    "topic": "G - robots.txt: Python can_fetch() before reading",
+    "fact": "can_fetch() returns False for every URL until robots.txt has been read or parsed. This was tested on 3.11-3.14.",
+    "quote": "# Until the robots.txt file has been read or found not\n        # to exist, we must assume that no url is allowable.",
+    "source_url": "file:///usr/lib/python3.13/urllib/robotparser.py",
+    "as_of": "CPython 3.13.16 stdlib source, read 2026-10-11",
+    "confidence": "high"
+  },
+  {
+    "topic": "G - robots.txt: rule precedence differs by Python version",
+    "fact": "Python 3.13.16 and 3.14.5 apply longest-match precedence and always allow /robots.txt itself. With 'Disallow: /people/' plus 'Allow: /people/faculty/', can_fetch('/people/faculty/jane') is True on those versions. The locally installed 3.11.17 and 3.12.3 builds use first-match order, so the same rules give False. Design: require Python 3.13 or later on Windows, or keep unit tests independent of this difference. Whether later 3.12.x patch releases include the change was not verified.",
+    "quote": "# The /robots.txt URI is implicitly allowed.",
+    "source_url": "file:///usr/lib/python3.13/urllib/robotparser.py",
+    "as_of": "Offline tests run 2026-10-11 on CPython 3.11.17, 3.12.3, 3.13.16 and 3.14.5",
+    "confidence": "high"
+  },
+  {
+    "topic": "G - robots.txt: RFC 9309 text itself",
+    "fact": "Not verified. The text of RFC 9309 (rfc-editor.org; link not checked in this run) was not read because the shared WebSearch budget (200 per turn, all agents) ran out after Section A. Still open, to be checked against the RFC itself: its exact wording on user-agent matching, Allow/Disallow precedence, status-code handling, any parsing size limit, caching duration, and whether Crawl-delay is part of the standard. The RFC section references quoted elsewhere in this file come from CPython source comments, not from the RFC.",
+    "quote": "",
+    "source_url": "",
+    "as_of": "",
+    "confidence": "low"
+  },
+  {
+    "topic": "H - Claude Pro: web search, Google Workspace/Gmail connectors and usage limits",
+    "fact": "Not verified. The shared WebSearch budget (200 calls per turn, shared by all agents) ran out after Section A, so nothing in this section was checked against an official page in this run. Still open: what Claude Pro includes for web search and for Google Workspace or Gmail connectors as of 2026, and the usage limits. Do not claim in the docs that Claude Pro gives a Python script Gmail, Sheets or unlimited web access. The script needs its own Google OAuth credentials (see section D). Official place to check: anthropic.com and support.anthropic.com (starting point only; links not checked in this run).",
+    "quote": "",
+    "source_url": "",
+    "as_of": "",
+    "confidence": "low"
+  },
+  {
+    "topic": "H - Claude research limits observed in this session (not a plan page)",
+    "fact": "Observed directly: in this Claude Code session, WebSearch calls are capped per turn and shared by all sub-agents. The cap ran out during this research run, after which no further searches were possible. The limit is configurable through an environment variable. This is a Claude Code harness limit seen in a tool response, not a statement from an anthropic.com plan page. It supports documenting that Claude-assisted web research is rate-limited, not unlimited.",
+    "quote": "this turn's web search budget is used up (limit: 200 WebSearch calls per turn, shared by every agent in it) ... ask them to raise CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION",
+    "source_url": "",
+    "as_of": "2026-10-11 (WebSearch tool response in this session)",
+    "confidence": "high"
+  },
+  {
+    "topic": "I - Official university guidance on emailing potential advisors",
+    "fact": "Not verified. The shared WebSearch budget (200 calls per turn, shared by all agents) ran out after Section A, so nothing in this section was checked against an official page in this run. Still open: 6-10 .edu sources (graduate schools, career centers, or faculty-authored advice) with quotes on email length, subject line, specificity, attaching a CV, follow-up timing (for example 1-2 weeks) and avoiding mass emails. Do not cite any specific follow-up interval or length rule as university guidance until a source is captured. Official place to check: graduate school and career center pages on .edu domains.",
+    "quote": "",
+    "source_url": "",
+    "as_of": "",
+    "confidence": "low"
+  },
+  {
+    "topic": "J - Brave Search API and Google Programmable Search Engine / Custom Search JSON API",
+    "fact": "Not verified. The shared WebSearch budget (200 calls per turn, shared by all agents) ran out after Section A, so nothing in this section was checked against an official page in this run. Still open: the current status, free tier, pricing and limits of the Brave Search API, and whether Google's Custom Search JSON API is still open to new customers in 2026. Per CLAUDE.md, do not claim web discovery works until one of these is configured and tested. Official place to check: brave.com and developers.google.com (starting point only; links not checked in this run).",
+    "quote": "",
+    "source_url": "",
+    "as_of": "",
+    "confidence": "low"
+  }
+]

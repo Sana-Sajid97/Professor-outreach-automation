@@ -1,17 +1,34 @@
+# Secrets and local settings
 .env
 .env.*
 !.env.example
+credentials.json
+token.json
+client_secret*.json
+
+# Private applicant files (CV, transcripts, generated profile.json, Gmail tokens)
+private_profile/
+
+# Live outreach data, caches, logs, backups (personal; never commit)
+workspace/
+
+# Generated exports (CSV/XLSX/HTML review pages)
+output/
+exports/
+
+# Python
 __pycache__/
 *.py[cod]
 .venv/
 venv/
-private_profile/
-credentials.json
-token.json
-client_secret*.json
+.pytest_cache/
+
+# Databases
 *.sqlite
 *.db
-output/
-exports/
+
+# OS files
 .DS_Store
 Thumbs.db
+desktop.ini
+~$*
