@@ -18,10 +18,15 @@
 - I did **not** delete or move it, because that is Sana's decision.
 
 ## 🟠 3. Spring 2027: act this week or let it go
-- Most international spring deadlines have passed (they were Aug 1 to Oct 15). Spring 2027 is realistic only if a **professor with grant money** offers a January research assistantship at a program that still admits.
-- Dates to watch: **Oct 15** (SIU Carbondale, UNH, South Dakota State); **Nov 1** (Montclair State; UNLV assistantship deadline); **Nov 15** (Purdue Food Science, Howard, UNC Greensboro department, UNLV); **Dec 1** (NDSU MS); rolling (Clemson, Utah State, Florida, Auburn, Eastern Michigan, NMSU).
-- The F-1 visa also needs time: I-20, SEVIS fee, and an interview in Pakistan.
-- **Decision:** spend this week emailing the Spring targets in `docs/STRATEGY_2027.md`. If nothing promising comes back by about 15 Nov, focus fully on Fall 2027.
+- **No January research-assistant position is confirmed anywhere** (see `docs/STRATEGY_2027.md` §3). Most international spring deadlines have passed (Aug 1 to Oct 15), and federal SNAP-Ed funding (which paid many community-nutrition assistants) ended 30 Sep 2025.
+- Urgent targets and dates:
+  - **South Dakota State, Oct 15:** 4 days away.
+  - **Montclair State, Nov 1:** Lauren Dinour's maternal and child health nutrition training grant may fund trainees; ask whether F-1 students qualify.
+  - **Clemson:** rolling admission, but no spring I-20s after **Nov 15**.
+  - **Utah State and Florida:** rolling.
+  - **NDSU, Dec 1:** check whether the "blended" format works for an F-1 visa.
+  - **New Mexico State:** spring I-20 deadline Dec 21.
+- **Decision:** spend about one week emailing these professors. If no funded offer appears by about **Nov 10**, put all effort into Fall 2027, which has far more fully funded options (Texas A&M, Penn State, Ohio State, Purdue, Emory, Michigan, ASU, Oregon State, UMass, UConn and others).
 
 ## 🟠 4. English test (affects admission AND funding)
 - IELTS 6.5 meets many programs' minimums, but:

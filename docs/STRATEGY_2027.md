@@ -15,8 +15,8 @@
 | Penn State (PA) | PhD Nutritional Sciences | Research assistantships cover tuition and living costs; a mentor confirms after the committee recommends admission | Dec 1 | IELTS 6.5 |
 | Ohio State (OH) | OSUN interdisciplinary Nutrition PhD | "All students receive financial support for the duration of their PhD" (first-year RA, then the advisor) | Dec 1 (preferred) | IELTS 6.5 |
 | Purdue (IN) | Nutrition Science PhD/MS | Admits only applicants it can fund; first year plus summer guaranteed | Contact the program (NSGP@purdue.edu); early Dec is typical | IELTS 6.5 |
-| Emory (GA) | Nutrition & Health Sciences PhD | "All NHS students, including international students": tuition, insurance, $40,324 stipend (2025-26) | Not verified (early Dec typical) | Not verified |
-| Univ. of Michigan (MI) | Nutritional Sciences PhD (SPH) | All admits considered for GSI/GSRA funding | Dec 1, 2026 | Not verified |
+| Emory (GA) | Nutrition & Health Sciences PhD | "All NHS students, including international students": tuition, insurance, $40,324 stipend (2025-26) | Dec 1 (fall only) | **Not published.** Another Emory Laney program requires 7.0, so confirm before applying |
+| Univ. of Michigan (MI) | Nutritional Sciences PhD (SPH) | All admits considered for GSI/GSRA funding | Dec 1, 2026 | Department pages cite the Rackham minimum of 6.5 (confirm) |
 | Arizona State (AZ) | PhD Exercise & Nutritional Sciences | RAs and TAs include a full tuition waiver; minimum stipend $26,544 | Dec 1 (priority) | IELTS 6.5 |
 | Oregon State (OR) | Nutrition MS/PhD | Stipend, tuition remission and health insurance; all admits considered | Dec 1 | IELTS 6.5 (TA requires speaking 7.0) |
 | UMass Amherst (MA) | Nutrition PhD | Funded students get a tuition waiver and stipend | Dec 1 (priority); Feb 1 (final) | IELTS 6.5 |
@@ -42,7 +42,7 @@
 | UConn (CT): Nutritional Sciences MS/PhD | GRAs and GTAs from individual faculty; ask faculty about funding before applying | Feb 15 | IELTS 6.5 |
 | Montana State (MT): Exercise & Nutrition Sciences | Assistantships, advisor-dependent | Feb 15 | IELTS 6.5 |
 | Wyoming (WY): Human Nutrition & Food MS | All applicants considered; "most students … are funded" | Mar 1 | IELTS 6.5 (GRE required for internationals) |
-| Ole Miss (MS): Nutrition Sciences PhD | Complete by Mar 1 for "full funding" eligibility | Mar 1 | Not verified |
+| Ole Miss (MS): Nutrition Sciences PhD | Complete by Mar 1 for "full funding" eligibility; David Holben has NIH-funded food-insecurity work | Mar 1 | Graduate minimum IELTS 6.0 |
 | Auburn (AL): Nutrition MS/PhD | Assistantships (often 25% time) | Mar 1 (rolling) | IELTS 6.5 |
 | Kentucky (KY): Dietetics & Human Nutrition MS / Nutritional Sciences PhD | MS: stipend and scholarship (Mar 1); PhD: apply for assistantships after admission | Mar 1 (MS); Apr 15 (PhD, international) | PhD IELTS 6.5 |
 | Buffalo (NY): Nutrition MS | Assistantships "may" provide a stipend and tuition scholarship | Mar 15 | IELTS 6.5 |
@@ -52,17 +52,28 @@
 
 *Partial or uncertain funding (useful backups): Wayne State (warns that international aid is "extremely limited"), Idaho (waives out-of-state tuition only), UNLV, NMSU, SDSU and NDSU (smaller stipends), Montclair State (MS graduate-assistant tuition remission), West Virginia, Drexel.*
 
-## 3. Spring 2027 (January start): the only realistic route
-*(Updated with wave-3 research: see §3b below.)*
+## 3. Spring 2027 (January start): honest assessment
+**No January research-assistant position is confirmed anywhere.** The targeted wave-3 search found no professor with a grant verified to fund a graduate RA from January 2027, and no posted spring nutrition assistantship. Spring is possible only if a professor replies quickly with funding. Treat it as a bonus and put most of your effort into Fall 2027.
 
-Spring works only where (a) the program still accepts spring applications and (b) a professor can pay a research assistant from January. Programs where that is still possible:
-- **Rolling admission:** Clemson FNPS, Utah State NDFS, Florida FSHN (with an advisor), Auburn (apply about 5 months ahead), Eastern Michigan Human Nutrition MS (GA waives up to 18 credits and pays a stipend), New Mexico State MS (spring I-20 deadline Dec 21).
-- **Dated (confirm):**
-  - Oct 15: SIU Carbondale (suggested), UNH (MS final), South Dakota State
-  - Nov 1: Montclair State
-  - Nov 15: Purdue Food Science (international; admission follows an RA offer), Howard (assistantships only after year 1), UNC Greensboro (department date; international applicants about 30 days earlier), UNLV
-  - Dec 1: NDSU MS (check whether "blended" delivery works for F-1)
-- **Already passed for internationals:** UConn, UMass, Buffalo, URI, NC State, Tennessee, Kentucky, Kansas State, KUMC, Oklahoma State, LSU, Arkansas, Virginia Tech, Georgia (international Oct 15; spring funding not typical).
+Also note: **federal SNAP-Ed funding ended on 30 Sep 2025.** Many community-nutrition research assistantships at land-grant universities depended on it, so don't count on SNAP-Ed positions.
+
+**Spring targets, most urgent first. Email these professors this week, and confirm every date on the official page:**
+| # | Program | Hard date | Who to contact / evidence |
+|---|---|---|---|
+| 1 | South Dakota State MS Nutrition & Exercise Sciences | **Oct 15, 2026**; later applications are not guaranteed review | Lee Weidauer (assistantships). No funded professor found yet. |
+| 2 | Montclair State MS Nutrition & Food Science | **Nov 1, 2026** | **Lauren Dinour**, associate director of TRANSCEND, a 5-year grant from 2024 that funds maternal and child health nutrition trainees. Ask whether F-1 students qualify. GAs give tuition remission and a stipend. Montclair needs a credential evaluation and a $1,000 deposit. |
+| 3 | Clemson FNPS MS/PhD | Rolling, but **no spring I-20s after Nov 15**. Aim for admission and a PI's GRA by about Nov 1. | Hannah Wilson (Extension community nutrition) and other FNPS faculty with grants |
+| 4 | Utah State NDFS MS/PhD | Rolling | Carrie Durward (Graduate Program Director), Abiodun Atoloye (SNAP and food access). The assistantship page currently lists none, so ask. |
+| 5 | Florida FSHN MS/PhD | Rolling (with an advisor) | Wendy Dahl (fiber and kidney nutrition), Cora Best |
+| 6 | NDSU MS Exercise & Nutrition Sciences | Dec 1, 2026 | Yeong Rhee (department head). First confirm the "blended" format works for an F-1 visa. |
+| 7 | New Mexico State MS (Human Nutrition) | Spring I-20 deadline Dec 21, 2026 | Assistantships are "very limited". IELTS 6.0. |
+| 8 | Eastern Michigan Human Nutrition MS | Winter date not yet posted (last year Nov 4); assistantship priority date has passed | Graduate coordinator |
+
+**Not spring options:**
+- SIU Carbondale (fall only).
+- Purdue Nutrition Science (no spring entry).
+- Purdue Food Science (international date appears to have passed).
+- UConn, UMass, Buffalo (closed for F-1 applicants), URI, NC State, Tennessee, Kentucky, Kansas State, KUMC, Oklahoma State, LSU, Arkansas, Virginia Tech and Georgia: all passed.
 
 ## 4. Not realistic at IELTS 6.5 (unless you retake: 7.0+ overall)
 UNC Chapel Hill, UC Davis, UC Berkeley, UCLA, UC Irvine, University of Washington, University of Arizona, Hawaii PhD, Cornell, Harvard Chan, Tufts Friedman, Yale, Rutgers, Maryland, Johns Hopkins (also needs work experience), Delaware PhD, UVM (funded assistantships need TOEFL 100 or IELTS 7.0) and UW–Madison. A higher score would bring these back.
@@ -84,5 +95,49 @@ UNC Chapel Hill, UC Davis, UC Berkeley, UCLA, UC Irvine, University of Washingto
 - Application fees: usually $60–$100 each. **Ask about fee waivers.** Many programs grant them to strong international applicants, and some professors can request one.
 - English test, WES evaluation, SEVIS fee and visa fee. Budget for these before you get an offer.
 
-## 3b. Spring 2027 professor targets
-*(Filled in from wave-3 research.)*
+## 7. Strongest professor matches so far (all need `verify` first)
+All of these are at programs with strong funding evidence. Fit scores and the reasons are in the tracker.
+- **Maternal nutrition:**
+  - Alison Gernand (Penn State; maternal nutrition and AI placenta analysis)
+  - Jennifer Savage Williams (Penn State; pregnancy and childhood obesity; Healthy Mom Zone trial)
+  - Rita Strakovsky (Michigan State)
+  - Rebecca Seguin-Fowler (Texas A&M)
+  - Bettina Mittendorfer (Missouri; pregnancy and gestational diabetes)
+  - Usha Ramakrishnan (Emory)
+  - Lindiwe Sibeko (UMass)
+  - Lisa Chasan-Taber (UMass)
+  - Sathish Natarajan (Nebraska)
+  - Shristi Rawal (Rutgers; IELTS 7 at Rutgers)
+- **Food insecurity:**
+  - Kate Bauer (Michigan)
+  - Caitlin Caspi (UConn)
+  - Heather Eicher-Miller (Purdue)
+  - Muzi Na (Penn State)
+  - David Holben (Ole Miss)
+  - Beth Racine (Texas A&M)
+  - Rachel Liebe (Oklahoma State)
+  - Lorraine Cordeiro (UMass)
+  - Jigna Dharod (UNC Greensboro)
+  - Irene Hatsu (Ohio State)
+  - Jennifer Garner (Ohio State)
+  - Denise Holston (LSU)
+- **Diabetes and metabolic health:**
+  - Sarah Stotz (Colorado State; NIH K01)
+  - Karen Siegel (Emory)
+  - Sonia Vega-López (Arizona State)
+  - Carol Johnston (Arizona State)
+  - Heidi Vanden Brink (Texas A&M; PCOS trial)
+  - Sherry Pagoto (UConn)
+  - Fred Tabung (Ohio State)
+- **Childhood obesity:**
+  - Hollie Raynor (Tennessee)
+  - Punam Ohri-Vachaspati (Arizona State)
+  - Noereem Mena (UNH)
+  - Carolyn Gunther (Ohio State)
+  - Jaimie Davis (UT Austin)
+- **Clinical, kidney and data science:**
+  - Annabel Biruete (Purdue)
+  - Wendy Dahl (Florida)
+  - Jared McGuirt (Tennessee; food access and GIS)
+
+*Caution: confirm that each person can be a primary PhD or MS advisor in the program you apply to. For example, some Texas A&M Institute for Advancing Health faculty did not appear on the Nutrition PhD training-faculty list.*
