@@ -1,10 +1,10 @@
 {
  "agent": "w4-c",
- "updated_at": "2026-10-11T08:49:36Z",
- "professors": 5,
- "programs": 6,
- "searches_used": 10,
+ "updated_at": "2026-10-11T08:50:31Z",
+ "professors": 6,
+ "programs": 7,
+ "searches_used": 12,
  "search_budget": 24,
- "now_working_on": "IU Bloomington done (PhD needs MS); starting Georgia State",
+ "now_working_on": "Georgia State done; starting University of Memphis",
  "done": false
 }

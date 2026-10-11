@@ -50,3 +50,18 @@ These are the agents' own summaries. Check the facts in the raw files and on off
     - **Jaimie Davis (UT Austin):** childhood obesity and food insecurity (TX Sprouts); now Interim Director of the School of Human Ecology.
   - Szeszulski (Texas A&M) holds AHA awards.
   - **Caveat:** Seguin-Fowler, Racine and Rethorst were not seen on the Texas A&M PhD training-faculty list, so ask whether they can be a primary advisor.
+- **w3-f (Nebraska, Iowa State, K-State, Mizzou, Wyoming, Arkansas, LSU, Ole Miss):** 15 records: 9 new professors and 6 additions to existing records.
+  - New professors:
+    - Natarajan (UNL): maternal obesity and placenta
+    - Kanaley and Mittendorfer (Mizzou)
+    - Baum (Arkansas)
+    - Holston and Tuuri (LSU)
+    - Holben and Wijayatunga (Ole Miss)
+    - Brenes (K-State)
+  - Top fits:
+    - **Holben (Ole Miss):** food insecurity, diabetes and obesity; over $4M NIH funding; full-funding eligibility if the application is complete by Mar 1; IELTS 6.0.
+    - **Mittendorfer (Mizzou):** pregnancy, gestational diabetes and insulin sensitivity; IELTS 6.5 with no band below 6.
+    - **Holston (LSU):** food access and security; LSU assistantship pays $23k plus a full waiver.
+    - **Shearrer (Wyoming).**
+    - **Wijayatunga (Ole Miss):** time-restricted-eating trial; graduate program coordinator.
+  - Pennington faculty can supervise LSU students only with Graduate School approval and a tenured or tenure-track co-chair.
