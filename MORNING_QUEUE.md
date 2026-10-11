@@ -26,6 +26,8 @@
   - **Utah State and Florida:** rolling.
   - **NDSU, Dec 1:** check whether the "blended" format works for an F-1 visa.
   - **New Mexico State:** spring I-20 deadline Dec 21.
+  - **South Carolina State MS:** Nov 1; the application fee and GRE are waived for Spring 2027.
+  - **Tuskegee MS:** rolling, but takes about 90 days to process, so apply now.
 - **Decision:** spend about one week emailing these professors. If no funded offer appears by about **Nov 10**, put all effort into Fall 2027, which has far more fully funded options (Texas A&M, Penn State, Ohio State, Purdue, Emory, Michigan, ASU, Oregon State, UMass, UConn and others).
 
 ## 🟠 3b. A Fall 2027 deadline in 4 days

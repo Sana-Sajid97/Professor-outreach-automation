@@ -123,3 +123,19 @@ These are the agents' own summaries. Check the facts in the raw files and on off
     - Miles: Associate Dean of Research
   - **Title updates:** Gernand Professor (July 2026); Wharton Professor (2024; still at ASU); Chandler-Laney Professor (Oct 2025); Berg Professor.
   - **Two seed-builder bugs** reported and fixed: title updates were not applied, and data was lost when id-less duplicates were merged.
+- **w4-b (gap states, 1890 land-grants and HBCUs):**
+  - Spring 2027 still open:
+    - SC State MS (Nov 1; fee and GRE waived)
+    - Tuskegee MS (rolling; about 90 days to process; IELTS 5.0)
+    - Delaware State MS (Nov 15)
+  - Fall 2027:
+    - NC A&T MS (IELTS 6.0; F-1 assistantships; Jan 15)
+    - UMES MS (IELTS 6.5; F-1 tuition remission)
+    - Prairie View MS (Feb 1)
+    - Alabama A&M (IELTS 6.5)
+    - UDel MS (IELTS 6.5; TA needs 7.0)
+  - Not viable:
+    - Tennessee State: assistantships for US citizens and permanent residents only.
+    - Southern, Alcorn and Kentucky State: no nutrition graduate degree.
+    - Virginia State: certificate only.
+  - **Minnesota and Alaska have no viable funded option.**

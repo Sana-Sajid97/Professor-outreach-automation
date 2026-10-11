@@ -49,6 +49,11 @@
 | Auburn (AL): Nutrition MS/PhD | Assistantships (often 25% time) | Mar 1 (rolling) | IELTS 6.5 |
 | Kentucky (KY): Dietetics & Human Nutrition MS / Nutritional Sciences PhD | MS: stipend and scholarship (Mar 1); PhD: apply for assistantships after admission | Mar 1 (MS); Apr 15 (PhD, international) | PhD IELTS 6.5 |
 | Buffalo (NY): Nutrition MS | Assistantships "may" provide a stipend and tuition scholarship | Mar 15 | IELTS 6.5 |
+| NC A&T (NC): MS Food & Nutritional Sciences (1890 land-grant) | Assistantships allowed for F-1 students. The graduate coordinator runs a USDA graduate-pipeline grant. Leads: Shengmin Sang (NIH diabetes grant from 2022), Jianmei Yu. | Jan 15 (priority) | IELTS 6.0 |
+| UMES (MD): MS Food & Agricultural Sciences, Food & Nutrition (1890) | F-1 graduate assistants pay in-state rates, and tuition remission is possible. Lead: Virginie Zoumenou. | Not verified | IELTS 6.5 |
+| Prairie View A&M (TX): MS Nutrition (HBCU) | Limited merit assistantships. Leads: Janet Antwi, Kwaku Addo. | Feb 1 (priority) | IELTS 6.0 |
+| Alabama A&M (AL): Food Science MS/PhD, nutritional-biochemistry track (1890) | Departmental assistantships. Lead: Martha Verghese. | Not verified | IELTS 6.5 |
+| University of Delaware (DE): Human Nutrition MS | IELTS 6.5 is enough for admission, but TA posts need 7.0, so aim for a research assistantship. Leads: Jillian Trabulsi (NIH-funded lab), Shannon Robson. | Not verified | IELTS 6.5 (TA needs 7.0) |
 | **Memphis (TN): MS Nutrition (Nutrition Science track, thesis)** | A full-time assistantship covers full tuition, fees, health insurance and a stipend | Apr 1 (international) | IELTS 6.5 |
 | Cincinnati (OH): MS Nutrition Sciences | Assistantships give a partial or full tuition scholarship plus a stipend (food insecurity: Seung-Yeon Lee) | Mar 1 (international and assistantships) | IELTS 6.5 |
 | LSU (LA): Nutrition & Food Sciences | GA: full tuition waiver and $23,000 for 9 months (fees not waived) | May 1 (international; department says March) | IELTS 6.5 |
@@ -73,6 +78,9 @@ Also note: **federal SNAP-Ed funding ended on 30 Sep 2025.** Many community-nutr
 | 6 | NDSU MS Exercise & Nutrition Sciences | Dec 1, 2026 | Yeong Rhee (department head). First confirm the "blended" format works for an F-1 visa. |
 | 7 | New Mexico State MS (Human Nutrition) | Spring I-20 deadline Dec 21, 2026 | Assistantships are "very limited". IELTS 6.0. |
 | 8 | Eastern Michigan Human Nutrition MS | Winter date not yet posted (last year Nov 4); assistantship priority date has passed | Graduate coordinator |
+| 9 | **South Carolina State MS Nutritional Sciences** (1890 land-grant) | **Nov 1** (standing date). Application fee and GRE waived for Spring 2027. | The program coordinator is reported to be NIH-funded (name not found). Lead: Carmen Thompson. |
+| 10 | **Tuskegee MS Food & Nutritional Sciences** (1890 land-grant) | Rolling, but processing takes about **90 days**, so apply immediately | Research assistantships go to thesis students only. English minimum TOEFL 61 / IELTS 5.0. Leads: Norma Dawkins, Adelia Bovell-Benjamin. |
+| 11 | Delaware State MS Nutritional Sciences | Nov 15 | Funding and IELTS not found, so ask |
 
 **Not spring options:**
 - SIU Carbondale (fall only).
@@ -82,6 +90,8 @@ Also note: **federal SNAP-Ed funding ended on 30 Sep 2025.** Many community-nutr
 
 ## 4. Not realistic at IELTS 6.5 (unless you retake: 7.0+ overall)
 UNC Chapel Hill, Case Western (fully funded at $39,000, but needs IELTS 7.0), UC Davis, UC Berkeley, UCLA, UC Irvine, University of Washington, University of Arizona, Hawaii PhD, Cornell, Harvard Chan, Tufts Friedman, Yale, Rutgers, Maryland, Johns Hopkins (also needs work experience), Delaware PhD, UVM (funded assistantships need TOEFL 100 or IELTS 7.0) and UW–Madison. A higher score would bring these back.
+
+**No viable funded option found:** Minnesota (outside the University of Minnesota there are only non-research dietetics MS programs) and Alaska (no funded nutrition research positions). Tennessee State's assistantships are for US citizens and permanent residents only.
 
 **Do not cold-email:** University of Minnesota Nutrition faculty. The department discourages contact before the second review round, and the tool blocks these drafts.
 
