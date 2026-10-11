@@ -1,10 +1,10 @@
 {
  "agent": "w4-c",
- "updated_at": "2026-10-11T08:49:00Z",
+ "updated_at": "2026-10-11T08:49:36Z",
  "professors": 5,
- "programs": 5,
- "searches_used": 8,
+ "programs": 6,
+ "searches_used": 10,
  "search_budget": 24,
- "now_working_on": "SLU done (weak); starting Indiana University Bloomington",
+ "now_working_on": "IU Bloomington done (PhD needs MS); starting Georgia State",
  "done": false
 }
