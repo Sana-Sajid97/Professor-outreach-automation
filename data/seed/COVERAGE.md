@@ -1,11 +1,11 @@
 # Research coverage
 
-Built 2026-10-11 from 233 raw professor records and 171 raw program records.
+Built 2026-10-11 from 263 raw professor records and 171 raw program records.
 
-- Professor leads: **170** (all `needs_verification`)
+- Professor leads: **178** (all `needs_verification`)
 - Programs: **157**
 - Leads with an email seen in search results (still to be confirmed on the official page): 9
-- Leads with a recent publication recorded: 90
+- Leads with a recent publication recorded: 100
 - Duplicates merged: 0
 
 | State | Professors | Programs |
@@ -19,7 +19,7 @@ Built 2026-10-11 from 233 raw professor records and 171 raw program records.
 | CT | 5 | 4 |
 | DE | 2 | 3 |
 | DC | 3 | 1 |
-| FL | 5 | 3 |
+| FL | 7 | 3 |
 | GA | 9 | 3 |
 | HI | 2 | 2 |
 | ID | 2 | 1 |
@@ -27,7 +27,7 @@ Built 2026-10-11 from 233 raw professor records and 171 raw program records.
 | IN | 4 | 4 |
 | IA | 3 | 2 |
 | KS | 3 | 2 |
-| KY | 3 | 3 |
+| KY | 4 | 3 |
 | LA | 3 | 1 |
 | ME | 2 | 1 |
 | MD | 1 | 3 |
@@ -52,8 +52,8 @@ Built 2026-10-11 from 233 raw professor records and 171 raw program records.
 | RI | 2 | 1 |
 | SC | 4 | 3 |
 | SD | 1 | 1 |
-| TN | 4 | 2 |
-| TX | 14 | 11 |
+| TN | 6 | 2 |
+| TX | 17 | 11 |
 | UT | 5 | 2 |
 | VT | 2 | 1 |
 | VA | 3 | 2 |

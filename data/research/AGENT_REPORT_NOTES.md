@@ -87,3 +87,16 @@ These are the agents' own summaries. Check the facts in the raw files and on off
     - Personal Gmail allows about 500 emails per day; the bulk-sender rules start at about 5,000 per day.
   - **OpenAlex:** the from_publication_date filter is confirmed, and per_page must be 1-100.
   - **CAN-SPAM:** applies to commercial messages (primary-purpose test).
+- **w4-a (publication enrichment, 22 professors):**
+  - 11 professors gained verified papers (17 papers in total).
+  - Funding signals:
+    - Buccini (UNLV): NIH/NICHD, HRSA and NACCHO grants.
+    - Ruiz (NMSU): grants listed on her CV.
+    - Rhee (NDSU): undated or department-level only.
+    - Novotny (UH): USDA funding, 2018.
+  - Title updates:
+    - Rhee is Professor and Department Head, and a University Distinguished Professor (2025).
+    - Manuel has been Interim Chair at Howard since July 2023.
+    - Kruskall is a dietetic internship director; the UNLV clinical nutrition MS subplan is on hold.
+    - Chavira-Mendoza is a "College Assistant Professor", likely teaching-track, so she may not be able to advise a thesis.
+  - Nobody was found to have moved.
