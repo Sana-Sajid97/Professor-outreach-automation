@@ -20,7 +20,7 @@
 ## Honest status of each feature (11 Oct 2026)
 | Feature | Status |
 |---|---|
-| Core workflow (import, validate, dedupe, score, draft, review, approve, outbox, mark-sent, follow-ups, suppression, export) | **Implemented and tested.** 81 automated tests pass, including an end-to-end run on sample data. |
+| Core workflow (import, validate, dedupe, score, draft, review, approve, outbox, mark-sent, follow-ups, suppression, export) | **Implemented and tested.** 85 automated tests pass, including an end-to-end run on sample data. |
 | `verify` | Implemented and tested against realistic sample web pages, including mailto links, "[at]/[dot]" anti-spam text, Cloudflare-protected emails, robots.txt, rate limits and 404 errors. **Not yet run against live university websites**, because the cloud build environment blocks outside websites. The first real run on your PC is its first live test, so start with `--limit 5`. |
 | `discover` (OpenAlex) and `check-funding` (NIH) | Implemented from the official API documentation and tested with sample responses. **Not yet run live** (same reason). Try them with a small `--limit`. |
 | Gmail drafts and sending | Implemented and tested with a fake Gmail service. **Not yet tested with a real Google account.** Test by sending to yourself first. |

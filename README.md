@@ -7,8 +7,8 @@ A beginner-friendly tool, built for Sana Sajid, that helps find **assistantship-
 ## What's inside
 | | |
 |---|---|
-| `data/seed/professors_leads.csv` | Researched professor leads across US states, with official profile links, research interests, recent papers, and program and funding facts. All are marked **needs_verification**. |
-| `data/seed/programs.csv` | Nutrition graduate programs: Spring/Fall 2027 deadlines, IELTS minimums, assistantship and funding evidence, with source links |
+| `data/seed/professors_leads.csv` | **186 researched professor leads** (48 states plus DC), with official profile links, research interests, recent papers, and program and funding facts. All are marked **needs_verification**. |
+| `data/seed/programs.csv` | **167 nutrition graduate programs**: Spring/Fall 2027 deadlines, IELTS minimums, assistantship and funding evidence, with source links |
 | `docs/STRATEGY_2027.md` | **Start here.** Which programs fully fund international students, deadlines in order, and what to do this week |
 | `docs/PROFILE_REVIEW.md` | A candid review of Sana's profile from a professor's point of view, with a prioritised improvement plan |
 | `MORNING_QUEUE.md` | Decisions that need a human (privacy, GitHub access, English test, and more) |
@@ -44,7 +44,7 @@ python -m src.run_pipeline --intake "Spring 2027" --limit 30 --mode drafts
 - Personalised drafts built **only** from verified facts and your own CV sentences. At most one polite follow-up.
 - Statuses: discovered, needs_verification, verified, draft_ready, approved, sent, follow_up_due, replied, closed, not_a_fit, bounced, opted_out, do_not_contact. Opt-outs and bounces are **suppressed forever**.
 - Safe sending: approval of the exact text, a daily limit (default 30), and Gmail API sending **off by default**.
-- **81 automated tests** (`python -m pytest`).
+- **85 automated tests** (`python -m pytest`).
 
 ## What needs your PC or credentials (not tested live yet)
 - `verify` (official-page checks), `discover` (OpenAlex; needs a free API key) and `check-funding` (NIH RePORTER) need internet on your PC. The cloud environment where this was built blocks outside websites, so they were tested only with sample data.

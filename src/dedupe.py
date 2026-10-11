@@ -45,7 +45,8 @@ class MergeGroup:
 class DedupeResult:
     records: list[dict]
     merges: list[MergeGroup]
-    possible: list[tuple[str, str, str]]  # (id_a, id_b, reason)
+    possible: list[tuple[str, str, str]]  # (id_a, id_b, reason): similar names, maybe the same person
+    shared: list[tuple[str, str, str]] = field(default_factory=list)  # different people sharing a URL/email
 
 
 def _keys(record: dict) -> list[tuple[str, str]]:
@@ -171,20 +172,14 @@ def find_duplicates(records: list[dict]) -> DedupeResult:
         )
 
     possible = find_possible_duplicates(merged_records)
+    shared = []
     for j, i, kind in shared_conflicts:
         a, b = records[j], records[i]
         if find(i) == find(j):
             continue
         what = "profile URL" if kind == "url" else "email"
-        possible.append(
-            (
-                clean(a.get("record_id")),
-                clean(b.get("record_id")),
-                f"different people share the same {what} ({a.get('professor_name')} / {b.get('professor_name')}); "
-                f"it is probably a department page - find each person's own profile",
-            )
-        )
-    return DedupeResult(merged_records, merges, possible)
+        shared.append((clean(a.get("record_id")), clean(b.get("record_id")), what))
+    return DedupeResult(merged_records, merges, possible, shared)
 
 
 def find_possible_duplicates(records: list[dict], threshold: float = 0.88) -> list[tuple[str, str, str]]:
@@ -216,8 +211,17 @@ def find_possible_duplicates(records: list[dict], threshold: float = 0.88) -> li
 
 def dedupe_records(records: list[dict]) -> DedupeResult:
     result = find_duplicates(records)
+    by_id = {clean(r.get("record_id")): r for r in result.records if clean(r.get("record_id"))}
     for id_a, id_b, reason in result.possible:
-        for record in result.records:
-            if clean(record.get("record_id")) == id_b and not clean(record.get("duplicate_of")):
-                record["duplicate_of"] = f"possible duplicate of {id_a} - {reason}"
+        record = by_id.get(id_b)
+        if record is not None and not clean(record.get("duplicate_of")):
+            record["duplicate_of"] = f"possible duplicate of {id_a} - {reason}"
+    shared_note = "Shared department page: this {what} is also listed for other professors; find this person's own profile page."
+    for id_a, id_b, what in result.shared:
+        for rid in (id_a, id_b):
+            record = by_id.get(rid)
+            if record is not None:
+                note = shared_note.format(what=what)
+                if note not in clean(record.get("notes")):
+                    record["notes"] = f"{clean(record.get('notes'))} | {note}".strip(" |")
     return result

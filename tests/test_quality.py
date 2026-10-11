@@ -150,7 +150,7 @@ def test_shared_roster_url_never_merges_different_people():
 
     names = sorted(name_key(r["professor_name"]) for r in result.records)
     assert names == ["ana alpha", "ben beta"]  # Ana's two records merged, Ben kept
-    assert any("department page" in why for _, _, why in result.possible)
+    assert result.shared and not result.possible  # flagged as a shared page, not as a duplicate
 
 
 def test_shared_email_with_different_names_is_flagged_not_merged():
