@@ -1,11 +1,11 @@
 # Research coverage
 
-Built 2026-10-11 from 100 raw professor records and 144 raw program records.
+Built 2026-10-11 from 124 raw professor records and 144 raw program records.
 
 - Professor leads: **78** (all `needs_verification`)
 - Programs: **143**
 - Leads with an email seen in search results (still to be confirmed on the official page): 8
-- Leads with a recent publication recorded: 20
+- Leads with a recent publication recorded: 36
 - Duplicates merged: 0
 
 | State | Professors | Programs |

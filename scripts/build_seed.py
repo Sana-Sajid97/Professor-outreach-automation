@@ -14,6 +14,7 @@ Run from the project folder:  python scripts/build_seed.py
 from __future__ import annotations
 
 import json
+import re
 import sys
 from collections import Counter, defaultdict
 from datetime import date
@@ -41,6 +42,27 @@ PROGRAM_COLUMNS = [
     "ielts_subscore_note", "toefl_min", "english_req_source_url", "gre_policy", "application_fee_usd",
     "advisor_contact_expected", "notes", "source_urls", "date_checked", "research_agent",
 ]
+
+STOP_WORDS = {"university", "the", "of", "at", "and", "college", "campus", "main", "system"}
+ALIASES = {
+    "penn state": "pennsylvania state", "virginia tech": "virginia polytechnic", "ut austin": "texas austin",
+    "uconn": "connecticut", "umass": "massachusetts", "unh": "new hampshire", "uga": "georgia",
+    "ole miss": "mississippi", "lsu": "louisiana state", "unl": "nebraska lincoln", "asu": "arizona state",
+    "uiuc": "illinois urbana champaign", "ufl": "florida", "utk": "tennessee knoxville", "msu": "michigan state",
+}
+
+
+def university_tokens(name: str) -> set[str]:
+    text = normalize_university(name)
+    for short, long in ALIASES.items():
+        if text == short or text.startswith(short + " "):
+            text = text.replace(short, long, 1)
+    return {t for t in text.split() if t not in STOP_WORDS and len(t) > 2}
+
+
+def same_university(a: str, b: str) -> bool:
+    ta, tb = university_tokens(a), university_tokens(b)
+    return bool(ta & tb)
 
 
 def read_jsonl(path: Path) -> list[dict]:
@@ -189,19 +211,28 @@ def main() -> int:
         by_university[normalize_university(p["university"])].append(p)
 
     # ---------------- professors: merge enrichment records, attach program facts, dedupe
-    merged: dict[tuple[str, str], dict] = {}
-    order: list[tuple[str, str]] = []
+    by_name: dict[str, list[dict]] = defaultdict(list)
+    records: list[dict] = []
     for raw in raw_prof:
         rec = to_record(raw)
         if not rec["professor_name"] or not rec["university"]:
             continue
-        key = (name_key(rec["professor_name"]), normalize_university(rec["university"]))
-        if key in merged:
-            merge_into(merged[key], rec)
+        nk = name_key(rec["professor_name"])
+        candidates = [r for r in by_name.get(nk, []) if same_university(r["university"], rec["university"])]
+        if candidates:
+            target = candidates[0]
+            if len(rec["university"]) > len(target["university"]) and normalize_university(rec["university"]) != normalize_university(target["university"]):
+                pass  # keep the first (usually fuller) university name
+            merge_into(target, rec)
         else:
-            merged[key] = rec
-            order.append(key)
-    records = [merged[k] for k in order]
+            by_name[nk].append(rec)
+            records.append(rec)
+    # Cross-check results: someone who moved, retired or is otherwise unavailable must not be drafted.
+    for rec in records:
+        note = rec.get("notes", "")
+        if re.search(r"WARNING: (moved|retired|emerit|deceased|left|not taking)", note, re.IGNORECASE):
+            rec["workflow_status"] = m.NOT_A_FIT
+            rec["next_action"] = "Cross-check found this person may have moved/retired or is not taking students - do not contact unless you confirm otherwise."
     for rec in records:
         progs = by_university.get(normalize_university(rec["university"]), [])
         if not progs:
@@ -219,7 +250,8 @@ def main() -> int:
                     rec[key] = value
             if program.get("program_url"):
                 rec["source_urls"] = join_multi(split_multi(rec["source_urls"]) + [program["program_url"]])
-        rec["next_action"] = "Verify on the official page (python -m src.cli verify), then the pipeline can draft an email."
+        if rec["workflow_status"] != m.NOT_A_FIT:
+            rec["next_action"] = "Verify on the official page (python -m src.cli verify), then the pipeline can draft an email."
     result = dedupe_records(records)
     records = sorted(result.records, key=lambda r: (r["state"], r["university"], r["professor_name"]))
     for n, rec in enumerate(records, start=1):
