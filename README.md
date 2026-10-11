@@ -55,7 +55,6 @@ python -m src.run_pipeline --intake "Spring 2027" --limit 30 --mode drafts
 
 ## Privacy
 - `private_profile/` (CV, profile, Gmail token), `workspace/` (tracker, outreach log) and `exports/` are **never** uploaded to GitHub (see `.gitignore`).
-- **This repository is currently public and contains the portfolio PDF, including a phone number and transcript.** Making the repository private, or removing the PDF, is recommended (see `MORNING_QUEUE.md`).
 
 ## Original project files
 `CLAUDE.md`, `prompt.md`, `ONE_CLICK_SPEC.md`, `WORKFLOW.md`, `SAFETY_AND_PRIVACY.md` and `professors_template.csv` are the original specification and are followed by the code. The tracker uses the template's columns, plus a few extra columns at the end (publication years, matched topics, score breakdown, email verification method, personal note, follow-up date and count, approval fingerprint, duplicate flag and record source).

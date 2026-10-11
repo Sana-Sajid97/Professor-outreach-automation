@@ -7,13 +7,9 @@
 - It is **not merged into `main`** yet. To make it the main version, open a pull request from that branch and merge it (or ask Claude to open one).
 - The private backup page "Sana's Outreach Backup" (https://claude.ai/artifact/3MSjLQxRNPwgNEnuRfMtjn) is no longer needed, but it does no harm to keep it.
 
-## 🔴 2. Privacy: the public repository contains Sana's portfolio PDF
-- `Sana Sajid - Portfolio (1) (1).pdf` (phone number, transcript, certificates) is committed to a **public** repository. Her CLAUDE.md and SAFETY_AND_PRIVACY.md say personal documents must stay out of public GitHub.
-- **Recommended:** make the repository **private** (GitHub → Settings → General → Danger Zone → Change visibility).
-- Alternatively, delete the PDF from the repository. It still exists in the history, so purging it fully needs a history rewrite (GitHub's "Removing sensitive data" guide).
-- The tool reads the CV from the private `private_profile/` folder, so the PDF does not need to be in the repository.
-- I did **not** delete or move it, because that is Sana's decision.
-- **Now public as well:** `docs/PROFILE_REVIEW.md` (the candid professor's-eye review of her profile, requested for GitHub) and `docs/STRATEGY_2027.md` name her CGPA, English score, weaknesses and target professors. That is fine in a **private** repository. Anyone can read them now. Deleting them would not hide them, because they stay in the public Git history, so making the repository private is the simple fix.
+## ✅ 2. Repository visibility: decided
+- The family chose to keep the repository as it is (public, with the portfolio PDF and the reports). No action needed.
+- Her credentials, Gmail token, tracker and private profile folder are still never uploaded (see `.gitignore`).
 
 ## 🟠 3. Spring 2027: act this week or let it go
 - **No January research-assistant position is confirmed anywhere** (see `docs/STRATEGY_2027.md` §3). Most international spring deadlines have passed (Aug 1 to Oct 15), and federal SNAP-Ed funding (which paid many community-nutrition assistants) ended 30 Sep 2025.
