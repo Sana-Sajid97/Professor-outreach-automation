@@ -3,8 +3,7 @@
 *Built overnight, 11 Oct 2026. Highest priority first.*
 
 ## ✅ 1. GitHub access: fixed
-- After access was granted, all the overnight work was pushed to the branch `claude/scholarship-application-automation-2yiu9t` on GitHub.
-- It is **not merged into `main`** yet. To make it the main version, open a pull request from that branch and merge it (or ask Claude to open one).
+- After access was granted, all the overnight work was pushed to GitHub and merged into `main`.
 - The private backup page "Sana's Outreach Backup" (https://claude.ai/artifact/3MSjLQxRNPwgNEnuRfMtjn) is no longer needed, but it does no harm to keep it.
 
 ## ✅ 2. Repository visibility: decided
