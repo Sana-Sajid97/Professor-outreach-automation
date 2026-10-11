@@ -234,6 +234,25 @@ def validate_all(
     for rid, count in seen_ids.items():
         if count > 1:
             issues.append(Issue(rid, "record_id", "error", f"record_id {rid} is used {count} times."))
+    from .textutil import name_key, normalize_url
+
+    by_url: dict[str, set[str]] = {}
+    for record in records:
+        url = clean(record.get("faculty_profile_url"))
+        if url:
+            by_url.setdefault(normalize_url(url), set()).add(name_key(record.get("professor_name", "")))
+    for record in records:
+        url = clean(record.get("faculty_profile_url"))
+        if url and len(by_url.get(normalize_url(url), set())) > 1:
+            issues.append(
+                Issue(
+                    clean(record.get("record_id")) or "(no id)",
+                    "faculty_profile_url",
+                    "warning",
+                    f"This URL is also used for {len(by_url[normalize_url(url)]) - 1} other professor(s); it is probably a "
+                    "department list. Add this person's own profile page if one exists.",
+                )
+            )
     return issues
 
 

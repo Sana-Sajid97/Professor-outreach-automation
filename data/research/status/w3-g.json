@@ -1,1 +1,1 @@
-{"agent": "w3-g", "updated_at": "2026-10-11 step 1 (started)", "professors": 0, "programs": 0, "searches_used": 0, "now_working_on": "Spring 2027 RA targets: reading schema and existing records", "done": false}
+{"agent": "w3-g", "updated_at": "2026-10-11 step 27 (finished)", "professors": 6, "new_professors": 3, "enrichment_records": 3, "programs": 11, "searches_used": 24, "search_budget": 24, "now_working_on": "done - Spring 2027 RA targets; records validated; seed build dry-run (scratchpad only) shows spring_deadline_status attaches to all 11 programs", "done": true}

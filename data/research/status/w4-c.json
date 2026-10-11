@@ -1,10 +1,10 @@
 {
  "agent": "w4-c",
- "updated_at": "2026-10-11T08:50:31Z",
+ "updated_at": "2026-10-11T08:53:56Z",
  "professors": 6,
- "programs": 7,
- "searches_used": 12,
+ "programs": 12,
+ "searches_used": 19,
  "search_budget": 24,
- "now_working_on": "Georgia State done; starting University of Memphis",
+ "now_working_on": "FIU eligibility updated; next Baylor ENS nutrition faculty",
  "done": false
 }

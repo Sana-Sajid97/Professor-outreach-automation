@@ -65,3 +65,14 @@ These are the agents' own summaries. Check the facts in the raw files and on off
     - **Shearrer (Wyoming).**
     - **Wijayatunga (Ole Miss):** time-restricted-eating trial; graduate program coordinator.
   - Pennington faculty can supervise LSU students only with Graduate School approval and a tenured or tenure-track co-chair.
+- **w3-g (Spring 2027 research-assistant targets):** **No Spring 2027 research-assistant slot is confirmed.** No professor was found with a grant verified to pay a graduate RA from January, and no posted spring assistantship was found. Targets, most urgent first:
+  1. **South Dakota State MS:** deadline Oct 15, 2026; no funded professor found. The GA contact is Lee Weidauer.
+  2. **Montclair MS:** deadline Nov 1. **Lauren Dinour** is associate director of TRANSCEND, a 5-year grant (from 2024) that pays stipends to maternal and child health nutrition trainees; whether F-1 students can receive them is unverified. Montclair graduate assistantships give tuition remission plus a stipend. Montclair also requires a credential evaluation and a $1,000 deposit.
+  3. **Clemson FNPS:** rolling admission, but **no spring I-20s after Nov 15**, so she needs admission plus a PI-funded GRA by about Nov 1. Lead: Hannah Wilson (Pee Dee centre; Extension community nutrition); no verified grant.
+  4. **NDSU MS:** deadline Dec 1. Yeong Rhee's NIH projects have ended. Whether the "blended" delivery works for an F-1 visa is unconfirmed.
+  5. **NMSU:** spring I-20 deadline Dec 21; funding is "very limited".
+  6. **Utah State:** rolling, but its assistantship page currently lists none. Ask Carrie Durward (Graduate Program Director).
+  7. **UF FSHN:** rolling. Lead: Cora Best (her pilot grant ended March 2026).
+  8. **EMU:** the winter date is not posted (last year it was Nov 4), and the assistantship priority date (Oct 1) has passed.
+  - **Not spring options:** SIU (fall only), Purdue Nutrition Science (no spring entry), Purdue Food Science (dates conflict).
+  - **Bug found and fixed:** department roster URLs made different people merge. Dedupe now requires compatible names.

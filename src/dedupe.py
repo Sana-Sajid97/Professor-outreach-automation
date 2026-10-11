@@ -21,6 +21,7 @@ from .textutil import (
     clean,
     join_multi,
     name_key,
+    name_tokens,
     normalize_email,
     normalize_university,
     normalize_url,
@@ -59,6 +60,17 @@ def _keys(record: dict) -> list[tuple[str, str]]:
     if nk and uk:
         keys.append(("name+university", f"{nk}|{uk}"))
     return keys
+
+
+def names_compatible(a: str, b: str) -> bool:
+    """Could these two names belong to the same person? (same surname + same first name or initial)"""
+    ta, tb = name_tokens(a), name_tokens(b)
+    if not ta or not tb:
+        return True  # a missing name can't contradict
+    if ta[-1] != tb[-1]:
+        return False
+    fa, fb = ta[0], tb[0]
+    return fa == fb or (len(fa) == 1 and fb.startswith(fa)) or (len(fb) == 1 and fa.startswith(fb))
 
 
 def _completeness(record: dict) -> int:
@@ -116,16 +128,19 @@ def find_duplicates(records: list[dict]) -> DedupeResult:
         if ra != rb:
             parent[rb] = ra
 
-    owner: dict[tuple[str, str], int] = {}
+    owners: dict[tuple[str, str], list[int]] = {}
     reasons: dict[frozenset, set[str]] = {}
+    shared_conflicts: list[tuple[int, int, str]] = []
     for i, record in enumerate(records):
         for key in _keys(record):
-            if key in owner:
-                j = owner[key]
-                union(j, i)
-                reasons.setdefault(frozenset((j, i)), set()).add(key[0])
-            else:
-                owner[key] = i
+            for j in owners.get(key, []):
+                if key[0] == "name+university" or names_compatible(records[j].get("professor_name", ""), record.get("professor_name", "")):
+                    union(j, i)
+                    reasons.setdefault(frozenset((j, i)), set()).add(key[0])
+                else:
+                    # A department roster URL or shared office email used for two different people: never merge.
+                    shared_conflicts.append((j, i, key[0]))
+            owners.setdefault(key, []).append(i)
 
     groups: dict[int, list[int]] = {}
     for i in range(len(records)):
@@ -155,6 +170,19 @@ def find_duplicates(records: list[dict]) -> DedupeResult:
         )
 
     possible = find_possible_duplicates(merged_records)
+    for j, i, kind in shared_conflicts:
+        a, b = records[j], records[i]
+        if find(i) == find(j):
+            continue
+        what = "profile URL" if kind == "url" else "email"
+        possible.append(
+            (
+                clean(a.get("record_id")),
+                clean(b.get("record_id")),
+                f"different people share the same {what} ({a.get('professor_name')} / {b.get('professor_name')}); "
+                f"it is probably a department page - find each person's own profile",
+            )
+        )
     return DedupeResult(merged_records, merges, possible)
 
 

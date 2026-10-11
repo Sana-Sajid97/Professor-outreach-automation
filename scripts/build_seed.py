@@ -34,6 +34,10 @@ STATES = (
     "AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK "
     "OR PA RI SC SD TN TX UT VT VA WA WV WI WY"
 ).split()
+UPDATABLE_PROGRAM_FIELDS = {
+    "spring_2027_admission", "spring_2027_deadline", "spring_deadline_status", "fall_2027_deadline",
+    "ielts_min_overall", "funding_summary", "assistantship_deadline", "international_eligible_for_assistantships",
+}
 PROGRAM_COLUMNS = [
     "university", "state", "program_name", "degree_level", "department_or_school", "program_url",
     "spring_2027_admission", "spring_2027_deadline", "spring_deadline_status", "fall_2027_deadline",
@@ -196,13 +200,19 @@ def main() -> int:
         clean_p["state"] = clean_p["state"].upper()[:2]
         if key in programs:
             base = programs[key]
+            newer = clean_p.get("research_agent", "")[:2] in {"w3", "w4"}  # later, more targeted checks win
             for c in PROGRAM_COLUMNS:
+                incoming = clean_p[c]
                 if not base.get(c) or is_blank_or_unknown(base.get(c, "")):
-                    base[c] = clean_p[c]
-                elif clean_p[c] and c in {"source_urls"}:
-                    base[c] = join_multi(split_multi(base[c]) + split_multi(clean_p[c]))
-                elif clean_p[c] and clean_p[c] != base[c] and c in {"spring_2027_deadline", "fall_2027_deadline", "ielts_min_overall"} and not is_blank_or_unknown(clean_p[c]):
-                    base["notes"] = f"{base.get('notes', '')} | Another source says {c}={clean_p[c]}".strip(" |")
+                    base[c] = incoming
+                elif incoming and c in {"source_urls"}:
+                    base[c] = join_multi(split_multi(base[c]) + split_multi(incoming))
+                elif incoming and incoming != base[c] and not is_blank_or_unknown(incoming) and c in UPDATABLE_PROGRAM_FIELDS:
+                    if newer:
+                        base["notes"] = f"{base.get('notes', '')} | Earlier research said {c}={base[c]}".strip(" |")
+                        base[c] = incoming
+                    else:
+                        base["notes"] = f"{base.get('notes', '')} | Another source says {c}={incoming}".strip(" |")
         else:
             programs[key] = clean_p
     program_rows = sorted(programs.values(), key=lambda p: (p["state"], p["university"], p["program_name"]))

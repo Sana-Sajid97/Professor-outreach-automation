@@ -138,3 +138,33 @@ def test_score_ielts_above_applicant_gets_no_eligibility_point(record, profile, 
 def test_score_passed_deadlines(record, profile, today):
     rec = dict(record, spring_2027_status="Deadline was 2026-09-01", fall_2027_status="No 2027 intake (closed)")
     assert score_record(rec, profile, today).program == 1  # only the IELTS point remains
+
+
+def test_shared_roster_url_never_merges_different_people():
+    roster = "https://nutrition.testing.edu/people"
+    a = make_record(record_id="R0001", professor_name="Ana Alpha", institutional_email="", faculty_profile_url=roster)
+    b = make_record(record_id="R0002", professor_name="Ben Beta", institutional_email="", faculty_profile_url=roster)
+    c = make_record(record_id="R0003", professor_name="Ana Alpha, PhD", institutional_email="", faculty_profile_url=roster, lab_url="https://lab.testing.edu")
+    result = dedupe_records([a, b, c])
+    from src.textutil import name_key
+
+    names = sorted(name_key(r["professor_name"]) for r in result.records)
+    assert names == ["ana alpha", "ben beta"]  # Ana's two records merged, Ben kept
+    assert any("department page" in why for _, _, why in result.possible)
+
+
+def test_shared_email_with_different_names_is_flagged_not_merged():
+    a = make_record(record_id="R0001", professor_name="Ana Alpha", faculty_profile_url="https://testing.edu/a", institutional_email="lab@testing.edu")
+    b = make_record(record_id="R0002", professor_name="Ben Beta", faculty_profile_url="https://testing.edu/b", institutional_email="lab@testing.edu")
+    result = dedupe_records([a, b])
+    assert len(result.records) == 2
+
+
+def test_validator_warns_on_roster_url(today):
+    from src.validate import validate_all
+
+    roster = "https://nutrition.testing.edu/people"
+    recs = [make_record(record_id="R0001", professor_name="Ana Alpha", faculty_profile_url=roster),
+            make_record(record_id="R0002", professor_name="Ben Beta", faculty_profile_url=roster, institutional_email="bb@testing.edu")]
+    issues = validate_all(recs, today)
+    assert sum("department list" in i.message for i in issues) == 2
