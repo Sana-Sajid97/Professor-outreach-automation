@@ -1,0 +1,233 @@
+[
+  {
+    "topic": "0 - Method and limits of this run (agent w4-e, 2026-10-11)",
+    "fact": "All 12 permitted WebSearch calls (mode 'extended') were used. WebFetch was blocked and no page was opened directly, so every quote below comes from the search tool's extract of the listed official page. Short quotes may differ slightly from the live page in punctuation or layout. Where an extract did not say which of several returned pages held a sentence, the entry says so. Anything no search confirmed is marked 'Not verified'.",
+    "quote": "",
+    "source_url": "",
+    "confidence": "high"
+  },
+  {
+    "topic": "B - NIH RePORTER: endpoint path POST /v2/projects/search",
+    "fact": "Not verified. The exact string 'POST https://api.reporter.nih.gov/v2/projects/search' did not appear in any search extract. The extracts did confirm the following: a V2 Project API that takes a JSON payload with 'criteria', top-level 'include_fields', 'offset' and 'limit'; official docs at api.reporter.nih.gov; and a V2.0 Swagger page at https://api.reporter.nih.gov/?urls.primaryName=V2.0. The extract did not say whether the quoted sentence is on the API home page or in the Data Elements PDF. Confirm the path with one live call, for example 'python -m src.cli check-funding --limit 3' as src/discovery/nih_reporter.py already suggests.",
+    "quote": "a payload that accepts one or more of the project properties, and the search criteria ... is of the format property=[Value1, Value2, ...]",
+    "source_url": "https://api.reporter.nih.gov/",
+    "confidence": "low"
+  },
+  {
+    "topic": "B - NIH RePORTER: criteria.pi_names sub-keys",
+    "fact": "pi_names is a criteria field that takes a list of name objects. The documented sub-keys are any_name, first_name, middle_name and last_name. In the extract, each example puts one name part in its own object, as shown in the quote. No example with first_name and last_name in one object (the form the code builds: [{'first_name': ..., 'last_name': ...}]) was seen. Whether that combination matches with AND or OR is Not verified; the extract may also have flattened the PDF's layout.",
+    "quote": "{\"criteria\": {\"pi_names\": [{\"any_name\": \"\"}, {\"first_name\": \"John\"}] } } ... {\"criteria\": {\"pi_names\": [{\"any_name\": \"\"}, {\"last_name\": \"Welch\"}] } }",
+    "source_url": "https://api.reporter.nih.gov/documents/Data%20Elements%20for%20RePORTER%20Project%20API_V2.pdf",
+    "confidence": "medium"
+  },
+  {
+    "topic": "B - NIH RePORTER: criteria.fiscal_years",
+    "fact": "fiscal_years takes a list of integer fiscal years and returns projects that correspond to (or started in) one of them. An empty list [] searches all fiscal years.",
+    "quote": "Examples: { \"criteria\": { \"fiscal_years\": [2018,2019] } } Note: If searching for all fiscal years, use blank [].",
+    "source_url": "https://api.reporter.nih.gov/documents/Data%20Elements%20for%20RePORTER%20Project%20API_V2.pdf",
+    "confidence": "high"
+  },
+  {
+    "topic": "B - NIH RePORTER: criteria.include_active_projects",
+    "fact": "include_active_projects is a boolean criteria field (true/false) that includes active projects in the result or ignores them. Per the data-element documentation, a project becomes inactive once its latest Budget End date has passed.",
+    "quote": "Return the result with active projects or ignore them. It takes true or false boolean value.",
+    "source_url": "https://api.reporter.nih.gov/documents/Data%20Elements%20for%20RePORTER%20Project%20API_V2.pdf",
+    "confidence": "high"
+  },
+  {
+    "topic": "B - NIH RePORTER: active projects can come from earlier fiscal years",
+    "fact": "RePORTER's advanced-search help says 'Active Projects' results can include still-active projects that were awarded in an earlier fiscal year. So combining include_active_projects with fiscal_years can return awards from fiscal years that were not requested. The code checks project_end_date itself, which is the right safeguard.",
+    "quote": "the results of \"Active Projects\" searches may include projects awarded in an earlier fiscal year that are still active (e.g., extramural awards in a no-cost extension period)",
+    "source_url": "https://reporter.nih.gov/advanced-search",
+    "confidence": "medium"
+  },
+  {
+    "topic": "B - NIH RePORTER: include_fields names (confirmed ones)",
+    "fact": "include_fields is a top-level list of PascalCase field names that limits the returned columns. The extracts confirm ApplId, ProjectNum, Organization, PrincipalInvestigators, ProjectEndDate, AgencyIcAdmin, FiscalYear, SubprojectId, ProjectNumSplit and OrgName. AgencyIcAdmin maps to the response key agency_ic_admin.",
+    "quote": "users can specify the include fields to return only required fields/columns from the result ... \"ApplId\",\"SubprojectId\",\"FiscalYear\",\"OrgName\"",
+    "source_url": "https://api.reporter.nih.gov/documents/Data%20Elements%20for%20RePORTER%20Project%20API_V2.pdf",
+    "confidence": "high"
+  },
+  {
+    "topic": "B - NIH RePORTER: include_fields 'ProjectTitle' (and ProjectStartDate, AwardAmount)",
+    "fact": "Not verified. One extract said explicitly that 'ProjectTitle' was not found in any include_fields list. ProjectStartDate and AwardAmount, which src/discovery/nih_reporter.py also requests, were not checked either. Title text is documented as a search criterion through advanced_text_search, whose search_field values include 'projecttitle'. Check the V2.0 Swagger page or one live response before relying on these three include_fields names.",
+    "quote": "",
+    "source_url": "",
+    "confidence": "low"
+  },
+  {
+    "topic": "B - NIH RePORTER: paging (limit / offset)",
+    "fact": "limit defaults to 50 and allows at most 500. offset starts at 0, cannot be negative and allows at most 14,999. A request with \"offset\": 0, \"limit\": 25 is within range. Results past offset 14,999 cannot be paged to, so a very broad query has to be narrowed.",
+    "quote": "The default limit value is 50, if no value is specified. Maximum allowed value is 500. Offset starts at 0 by default. Offset doesn't support negative number. Maximum allowed value is 14,999.",
+    "source_url": "https://api.reporter.nih.gov/documents/Data%20Elements%20for%20RePORTER%20Project%20API_V2.pdf",
+    "confidence": "high"
+  },
+  {
+    "topic": "B - NIH RePORTER: response key appl_id",
+    "fact": "appl_id is the Application ID, the unique identifier of a project record in RePORTER. It appears as appl_id in the sample V2 response.",
+    "quote": "Application ID. Name: Application ID. Definition: A unique identifier of the project record in the RePORTER.",
+    "source_url": "https://api.reporter.nih.gov/documents/Data%20Elements%20for%20RePORTER%20Project%20API_V2.pdf",
+    "confidence": "high"
+  },
+  {
+    "topic": "B - NIH RePORTER: response key organization.org_name",
+    "fact": "The organization name is returned as org_name inside the Organization object (APIResponseName: org_name). The lower-case parent key 'organization' follows the documented PascalCase-to-snake_case pattern (AgencyIcAdmin -> agency_ic_admin), but the extract did not show it literally. To filter by organization, use criteria.org_names: a list of names searched with an implicit wildcard.",
+    "quote": "APIResponseName: org_name",
+    "source_url": "https://api.reporter.nih.gov/documents/Data%20Elements%20for%20RePORTER%20Project%20API_V2.pdf",
+    "confidence": "medium"
+  },
+  {
+    "topic": "B - NIH RePORTER: response key principal_investigators[].first_name / last_name",
+    "fact": "principal_investigators is an array of PI objects. Its fields include profile_id, first_name, middle_name and last_name. The request-side filter for PI names is criteria.pi_names.",
+    "quote": "principal_investigators ... profile_id ... first_name ... middle_name ... last_name",
+    "source_url": "https://api.reporter.nih.gov/documents/Data%20Elements%20for%20RePORTER%20Project%20API_V2.pdf",
+    "confidence": "high"
+  },
+  {
+    "topic": "B - NIH RePORTER: response key project_end_date",
+    "fact": "project_end_date is the project's current end date, including future years for which commitments have been made. Sample values are ISO-format dates such as 2022-03-31, so the code's [:10] YYYY-MM-DD comparison fits. The definition is quoted directly; the snake_case key name comes from the extract's description of the sample response.",
+    "quote": "The current end date of the project, including any future years for which commitments have been made.",
+    "source_url": "https://api.reporter.nih.gov/documents/Data%20Elements%20for%20RePORTER%20Project%20API_V2.pdf",
+    "confidence": "medium"
+  },
+  {
+    "topic": "B - NIH RePORTER: response key agency_ic_admin.abbreviation",
+    "fact": "agency_ic_admin is an object with code, abbreviation and name, for example abbreviation 'NIDA' for the National Institute on Drug Abuse. abbreviation is not a top-level key; it also appears inside agency_ic_fundings. The quote is the documentation's definition of this object's IC code; the abbreviation field comes from the extract's description of the sample response.",
+    "quote": "A two-character code to designate the agency, NIH Institute, or Center administering the grant.",
+    "source_url": "https://api.reporter.nih.gov/documents/Data%20Elements%20for%20RePORTER%20Project%20API_V2.pdf",
+    "confidence": "high"
+  },
+  {
+    "topic": "B - NIH RePORTER: response key project_title",
+    "fact": "A sample JSON response in an NIH guide contains the snake_case keys project_title, core_project_num, appl_id and fiscal_year. The extract did not name the guide; the 'Sample RePORTER API Request Matching ExPORTER Project Files' PDF was the guide among the returned results, so the source URL is probable rather than certain.",
+    "quote": "\"project_title\" ... \"core_project_num\" ... \"appl_id\" ... \"fiscal_year\"",
+    "source_url": "https://api.reporter.nih.gov/documents/Sample%20RePORTER%20API%20Request%20Matching%20ExPORTER%20Project%20Files.pdf",
+    "confidence": "medium"
+  },
+  {
+    "topic": "B - NIH RePORTER: response wrapper results[] and key project_num",
+    "fact": "Not verified. No extract showed the top-level 'results' array (or a 'meta' block) or a response key named exactly 'project_num'. The extracts showed only core_project_num in a sample response, ProjectNum as an include_fields name, and project_nums as a list-valued criteria filter. The code reads data['results'] and project['project_num']. If either name is wrong, the lookup quietly returns 'no active NIH project found' or prints an empty project number. Check both with one live call.",
+    "quote": "",
+    "source_url": "",
+    "confidence": "low"
+  },
+  {
+    "topic": "B - NIH RePORTER: rate-limit guidance",
+    "fact": "The NIH RePORTER API page asks for no more than one URL request per second, and for large jobs to run only on weekends or on weekdays between 9:00 PM and 5:00 AM Eastern. NIH may block the IP address of clients that do not comply. The search metadata dated the page about five years old, but no newer guidance was found. (The separate Federal RePORTER API page says three requests per second, which does not apply here.)",
+    "quote": "Failure to comply with this policy may require administrators to block your IP address from accessing the API service.",
+    "source_url": "https://api.reporter.nih.gov/",
+    "confidence": "high"
+  },
+  {
+    "topic": "D - Gmail API: gmail.compose covers drafts AND sending",
+    "fact": "Yes. Google describes https://www.googleapis.com/auth/gmail.compose as 'Manage drafts and send emails.', and users.messages.send lists gmail.compose among its accepted scopes (next entry). The scope list on the users.drafts.create page was not checked in this run, so drafts coverage rests on this scope description. The extract shows the table-row wording; the same row may come from https://developers.google.com/identity/protocols/oauth2/scopes, which was also returned.",
+    "quote": "https://www.googleapis.com/auth/gmail.compose | Manage drafts and send emails.",
+    "source_url": "https://developers.google.com/workspace/gmail/api/auth/scopes",
+    "confidence": "high"
+  },
+  {
+    "topic": "D - Gmail API: scopes accepted by users.messages.send",
+    "fact": "users.messages.send accepts any one of https://mail.google.com/, gmail.modify, gmail.compose or gmail.send. The extract shortened the full scope URLs.",
+    "quote": "requires one of the following OAuth scopes: mail.google.com, gmail.modify, gmail.compose, or gmail.send",
+    "source_url": "https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/send",
+    "confidence": "high"
+  },
+  {
+    "topic": "D - Gmail API: gmail.compose is RESTRICTED (not sensitive)",
+    "fact": "Google's Gmail scope page classes gmail.compose as RESTRICTED. gmail.send ('Send email on your behalf') is only SENSITIVE, but its description covers sending only, not drafts; whether users.drafts.create accepts gmail.send was not verified. The same page advises choosing the most narrowly focused scope possible. Not verified in this run: what Google requires (app verification or a security assessment) before an app requesting a restricted scope can go to production, and whether any personal-use exemption applies. The quote shows the scope table's cells as the search extract reported them; the ellipses mark column breaks.",
+    "quote": "https://www.googleapis.com/auth/gmail.compose ... Restricted ... https://www.googleapis.com/auth/gmail.send ... Send email on your behalf ... Sensitive",
+    "source_url": "https://developers.google.com/workspace/gmail/api/auth/scopes",
+    "confidence": "high"
+  },
+  {
+    "topic": "D - Google OAuth: refresh tokens expire after 7 days in Testing + External",
+    "fact": "Yes. A Google Cloud project whose OAuth consent screen uses the External user type and the 'Testing' publishing status gets refresh tokens that expire in 7 days, unless the app requests only a subset of name, email address and user profile. gmail.compose is not in that subset, so a personal tool left in Testing must re-run the consent flow about every 7 days. Expect invalid_grant / google.auth.exceptions.RefreshError, then delete token.json and sign in again.",
+    "quote": "unless the only OAuth scopes requested are a subset of name, email address, and user profile",
+    "source_url": "https://developers.google.com/identity/protocols/oauth2",
+    "confidence": "high"
+  },
+  {
+    "topic": "D - Google OAuth: avoiding the 7-day expiry",
+    "fact": "Google's Google Ads API docs advise changing the publishing status to 'In production' to avoid the 7-day refresh-token expiry. For a restricted scope such as gmail.compose, the consequences of going to production (verification requirements, unverified-app screens, user caps) were not verified in this run.",
+    "quote": "change the publishing status to In production to avoid the refresh token expiring in 7 days.",
+    "source_url": "https://developers.google.com/google-ads/api/docs/get-started/common-errors",
+    "confidence": "medium"
+  },
+  {
+    "topic": "D - Google OAuth: Workspace 'Trusted' override",
+    "fact": "Google's OAuth app-state overview says that when a Google Workspace admin marks an app as Trusted, that organization's users are not subject to the Testing-status limits: the 100-test-user cap and the 7-day refresh-token expiry.",
+    "quote": "the 100-test-user cap and the 7-day refresh token expiration limit for apps in the Testing status",
+    "source_url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/overview",
+    "confidence": "medium"
+  },
+  {
+    "topic": "D - Gmail API: can gmail.compose read the inbox?",
+    "fact": "Not verified. docs/GMAIL_SETUP.md says the gmail.compose permission 'cannot read your inbox'. No search in this run checked which scopes users.messages.get / users.messages.list accept, so this claim is unconfirmed. Google's own description of the scope only says 'Manage drafts and send emails.'",
+    "quote": "",
+    "source_url": "",
+    "confidence": "low"
+  },
+  {
+    "topic": "E - Gmail sending limits: personal @gmail.com accounts",
+    "fact": "Gmail Help gives two separate 500 limits. The limit message can appear if one email goes to more than 500 recipients in total, or if more than 500 emails are sent in a day. Sending normally resumes within 1 to 24 hours. So the official wording is 500 recipients per single email and 500 emails per day, not '500 recipients per day'. Gmail Community posts mention 100 per rolling 24 hours through mail clients (SMTP) and lower limits for new accounts. Those posts are user-written and not official, so they are not used as facts here.",
+    "quote": "you may see this message if you send an email to a total of more than 500 recipients in a single email and or more than 500 emails sent in a day. You should be able to send emails again within 1 to 24 hours.",
+    "source_url": "https://support.google.com/mail/answer/22839?hl=en",
+    "confidence": "high"
+  },
+  {
+    "topic": "E - Gmail sending limits: Google Workspace (for contrast only)",
+    "fact": "The 2,000-messages-per-day figure is on the Google Workspace sending-limits page and applies to Workspace accounts, not personal @gmail.com accounts. That page says daily limits use a rolling 24-hour window, not a fixed time of day.",
+    "quote": "limits per day are applied over a rolling 24-hour period, not a set time of day",
+    "source_url": "https://support.google.com/a/answer/166852?hl=en",
+    "confidence": "medium"
+  },
+  {
+    "topic": "E - Google email sender guidelines (Feb 2024): bulk-sender threshold",
+    "fact": "Google's Email sender guidelines FAQ defines a bulk sender as one that sends close to 5,000 or more messages to personal Gmail accounts within 24 hours. All messages from the same primary domain count toward that number. Since February 2024, senders at that volume must authenticate outgoing email, avoid sending unwanted or unsolicited email, and make unsubscribing easy (main page: https://support.google.com/a/answer/81126). A personal account's own cap of 500 emails per day is well below this threshold.",
+    "quote": "a bulk sender is any email sender that sends close to 5,000 messages or more to personal Gmail accounts within a 24-hour period",
+    "source_url": "https://support.google.com/mail/answer/14229414?hl=en",
+    "confidence": "high"
+  },
+  {
+    "topic": "F - CAN-SPAM: covers commercial messages",
+    "fact": "The FTC's CAN-SPAM compliance guide says the Act is not limited to bulk email. It covers all commercial messages, including email that promotes content on commercial websites, and it has no business-to-business exception. When a message mixes content types, its primary purpose decides. The subject line, and whether the commercial content comes first, are key factors.",
+    "quote": "The Act covers all commercial messages, including email that promotes content on commercial websites. The law makes no exception for business-to-business email.",
+    "source_url": "https://www.ftc.gov/business-guidance/resources/can-spam-act-compliance-guide-business",
+    "confidence": "high"
+  },
+  {
+    "topic": "F - CAN-SPAM: definition of 'commercial electronic mail message'",
+    "fact": "The statutory definition cited by the FTC guide is quoted below. This exact phrase was the quoted search query, and the FTC compliance guide came back as the top result. The tool's extract did not reproduce the sentence itself, so the wording is medium confidence. The statute (15 U.S.C. 7702) and 16 CFR 316.3 (the primary-purpose criteria) were not read in this run.",
+    "quote": "any electronic mail message the primary purpose of which is the commercial advertisement or promotion of a commercial product or service",
+    "source_url": "https://www.ftc.gov/business-guidance/resources/can-spam-act-compliance-guide-business",
+    "confidence": "medium"
+  },
+  {
+    "topic": "F - CAN-SPAM: not strictly 'only commercial'",
+    "fact": "Not strictly 'only'. The FTC sorts email content into three types: commercial, transactional or relationship, and other. A message with only transactional or relationship content is exempt from most provisions but still may not contain false or misleading routing information. Not verified: whether the FTC treats a student's one-to-one research inquiry to a professor as 'other' (non-commercial) content outside the Act. No extract addressed academic or non-commercial outreach, so the docs should not claim CAN-SPAM 'does not apply'.",
+    "quote": "exempt from most provisions of the CAN-SPAM Act, though it may not contain false or misleading routing information",
+    "source_url": "https://www.ftc.gov/business-guidance/resources/can-spam-act-compliance-guide-business",
+    "confidence": "medium"
+  },
+  {
+    "topic": "F - CAN-SPAM: requirements and penalties (for commercial email)",
+    "fact": "For commercial email, the FTC guide lists accurate header information, non-deceptive subject lines, identifying the message as an ad, a valid physical postal address, a working opt-out, honoring opt-outs within 10 business days, and monitoring anyone who sends on your behalf. Penalties are cited as up to $53,088 per violating email. That figure is adjusted for inflation, so recheck it before quoting.",
+    "quote": "within 10 business days",
+    "source_url": "https://www.ftc.gov/business-guidance/resources/can-spam-act-compliance-guide-business",
+    "confidence": "medium"
+  },
+  {
+    "topic": "A - OpenAlex: from_publication_date filter",
+    "fact": "from_publication_date is a documented works filter. It takes a YYYY-MM-DD date and returns works published on or after that date, and it can be paired with to_publication_date. The code's 'from_publication_date:{year}-01-01' matches. Caveat from an older OpenAlex docs page: publishers assign publication dates inconsistently, so this filter is unreliable for finding recently created or updated works; from_created_date / from_updated_date serve that purpose and were described as paid. The extract did not say which returned OpenAlex page held the example. The listed URL is the 'Filter works' page; help.openalex.org/api/filtering/ was also returned.",
+    "quote": "filter=from_publication_date:2001-03-14",
+    "source_url": "https://docsold.openalex.org/api-entities/works/filter-works",
+    "confidence": "high"
+  },
+  {
+    "topic": "A - OpenAlex: per_page maximum is 100",
+    "fact": "per_page defaults to 25 and accepts 1 to 100. per_page=200 still works as a deprecated legacy value that may be removed. page x per_page must not exceed 10,000; for deeper paging, start with cursor=* and follow next_cursor until it is null. This agrees with the earlier run's quote from https://help.openalex.org/api/paging/ ('default 25, max 100') and with the code's min(100, per_page) clamp. The extract did not tie the quote to one page; the developers.openalex.org list-endpoint reference pages were also returned.",
+    "quote": "Results per page, range 1-100",
+    "source_url": "https://developers.openalex.org/guides/page-through-results",
+    "confidence": "high"
+  }
+]

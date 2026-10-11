@@ -24,7 +24,7 @@
 
 ## Volume: quality beats quantity
 - The default limit is **30 emails per day**, and that is plenty. Each email should take you 5–10 minutes to check and personalise.
-- **300 a day is not recommended.** Professors in the same department talk to each other, generic emails get ignored or flagged as spam, and a personal Gmail account sending large volumes can be limited by Google. The tool warns if `DAILY_SEND_LIMIT` is set above 50.
+- **300 a day is not recommended.** Professors in the same department talk to each other, and generic emails get ignored or flagged as spam. Google's limit for a personal Gmail account is about 500 emails per day, and senders of about 5,000 or more per day to Gmail users fall under its stricter bulk-sender rules. The tool's default of 30 per day stays far below both. It warns if `DAILY_SEND_LIMIT` is set above 50.
 - These are **personal academic inquiries, not marketing**. Even so, the tool follows anti-spam good practice: honest subject lines, one email per person, at most one follow-up, a respected opt-out (suppression list), and no purchased or scraped lists.
 
 ## Example structure (the tool fills this in from verified facts)

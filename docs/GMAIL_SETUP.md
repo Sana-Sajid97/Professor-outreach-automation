@@ -23,7 +23,7 @@
 outreach approve
 outreach send --method gmail-drafts
 ```
-The first time, a browser window asks you to sign in and allow access. Because your app is unverified, Google shows a warning; click **Continue**. The tool asks only for the `gmail.compose` permission (create drafts and send); it cannot read your inbox. Then type `DRAFT <n>` to confirm. Open Gmail → **Drafts**, check each one, and press **Send**. Afterwards, run `outreach mark-sent --ids …`.
+The first time, a browser window asks you to sign in and allow access. Because your app is unverified, Google shows a warning; click **Continue**. The tool asks only for Google's `gmail.compose` permission ("Manage drafts and send emails"). Google classes it as a *restricted* scope; that is fine for a personal app with yourself as a test user. Then type `DRAFT <n>` to confirm. Open Gmail → **Drafts**, check each one, and press **Send**. Afterwards, run `outreach mark-sent --ids …`.
 
 ## Automatic sending (not recommended to start with)
 Set `EMAIL_MODE=send_enabled` in `.env`, then run `outreach send --method gmail-api`. You must type `SEND <n>`. The tool:
@@ -35,6 +35,6 @@ Set `EMAIL_MODE=send_enabled` in `.env`, then run `outreach send --method gmail-
 **Test first** by approving one email whose recipient is your own address.
 
 ## If sign-in stops working
-Delete `private_profile\token.json` and run the command again to sign in fresh. Google may expire sign-ins for apps in "Testing" mode after a while; when that happens, this sign-in step fixes it.
+While your Google app is in **"Testing"** status (normal for personal use), Google expires the sign-in **after 7 days**, so expect to sign in again about once a week. The tool notices an expired sign-in, deletes `private_profile\token.json` and opens the browser sign-in again. You can also delete that file yourself to start fresh.
 
 *This integration was tested with a fake Gmail service in the automated tests, not with a real account. Treat your first real use as a test.*

@@ -7,9 +7,12 @@ email still asks politely.
 Endpoint: POST https://api.reporter.nih.gov/v2/projects/search
 NIH asks API users to keep to about one request per second and to run large jobs
 off-peak; the polite client spaces requests out automatically.
-NOTE: this module was written from NIH's published API documentation and tested with
-sample responses; it could not be tested against the live API from the cloud build
-environment. Run `python -m src.cli check-funding --limit 3` once to confirm it works.
+Checked against NIH's API documentation (Oct 2026): criteria.pi_names takes objects with
+first_name / last_name / any_name; fiscal_years is a list of integers; include_active_projects
+is a boolean; limit is at most 500; and NIH asks for no more than one request per second, with
+large jobs run on weekends or overnight (US Eastern).
+NOTE: it could not be tested against the live API from the cloud build environment.
+Run `python -m src.cli check-funding --limit 3` once to confirm it works.
 """
 
 from __future__ import annotations
@@ -23,16 +26,17 @@ PROJECT_URL = "https://reporter.nih.gov/project-details/{appl_id}"
 
 
 def build_query(first_name: str, last_name: str, fiscal_years: list[int], limit: int = 25) -> dict:
+    """Search by surname only (the documented pattern); the first name and university are checked on our side.
+
+    No include_fields list is sent, so the API returns its standard full record. That avoids depending on exact
+    field-name spellings.
+    """
     return {
         "criteria": {
-            "pi_names": [{"first_name": first_name, "last_name": last_name}],
+            "pi_names": [{"last_name": last_name}],
             "fiscal_years": fiscal_years,
             "include_active_projects": True,
         },
-        "include_fields": [
-            "ApplId", "ProjectNum", "ProjectTitle", "FiscalYear", "Organization", "PrincipalInvestigators",
-            "ProjectStartDate", "ProjectEndDate", "AgencyIcAdmin", "AwardAmount",
-        ],
         "offset": 0,
         "limit": limit,
     }
@@ -55,7 +59,7 @@ def matching_projects(data: dict, professor_name: str, university: str, today: d
         return []
     first, last = tokens[0], tokens[-1]
     out = []
-    for project in (data or {}).get("results") or []:
+    for project in (data or {}).get("results") or (data or {}).get("data") or []:
         pis = project.get("principal_investigators") or []
         pi_match = False
         for pi in pis:
@@ -79,7 +83,7 @@ def evidence_text(projects: list[dict]) -> str:
         agency = clean((p.get("agency_ic_admin") or {}).get("abbreviation"))
         end = clean(p.get("project_end_date"))[:10]
         parts.append(
-            f"Active NIH project {clean(p.get('project_num'))} \"{clean(p.get('project_title'))}\""
+            f"Active NIH project {clean(p.get('project_num') or p.get('core_project_num'))} \"{clean(p.get('project_title'))}\""
             f"{f' ({agency})' if agency else ''}{f', ends {end}' if end else ''} - {PROJECT_URL.format(appl_id=appl_id)}"
         )
     return "NIH RePORTER: " + "; ".join(parts) if parts else ""

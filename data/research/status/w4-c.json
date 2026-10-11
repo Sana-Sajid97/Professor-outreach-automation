@@ -1,10 +1,10 @@
 {
  "agent": "w4-c",
- "updated_at": "2026-10-11T08:54:31Z",
- "professors": 9,
+ "updated_at": "2026-10-11T08:55:45Z",
+ "professors": 11,
  "programs": 12,
- "searches_used": 20,
+ "searches_used": 22,
  "search_budget": 24,
- "now_working_on": "Baylor faculty done; next Baylor IELTS check",
+ "now_working_on": "Memphis faculty done; next Louisville nutrition/food insecurity faculty",
  "done": false
 }

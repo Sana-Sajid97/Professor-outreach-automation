@@ -76,3 +76,14 @@ These are the agents' own summaries. Check the facts in the raw files and on off
   8. **EMU:** the winter date is not posted (last year it was Nov 4), and the assistantship priority date (Oct 1) has passed.
   - **Not spring options:** SIU (fall only), Purdue Nutrition Science (no spring entry), Purdue Food Science (dates conflict).
   - **Bug found and fixed:** department roster URLs made different people merge. Dedupe now requires compatible names.
+
+## Wave 4
+- **w4-e (technical facts):**
+  - **NIH RePORTER:** pi_names objects take any_name/first_name/middle_name/last_name; fiscal_years is a list of integers; include_active_projects is a boolean; limit max 500; 1 request per second; large jobs off-peak.
+    - The code now searches by last_name only and requests all fields.
+  - **Gmail:**
+    - The gmail.compose scope ("Manage drafts and send emails") is RESTRICTED.
+    - In Testing mode, refresh tokens expire after **7 days**.
+    - Personal Gmail allows about 500 emails per day; the bulk-sender rules start at about 5,000 per day.
+  - **OpenAlex:** the from_publication_date filter is confirmed, and per_page must be 1-100.
+  - **CAN-SPAM:** applies to commercial messages (primary-purpose test).
