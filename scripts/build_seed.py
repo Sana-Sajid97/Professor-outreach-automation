@@ -53,6 +53,10 @@ ALIASES = {
     "uconn": "connecticut", "umass": "massachusetts", "unh": "new hampshire", "uga": "georgia",
     "ole miss": "mississippi", "lsu": "louisiana state", "unl": "nebraska lincoln", "asu": "arizona state",
     "uiuc": "illinois urbana champaign", "ufl": "florida", "utk": "tennessee knoxville", "msu": "michigan state",
+    "uab": "alabama birmingham", "uncg": "north carolina greensboro", "unc": "north carolina", "unlv": "nevada las vegas",
+    "ucsf": "california san francisco", "ucla": "california los angeles", "uc davis": "california davis",
+    "uc berkeley": "california berkeley", "umn": "minnesota", "wsu": "washington state", "usu": "utah state",
+    "csu": "colorado state", "isu": "iowa state", "ksu": "kansas state", "k state": "kansas state", "unh": "new hampshire",
 }
 
 
@@ -231,8 +235,13 @@ def main() -> int:
         candidates = [r for r in by_name.get(nk, []) if same_university(r["university"], rec["university"])]
         if candidates:
             target = candidates[0]
-            if len(rec["university"]) > len(target["university"]) and normalize_university(rec["university"]) != normalize_university(target["university"]):
-                pass  # keep the first (usually fuller) university name
+            verified_now = "VERIFIED-CURRENT" in rec.get("notes", "")
+            if verified_now:
+                for key in ("title", "faculty_profile_url"):
+                    if rec.get(key) and rec[key] != target.get(key):
+                        if target.get(key):
+                            target["notes"] = f"{target.get('notes', '')} | Updated {key} (was: {target[key]})".strip(" |")
+                        target[key] = rec[key]
             merge_into(target, rec)
         else:
             by_name[nk].append(rec)

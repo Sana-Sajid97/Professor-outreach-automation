@@ -1,1 +1,1 @@
-{"agent": "w4-f", "updated_at": "2026-10-11 step 6", "professors": 24, "programs": 0, "searches_used": 23, "now_working_on": "Final search: Garner affiliation via PubMed/PMC; then writing JSONL", "done": false}
+{"agent": "w4-f", "updated_at": "2026-10-11 final", "professors": 24, "programs": 0, "searches_used": 24, "now_working_on": "Done: 19 VERIFIED-CURRENT 2026, 4 UNCLEAR (Miles, Gunther, Spees, Shearrer), 1 WARNING (Garner - possible move; do not contact until verified)", "done": true}

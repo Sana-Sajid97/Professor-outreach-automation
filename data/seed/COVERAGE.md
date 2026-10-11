@@ -1,6 +1,6 @@
 # Research coverage
 
-Built 2026-10-11 from 263 raw professor records and 171 raw program records.
+Built 2026-10-11 from 287 raw professor records and 171 raw program records.
 
 - Professor leads: **178** (all `needs_verification`)
 - Programs: **157**

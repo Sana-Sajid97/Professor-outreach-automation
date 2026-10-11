@@ -86,9 +86,10 @@ def _choose_primary(group: list[dict]) -> dict:
 
 def merge_group(group: list[dict]) -> tuple[dict, list[str]]:
     """Merge records describing the same person. Returns (merged_record, conflict_notes)."""
-    primary = dict(_choose_primary(group))
+    chosen = _choose_primary(group)
+    primary = dict(chosen)
     conflicts: list[str] = []
-    others = [r for r in group if r.get("record_id") != primary.get("record_id")]
+    others = [r for r in group if r is not chosen]  # by identity: records may not have ids yet
     for other in others:
         for key, value in other.items():
             value = clean(value)

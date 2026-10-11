@@ -168,3 +168,11 @@ def test_validator_warns_on_roster_url(today):
             make_record(record_id="R0002", professor_name="Ben Beta", faculty_profile_url=roster, institutional_email="bb@testing.edu")]
     issues = validate_all(recs, today)
     assert sum("department list" in i.message for i in issues) == 2
+
+
+def test_merge_without_ids_keeps_duplicate_data():
+    a = make_record(record_id="", lab_url="", notes="first")
+    b = make_record(record_id="", professor_name="Jamie Testperson", lab_url="https://lab.testing.edu", notes="second")
+    result = dedupe_records([a, b])
+    assert len(result.records) == 1
+    assert result.records[0]["lab_url"] == "https://lab.testing.edu"

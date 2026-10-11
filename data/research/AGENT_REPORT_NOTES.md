@@ -112,3 +112,14 @@ These are the agents' own summaries. Check the facts in the raw files and on off
     - Case Western needs IELTS 7.0 (fully funded at $39k).
     - Iowa Epidemiology needs 7.0 and gives partial tuition only.
     - SLU looks self-funded.
+- **w4-f (cross-check of the 24 top professors):** 19 verified as current.
+  - **Do not contact yet:** Jennifer Garner (Ohio State). There is no current OSU profile, and a 2024 paper may list her at Michigan. Her status is set to `not_a_fit` until someone confirms her.
+  - **Unclear** (only undated official pages): Mary P. Miles, Carolyn Gunther, Colleen Spees, Grace Shearrer.
+  - **Administrative roles that may limit taking students:**
+    - Ohri-Vachaspati: interim school director (about Aug 2026)
+    - Raynor: Executive Associate Dean
+    - Manuel: Interim Chair
+    - Gunther: Senior Associate Dean
+    - Miles: Associate Dean of Research
+  - **Title updates:** Gernand Professor (July 2026); Wharton Professor (2024; still at ASU); Chandler-Laney Professor (Oct 2025); Berg Professor.
+  - **Two seed-builder bugs** reported and fixed: title updates were not applied, and data was lost when id-less duplicates were merged.

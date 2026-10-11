@@ -145,4 +145,4 @@ All of these are at programs with strong funding evidence. Fit scores and the re
   - Wendy Dahl (Florida)
   - Jared McGuirt (Tennessee; food access and GIS)
 
-*Caution: confirm that each person can be a primary PhD or MS advisor in the program you apply to. For example, some Texas A&M Institute for Advancing Health faculty did not appear on the Nutrition PhD training-faculty list.*
+*Caution: confirm that each person can be a primary PhD or MS advisor in the program you apply to. For example, some Texas A&M Institute for Advancing Health faculty did not appear on the Nutrition PhD training-faculty list. Several senior people now hold leadership roles and may take fewer students: Ohri-Vachaspati (interim school director), Raynor (Executive Associate Dean), Gunther (Senior Associate Dean), Miles (Associate Dean) and Manuel (Interim Chair). Email them, but also email others in their department.*
