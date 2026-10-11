@@ -2,13 +2,10 @@
 
 *Built overnight, 11 Oct 2026. Highest priority first.*
 
-## 🔴 1. GitHub: nothing could be pushed (needs you)
-- Every push to `Sana-Sajid97/Professor-outreach-automation` was refused with **403**: "Claude doesn't have GitHub access to Sana-Sajid97/Professor-outreach-automation". **The Claude GitHub App is not installed on Sana's repository.** GitHub still shows only Sana's last commit (`01fb9e7`); the 22 new commits exist only in the cloud session and in the backup below.
-- Fix it:
-  1. Sana, as the repository owner, installs the Claude GitHub App on the repository: https://github.com/apps/claude/installations/select_target
-  2. Connect or reconnect GitHub for the Claude account that runs the sessions: https://claude.ai/connect-github
-  3. Ask Claude to push the branch `claude/scholarship-application-automation-2yiu9t`.
-- **Backup:** a private page, "Sana's Outreach Backup" (https://claude.ai/artifact/3MSjLQxRNPwgNEnuRfMtjn), builds a ZIP of the whole project (without the portfolio PDF) plus the 22 commits as a patch series, with restore steps. Restoring the patches was tested: it gives exactly the same files.
+## ✅ 1. GitHub access: fixed
+- After access was granted, all the overnight work was pushed to the branch `claude/scholarship-application-automation-2yiu9t` on GitHub.
+- It is **not merged into `main`** yet. To make it the main version, open a pull request from that branch and merge it (or ask Claude to open one).
+- The private backup page "Sana's Outreach Backup" (https://claude.ai/artifact/3MSjLQxRNPwgNEnuRfMtjn) is no longer needed, but it does no harm to keep it.
 
 ## 🔴 2. Privacy: the public repository contains Sana's portfolio PDF
 - `Sana Sajid - Portfolio (1) (1).pdf` (phone number, transcript, certificates) is committed to a **public** repository. Her CLAUDE.md and SAFETY_AND_PRIVACY.md say personal documents must stay out of public GitHub.
@@ -16,7 +13,7 @@
 - Alternatively, delete the PDF from the repository. It still exists in the history, so purging it fully needs a history rewrite (GitHub's "Removing sensitive data" guide).
 - The tool reads the CV from the private `private_profile/` folder, so the PDF does not need to be in the repository.
 - I did **not** delete or move it, because that is Sana's decision.
-- **Also public once pushed:** `docs/PROFILE_REVIEW.md` (the candid professor's-eye review of her profile, requested for GitHub) and `docs/STRATEGY_2027.md` name her CGPA, English score, weaknesses and target professors. That is fine in a **private** repository. If the repository must stay public, move these two files into `private_profile/` (ignored by Git) before pushing.
+- **Now public as well:** `docs/PROFILE_REVIEW.md` (the candid professor's-eye review of her profile, requested for GitHub) and `docs/STRATEGY_2027.md` name her CGPA, English score, weaknesses and target professors. That is fine in a **private** repository. Anyone can read them now. Deleting them would not hide them, because they stay in the public Git history, so making the repository private is the simple fix.
 
 ## 🟠 3. Spring 2027: act this week or let it go
 - **No January research-assistant position is confirmed anywhere** (see `docs/STRATEGY_2027.md` §3). Most international spring deadlines have passed (Aug 1 to Oct 15), and federal SNAP-Ed funding (which paid many community-nutrition assistants) ended 30 Sep 2025.
