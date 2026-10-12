@@ -120,6 +120,17 @@ def read_any(path: Path) -> list[dict]:
     return [normalize_record(r) for r in rows]
 
 
+def file_stamp(path: Path) -> str | None:
+    """A fingerprint of the file's contents (None if it does not exist). Two windows that both change the
+    tracker are detected by comparing this before saving."""
+    import hashlib
+
+    try:
+        return hashlib.sha1(Path(path).read_bytes()).hexdigest()
+    except OSError:
+        return None
+
+
 def load_records(path: Path) -> list[dict]:
     """Read the tracker. Dates that Excel rewrote (21/10/2026 and so on) are turned back into YYYY-MM-DD."""
     from .textutil import normalize_tracker_dates

@@ -496,6 +496,43 @@ def verify_record(record: dict, client, today: date, evidence_dir=None, applican
     return outcome
 
 
+def recheck_research_offline(record: dict, today: date, evidence_dir) -> str:
+    """Compare research_interests with the SAVED copy of the official profile/lab page (no new website visit).
+    Used right after you correct the research interests. Returns the new research check status."""
+    from . import checks as ck
+    from .evidence import load_snapshot
+    from .page_facts import research_items, research_support
+    from .textutil import meaningful
+
+    blocks, url = [], ""
+    for field_name in ("faculty_profile_url", "lab_url", "email_source_url"):
+        snap = load_snapshot(evidence_dir, clean(record.get(field_name)))
+        if snap:
+            blocks += snap[0].splitlines()
+            url = url or clean(record.get(field_name))
+    phrases = research_items(meaningful(record.get("research_interests", "")))
+    if not phrases or not blocks:
+        detail = "No research interests recorded." if not phrases else "No saved copy of the official page yet: run verify for this professor."
+        ck.set_check(record, "research", ck.NOT_CHECKED, today, detail=detail)
+        ck.apply_derived_status(record)
+        return ck.NOT_CHECKED
+    results = research_support(phrases, blocks)
+    supported = [r["phrase"] for r in results if r["level"] == "supported"]
+    partly = [r["phrase"] for r in results if r["level"] == "partly"]
+    unsupported = [r["phrase"] for r in results if r["level"] == "unsupported"]
+    if supported:
+        status, detail = ck.PASSED, f"{len(supported)} of {len(results)} research phrase(s) appear on the saved official page."
+    elif partly:
+        status, detail = ck.WARNING, "The research only partly matches the saved official page."
+    else:
+        status, detail = ck.FAILED, "None of these research phrases appear on the saved official page."
+    ck.set_check(record, "research", status, today, url=url, detail=detail + " (checked against the copy saved by verify)",
+                 supported=supported, partly=partly, unsupported=unsupported,
+                 quotes={r["phrase"]: r["quote"] for r in results if r["quote"]})
+    ck.apply_derived_status(record)
+    return status
+
+
 def confirm_email_manually(record: dict, email: str, source_url: str, today: date) -> None:
     """The user saw the email on the official page with their own eyes."""
     from .errors import UserFacingError

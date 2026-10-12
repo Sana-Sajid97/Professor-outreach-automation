@@ -37,10 +37,14 @@ def _ids(value: str | None) -> list[str]:
     return [v.strip() for v in value.replace(";", ",").split(",") if v.strip()]
 
 
+_STAMPS: dict[str, str | None] = {}  # tracker fingerprint when this command loaded it
+
+
 def _load(settings: Settings):
-    from .storage import load_records
+    from .storage import file_stamp, load_records
     from .suppression import SuppressionList
 
+    _STAMPS[str(settings.tracker_path)] = file_stamp(settings.tracker_path)
     records = load_records(settings.tracker_path)
     if not records:
         raise UserFacingError(
@@ -56,10 +60,18 @@ def _load(settings: Settings):
     return records
 
 
-def _save(settings: Settings, records) -> None:
-    from .storage import save_records
+def _save(settings: Settings, records, backup: bool = True) -> None:
+    """Save the tracker, unless another window (such as the draft editor) changed it since this command loaded it."""
+    from .storage import file_stamp, save_records
 
-    save_records(settings.tracker_path, records, settings.backup_dir)
+    key = str(settings.tracker_path)
+    if key in _STAMPS and file_stamp(settings.tracker_path) != _STAMPS[key]:
+        raise UserFacingError(
+            "The tracker was changed by another window (probably the draft editor) while this command was running. "
+            "To avoid overwriting those changes, this command did not save. Close the other window and run the command again."
+        )
+    save_records(settings.tracker_path, records, settings.backup_dir if backup else None)
+    _STAMPS[key] = file_stamp(settings.tracker_path)
 
 
 def _profile(settings: Settings) -> dict:
@@ -433,10 +445,21 @@ def cmd_review(settings: Settings, args) -> int:
     return 0
 
 
+def _editor_must_be_closed(settings: Settings) -> None:
+    from .review_server import editor_is_open
+
+    if editor_is_open(settings):
+        raise UserFacingError(
+            "The email editor is still open. Save your changes there, close its window, then run this again "
+            "(so that what you do here and your edits cannot overwrite each other)."
+        )
+
+
 def cmd_approve(settings: Settings, args) -> int:
     from .sending import approve
     from .suppression import SuppressionList
 
+    _editor_must_be_closed(settings)
     records = _load(settings)
     try:
         n = approve(records, settings, SuppressionList.load(settings.suppression_path), date.today(), _ids(args.ids))
@@ -450,13 +473,12 @@ def cmd_send(settings: Settings, args) -> int:
     from .sending import send
     from .suppression import SuppressionList
 
-    from .storage import save_records
-
+    _editor_must_be_closed(settings)
     records = _load(settings)
     try:
         report = send(
             records, settings, SuppressionList.load(settings.suppression_path), date.today(), args.method, args.limit,
-            _ids(args.ids), save_fn=lambda: save_records(settings.tracker_path, records),  # quick save after each email
+            _ids(args.ids), save_fn=lambda: _save(settings, records, backup=False),  # quick save after each email
         )
     except BaseException:
         try:
@@ -481,6 +503,7 @@ def cmd_mark_sent(settings: Settings, args) -> int:
 
     from .suppression import SuppressionList
 
+    _editor_must_be_closed(settings)
     records = _load(settings)
     n = mark_sent(records, _ids(args.ids), settings, date.today(), sent_on=_today(args.date) if args.date else None,
                   suppression=SuppressionList.load(settings.suppression_path))
@@ -647,6 +670,32 @@ def _add_grant_evidence(record: dict, evidence_text: str, today: date) -> None:
     set_check(record, "funding", level, today, url=entry.get("url") or grant["url"], detail=detail, evidence=evidence)
 
 
+def cmd_edit(settings: Settings, args) -> int:
+    """Open the email editor in your browser (runs only on this computer; nothing is sent from it)."""
+    from .review_server import serve
+
+    return serve(settings, open_browser=not args.no_browser, port=args.port)
+
+
+def cmd_cv(settings: Settings, args) -> int:
+    """Set the CV that is attached to every email, and check it."""
+    from .cv_check import inspect_cv, set_cv
+
+    if args.set:
+        dest = set_cv(settings, args.set)
+        print(f"CV set: {dest}")
+    profile = _profile(settings) if settings.profile_path.exists() else {}
+    report = inspect_cv(settings, profile)
+    print(f"CV: {report.summary()}")
+    for problem in report.problems:
+        print(f"  PROBLEM: {problem}")
+    for warning in report.warnings:
+        print(f"  check:   {warning}")
+    if report.ok_to_attach:
+        print("  This file will be attached. Open it once to be sure it is the version you want professors to see.")
+    return 0 if report.ok_to_attach else 1
+
+
 def cmd_preview(settings: Settings, args) -> int:
     """Preview emails for top UNVERIFIED leads without changing anything (nothing can be sent from it)."""
     from .drafting import build_draft
@@ -741,6 +790,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--force", action="store_true", help="rewrite existing drafts (clears approval)")
     sp.add_argument("--discard-edits", action="store_true", help="also rewrite emails you edited by hand (your edits are lost)")
     add("review", cmd_review, "make the HTML review page (exports/review_latest.html)")
+    sp = add("edit", cmd_edit, "open the email editor in your browser: change recipient, subject and text, saved to your tracker")
+    sp.add_argument("--port", type=int, default=0, help=argparse.SUPPRESS)
+    sp.add_argument("--no-browser", action="store_true", help="do not open the browser (print the link instead)")
+    sp = add("cv", cmd_cv, "check the CV attached to your emails (use --set to choose the file)")
+    sp.add_argument("--set", metavar="PDF", help="path to your CV PDF; it is copied into private_profile\\cv")
     sp = add("preview", cmd_preview, "preview emails for the best UNVERIFIED leads (read-only; nothing is saved or sent)")
     sp.add_argument("--limit", type=int, default=20)
     sp = add("approve", cmd_approve, "read each draft and approve it by typing 'yes'")
@@ -799,6 +853,7 @@ def main(argv: list[str] | None = None) -> int:
         parser.print_help()
         return 0
     settings = load_settings()
+    _STAMPS.clear()
     try:
         return int(args.func(settings, args) or 0)
     except UserFacingError as exc:

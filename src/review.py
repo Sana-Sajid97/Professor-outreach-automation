@@ -16,8 +16,8 @@ from . import models as m
 from .textutil import clean, is_valid_url, split_multi
 
 CSS = """
-:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2330;--muted:#5b6474;--line:#dde1e8;--accent:#2f5597;--warn:#9a5b00;--warnbg:#fff4e0;--ok:#1f7a3a}
-@media (prefers-color-scheme:dark){:root{--bg:#14171c;--card:#1d2128;--ink:#e8ebf0;--muted:#a3abb8;--line:#333a45;--accent:#8fb0ee;--warn:#ffc46b;--warnbg:#3a2c12;--ok:#6fd38f}}
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2330;--muted:#5b6474;--line:#dde1e8;--accent:#2f5597;--warn:#9a5b00;--warnbg:#fff4e0;--ok:#1f7a3a;--okbg:#e7f4ec;--bad:#b42318;--badbg:#fdecea}
+@media (prefers-color-scheme:dark){:root{--bg:#14171c;--card:#1d2128;--ink:#e8ebf0;--muted:#a3abb8;--line:#333a45;--accent:#8fb0ee;--warn:#ffc46b;--warnbg:#3a2c12;--ok:#6fd38f;--okbg:#14301f;--bad:#ff8a80;--badbg:#3a1a19}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif}
 header{padding:20px 16px;border-bottom:1px solid var(--line);background:var(--card)}h1{margin:0 0 4px;font-size:22px}
 main{max-width:980px;margin:0 auto;padding:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin:0 0 16px}
@@ -29,6 +29,88 @@ main{max-width:980px;margin:0 auto;padding:16px}.card{background:var(--card);bor
 .btn.primary{background:var(--accent);color:var(--card)}a{color:var(--accent)}ul{margin:6px 0 0 18px;padding:0}li{margin:2px 0}
 details summary{cursor:pointer;color:var(--muted);font-size:13px}.checklist label{display:block;font-size:14px;margin:3px 0}
 """
+
+
+CHECK_CSS = """
+.checks{list-style:none;margin:8px 0;padding:0;display:grid;gap:4px}.checks>li{border-left:4px solid var(--line);padding:4px 10px;font-size:14px}
+.checks>li.ck-ok{border-color:var(--ok)}.checks>li.ck-warn{border-color:var(--warn)}.checks>li.ck-bad{border-color:var(--bad)}.checks>li.ck-muted{border-color:var(--line)}
+.checks .st{font-weight:700}
+.checks .ck-ok .st{color:var(--ok)}.checks .ck-warn .st{color:var(--warn)}.checks .ck-bad .st{color:var(--bad)}.checks .ck-muted .st{color:var(--muted)}
+.checks blockquote{margin:4px 0 4px 8px;padding:2px 8px;border-left:2px solid var(--line);color:var(--muted);font-size:13px}
+.checks ul{margin:2px 0 2px 18px}
+"""
+
+
+def _check_class(name: str, status: str) -> str:
+    from . import checks as ck
+
+    if name == "funding":
+        return "ck-" + {ck.FUNDING_CONFIRMED: "ok", ck.CONFIRMED: "ok", ck.FUNDING_POSSIBLE: "warn", ck.FUNDING_NOT_AVAILABLE: "bad"}.get(status, "muted")
+    return "ck-" + {ck.PASSED: "ok", ck.CONFIRMED: "ok", ck.WARNING: "warn", ck.FAILED: "bad"}.get(status, "muted")
+
+
+def _quote(text: str) -> str:
+    return f"<blockquote>{html.escape(text)}</blockquote>" if clean(text) else ""
+
+
+def checks_html(record: dict, confirm_form=None) -> str:
+    """Every check with its result, official link and quoted evidence.
+    confirm_form(name) may return extra HTML (the editor's "I checked this myself" form)."""
+    from . import checks as ck
+
+    checks = ck.load_checks(record)
+    names = ck.CHECK_ORDER + (["edited_text"] if "edited_text" in checks else [])
+    rows = []
+    for name in names:
+        entry = checks.get(name) or {}
+        status = entry.get("status", ck.NOT_CHECKED)
+        word = ck.FUNDING_WORDS.get(status, status) if name == "funding" else ck.STATUS_WORDS.get(status, status)
+        parts = [f'<span class="st">{html.escape(word)}</span>']
+        if entry.get("detail"):
+            parts.append(html.escape(entry["detail"]))
+        if entry.get("url") and is_valid_url(entry["url"]):
+            parts.append(_link(entry["url"], "official source"))
+        if entry.get("checked_on"):
+            parts.append(f'<span class="meta">({html.escape(entry["checked_on"])})</span>')
+        extra = []
+        if name == "research":
+            quotes = entry.get("quotes") or {}
+            for phrase in entry.get("supported") or []:
+                extra.append(f"<li>Found: \u201c{html.escape(phrase)}\u201d{_quote(quotes.get(phrase, ''))}</li>")
+            for phrase in (entry.get("partly") or []) + (entry.get("unsupported") or []):
+                extra.append(f"<li>Not found on the official page (left out of the email): \u201c{html.escape(phrase)}\u201d</li>")
+            if entry.get("excerpt"):
+                extra.append(f"<li>The official page says:{_quote(entry['excerpt'])}</li>")
+        elif name == "publication":
+            for item in entry.get("items") or []:
+                link = _link(item["url"], "link") if is_valid_url(item.get("url", "")) else ""
+                extra.append(f"<li>Paper {item.get('n')}: {html.escape(item.get('title', ''))} \u2014 {html.escape(item.get('detail', ''))} {link}</li>")
+        elif name == "program":
+            labels = {"degree": "Degree", "spring": "Spring entry", "fall": "Fall entry", "deadlines": "Deadlines", "ielts": "IELTS", "requirements": "Requirements"}
+            for key, label in labels.items():
+                item = (entry.get("items") or {}).get(key)
+                if item:
+                    word_i = ck.STATUS_WORDS.get(item.get("status"), item.get("status", ""))
+                    extra.append(f'<li class="{_check_class(key, item.get("status", ""))}"><strong>{label}</strong> ({html.escape(word_i)}): '
+                                 f"{html.escape(item.get('detail', ''))}{_quote(item.get('quote', ''))}</li>")
+        elif name == "funding":
+            from .page_facts import KIND_WORDS
+
+            for ev in entry.get("evidence") or []:
+                link = _link(ev["url"], "source") if is_valid_url(ev.get("url", "")) else ""
+                extra.append(f"<li>{html.escape(KIND_WORDS.get(ev.get('kind'), ''))} {link}{_quote(ev.get('quote', ''))}</li>")
+            earlier = clean(record.get("funding_or_assistantship_evidence"))
+            if earlier:
+                extra.append(f"<li>From earlier research (not checked on an official page): {html.escape(earlier[:400])}</li>")
+        if entry.get("auto_result"):
+            extra.append(f"<li>The latest automatic check said: {html.escape(entry['auto_result'])}</li>")
+        detail_html = f"<details><summary>Evidence</summary><ul>{''.join(extra)}</ul></details>" if extra else ""
+        form = confirm_form(name, status) if confirm_form else ""
+        rows.append(f'<li class="{_check_class(name, status)}"><strong>{html.escape(ck.LABELS[name])}:</strong> {" ".join(parts)}{detail_html}{form}</li>')
+    legacy = ""
+    if not checks and clean(record.get("verification_status")) == m.VER_VERIFIED:
+        legacy = '<li class="ck-warn"><span class="st">needs a look</span> Marked verified under the earlier, simpler rules (email only). Run verify again to check the research, papers, program and funding.</li>'
+    return f'<ul class="checks">{legacy}{"".join(rows)}</ul>'
 
 
 def gmail_compose_url(to: str, subject: str, body: str, account: str = "") -> str:

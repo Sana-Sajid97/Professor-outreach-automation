@@ -163,3 +163,32 @@ class FakeSession:
 
     def post(self, url, json=None, params=None, headers=None, timeout=None):
         return self._respond(url)
+
+
+def make_pdf(path: Path, lines: list[str], pages: int = 1) -> Path:
+    """A small, valid PDF with real text on each page (for CV checks)."""
+    content = "BT /F1 12 Tf 72 720 Td " + " ".join(f"({line}) Tj 0 -16 Td" for line in lines) + " ET"
+    page_ids = list(range(3, 3 + pages))
+    content_id, font_id = 3 + pages, 4 + pages
+    objects = {
+        1: "<< /Type /Catalog /Pages 2 0 R >>",
+        2: f"<< /Type /Pages /Kids [{' '.join(f'{i} 0 R' for i in page_ids)}] /Count {pages} >>",
+        content_id: f"<< /Length {len(content)} >>\nstream\n{content}\nendstream",
+        font_id: "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+    }
+    for i in page_ids:
+        objects[i] = (f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents {content_id} 0 R "
+                      f"/Resources << /Font << /F1 {font_id} 0 R >> >> >>")
+    out, offsets = b"%PDF-1.4\n", {}
+    for number in sorted(objects):
+        offsets[number] = len(out)
+        out += f"{number} 0 obj\n{objects[number]}\nendobj\n".encode("latin-1")
+    xref = len(out)
+    out += f"xref\n0 {len(objects) + 1}\n0000000000 65535 f \n".encode()
+    for number in sorted(objects):
+        out += f"{offsets[number]:010d} 00000 n \n".encode()
+    out += f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n".encode()
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(out)
+    return path

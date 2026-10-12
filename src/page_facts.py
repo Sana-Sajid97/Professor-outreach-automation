@@ -202,14 +202,18 @@ def research_excerpt(html: str, limit: int = 600) -> str:
         title = heading.get_text(" ", strip=True)
         if len(title) > 60 or not _RESEARCH_HEADING_RE.search(title):
             continue
-        parts = []
+        parts, first_kind = [], ""
         for sib in heading.find_all_next(True, limit=40):
-            if sib.name in ("h1", "h2", "h3", "h4") and sib is not heading:
+            if sib.name in ("h1", "h2", "h3", "h4", "h5", "h6") and sib is not heading:
                 break
             if sib.name in ("p", "li", "dd", "td", "span", "div") and not sib.find(["p", "li", "div"]):
+                kind = "li" if sib.name == "li" else "text"
+                if first_kind == "li" and kind != "li":
+                    break  # the list under the heading has ended
                 text = re.sub(r"\s+", " ", sib.get_text(" ", strip=True))
-                if text and text != title and text not in parts:
+                if len(text) >= 6 and text != title and text not in parts:
                     parts.append(text)
+                    first_kind = first_kind or kind
             if sum(len(p) for p in parts) > limit:
                 break
         excerpt = "; ".join(parts)
@@ -224,20 +228,26 @@ CLAIM_IGNORE = {
     "relates", "connects", "connected", "directly", "strongly", "fits", "fit", "inspired", "fascinated", "excited",
     "impressed", "noticed", "learned", "which", "very", "much", "really", "great", "deeply", "greatly", "highly",
     "well", "would", "could", "should", "will", "shall", "please", "thank", "thanks", "dear", "professor",
+    "paper", "papers", "article", "articles", "lab", "laboratory", "group", "team", "findings", "questions", "recent",
+    "recently", "publication", "publications", "published", "program", "programs", "project", "projects",
 }
+_ABOUT_THEIR_WORK = re.compile(r"\b(?:research|work|paper|papers|study|studies|lab|group|project|article|program|findings|team)\b", re.IGNORECASE)
 
 
 def unsupported_claim_words(body: str, page_text: str, extra_text: str = "") -> list[str]:
-    """Words in the email's sentences about the professor ("your research/work/paper ...") that do not
-    appear on the official page (or in the recorded paper titles). Used to flag edits that add claims."""
+    """Words in the email's phrases about the professor's work ("your research on ...", "your obesity research")
+    that do not appear on the official page (or in the recorded paper titles). Used to flag hand edits that
+    add claims. The subject line can be passed in with the body."""
     known = stem_set(page_text) | stem_set(extra_text)
     missing = []
-    for sentence in re.split(r"(?<=[.!?])\s+", body or ""):
-        sentence = re.sub(r'"[^"]*"|“[^”]*”', " ", sentence)  # a paper title is checked separately
-        for m in re.finditer(r"\byour (?:research|work|paper|study|studies|lab|group|project|article|program)\b", sentence, re.IGNORECASE):
-            # From "your research ..." up to where the applicant talks about herself ("my interest", "I hope").
-            about_them = re.split(r"\b(?:my|I|me)\b", sentence[m.end():], maxsplit=1)[0]
-            for word, stem in content_words(about_them):
+    for sentence in re.split(r"(?<=[.!?:])\s+|\n+", body or ""):
+        sentence = re.sub(r'"[^"]*"|\u201c[^\u201d]*\u201d', " ", sentence)  # a paper title is checked separately
+        for m in re.finditer(r"\byour\b", sentence, re.IGNORECASE):
+            # From "your" up to where the applicant talks about herself ("my interest", "I hope").
+            window = re.split(r"\b(?:my|I|me)\b", sentence[m.end():], maxsplit=1)[0]
+            if not _ABOUT_THEIR_WORK.search(window[:80]):
+                continue  # "your time and consideration" is not a claim
+            for word, stem in content_words(window):
                 if stem not in known and word not in CLAIM_IGNORE and word not in missing and not word.isdigit():
                     missing.append(word)
     return missing
