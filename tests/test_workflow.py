@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import csv
 import shutil
-from datetime import timedelta
+from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
@@ -178,7 +178,7 @@ def test_gmail_api_needs_exact_phrase_and_respects_daily_limit(settings, profile
     report = send(recs, settings, SuppressionList(), today, method="gmail-api", gmail_service=gmail, input_fn=answers("SEND 2"), print_fn=lambda *a: None, sleep=lambda s: None)
     assert len(report.sent) == 2 and len(gmail.sent) == 2
     assert any("daily limit" in why for _, why in report.skipped)
-    assert sent_count_on(settings, today) == 2
+    assert sent_count_on(settings, date.today()) == 2  # the outreach log is stamped with the real clock
     assert [r["workflow_status"] for r in recs].count(m.SENT) == 2
 
 

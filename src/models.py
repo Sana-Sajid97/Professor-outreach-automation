@@ -63,6 +63,11 @@ EXTRA_FIELDS = [
     "approval_hash",
     "duplicate_of",
     "record_source",
+    "verification_checks",  # JSON: what was checked, where, and the result (see checks.py)
+    "checks_summary",  # the same in one readable line, for Excel
+    "funding_level",  # confirmed | possible | not_verified | not_available (from official pages)
+    "draft_edited_on",  # date you last edited the email by hand (your edits are never overwritten)
+    "cv_fingerprint",  # fingerprint of the CV file you approved with this email
 ]
 
 ALL_FIELDS = TEMPLATE_FIELDS + EXTRA_FIELDS

@@ -208,6 +208,7 @@ def cmd_status(settings: Settings, args) -> int:
 
 
 def cmd_verify(settings: Settings, args) -> int:
+    from .textutil import clean
     from .http_client import PoliteClient, default_user_agent
     from .verify import verify_record
 
@@ -220,18 +221,50 @@ def cmd_verify(settings: Settings, args) -> int:
     if not todo:
         print("Nothing to verify.")
         return 0
+    from .checks import load_checks, summary_text
+
     client = PoliteClient(default_user_agent(settings.contact_email), settings.request_delay_seconds, settings.cache_dir)
-    print(f"Checking {len(todo)} record(s) on official pages (about {settings.request_delay_seconds:.0f}s between requests per site)...")
+    applicant_ielts = _applicant_ielts(settings)
+    print(f"Checking {len(todo)} record(s) on official pages (about {settings.request_delay_seconds:.0f}s between requests per site).")
+    print("Each record: profile, email, research, papers, program page and funding.")
     counts = {m.VER_VERIFIED: 0, m.VER_PARTIAL: 0, m.VER_NOT: 0}
     try:
         for r in todo:
-            outcome = verify_record(r, client, date.today())
+            outcome = verify_record(r, client, date.today(), evidence_dir=settings.evidence_dir, applicant_ielts=applicant_ielts)
             counts[outcome.status] = counts.get(outcome.status, 0) + 1
-            print(f"  {outcome.record_id}: {outcome.status:18s} {' '.join(outcome.messages)[:180]}")
+            print(f"  {outcome.record_id} {clean(r.get('professor_name'))}: {outcome.status}")
+            print(f"      {summary_text(load_checks(r))}")
     finally:
         _save(settings, records)
-    print(f"Verified: {counts[m.VER_VERIFIED]}, profile only: {counts[m.VER_PARTIAL]}, not confirmed: {counts[m.VER_NOT]}.")
-    print("Records that could not be confirmed automatically need a quick manual check (see next_action).")
+    print(f"Verified (profile, email and research all checked): {counts[m.VER_VERIFIED]}; "
+          f"partly: {counts[m.VER_PARTIAL]}; not confirmed: {counts[m.VER_NOT]}.")
+    print("For the others, the next_action column says exactly what is missing. The editor page shows every check with its evidence.")
+    return 0
+
+
+def _applicant_ielts(settings: Settings) -> float | None:
+    if not settings.profile_path.exists():
+        return None
+    try:
+        return float((_profile(settings).get("english_test") or {}).get("overall"))
+    except (TypeError, ValueError):
+        return None
+
+
+def cmd_confirm(settings: Settings, args) -> int:
+    """You checked something yourself on an official page: record it as 'confirmed by you'."""
+    from .checks import confirm_check, load_checks, summary_text
+
+    records = _load(settings)
+    record = _get(records, args.id)
+    confirm_check(record, args.check, args.source_url, date.today(), args.note or "")
+    from .tracker import log_event
+
+    log_event(settings, record, "check_confirmed", f"{args.check}: {args.source_url}")
+    _save(settings, records)
+    print(f"{args.id}: {args.check} marked as checked by you.")
+    print(f"  {summary_text(load_checks(record))}")
+    print(f"  Status: {record.get('verification_status')}. Next: {record.get('next_action', '')[:200]}")
     return 0
 
 
@@ -366,7 +399,8 @@ def cmd_draft(settings: Settings, args) -> int:
             break
         if wanted and r.get("record_id", "").upper() not in wanted:
             continue
-        ok, reason = can_draft(r, date.today(), settings.min_fit_for_draft, suppression.is_suppressed(r), force=args.force)
+        ok, reason = can_draft(r, date.today(), settings.min_fit_for_draft, suppression.is_suppressed(r), force=args.force,
+                               discard_edits=args.discard_edits)
         if not ok:
             if wanted:
                 print(f"{r.get('record_id')}: not drafted - {reason}")
@@ -588,10 +622,29 @@ def cmd_check_funding(settings: Settings, args) -> int:
         if evidence and evidence not in clean(r.get("funding_or_assistantship_evidence")):
             current = clean(r.get("funding_or_assistantship_evidence"))
             r["funding_or_assistantship_evidence"] = evidence if current.lower().startswith("not verified") or not current else f"{current} | {evidence}"
+            _add_grant_evidence(r, evidence, date.today())
             found += 1
     _save(settings, records)
     print(f"Added NIH funding evidence to {found} record(s). Re-run the pipeline to update fit scores.")
     return 0
+
+
+def _add_grant_evidence(record: dict, evidence_text: str, today: date) -> None:
+    """An active NIH grant is 'possible' funding evidence (money may exist; it is not a position offer)."""
+    import re
+
+    from .checks import CONFIRMED, get_check, load_checks, set_check
+    from .page_facts import funding_level
+
+    entry = get_check(load_checks(record), "funding")
+    if entry.get("status") == CONFIRMED:
+        return
+    project = re.search(r"https://reporter\.nih\.gov/project-details/\d+", evidence_text)
+    grant = {"url": project.group(0) if project else "https://reporter.nih.gov/", "kind": "active_grant", "quote": evidence_text[:280]}
+    evidence = [e for e in entry.get("evidence") or [] if e.get("kind") != "active_grant"] + [grant]
+    level = funding_level(evidence)
+    detail = entry.get("detail") if level == entry.get("status") else "Active NIH grant found: funds may exist, but it is not a position offer. Ask the professor."
+    set_check(record, "funding", level, today, url=entry.get("url") or grant["url"], detail=detail, evidence=evidence)
 
 
 def cmd_preview(settings: Settings, args) -> int:
@@ -661,6 +714,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp = add("verify", cmd_verify, "check records on their official university pages (needs internet)")
     sp.add_argument("--ids", help="comma-separated record ids (default: all that need verification)")
     sp.add_argument("--limit", type=int, default=40)
+    sp = add("confirm", cmd_confirm, "record a check you did yourself on an official page (profile, research, publication, program, funding)")
+    sp.add_argument("--id", required=True)
+    sp.add_argument("--check", required=True, choices=["profile", "research", "publication", "program", "funding"])
+    sp.add_argument("--source-url", required=True, help="the official page where you checked it")
+    sp.add_argument("--note", default="", help="optional: what you saw, e.g. 'research list matches'")
     sp = add("confirm-email", cmd_confirm_email, "record an email you saw yourself on the official page")
     sp.add_argument("--id", required=True)
     sp.add_argument("--email", required=True)
@@ -681,6 +739,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--ids")
     sp.add_argument("--limit", type=int, default=30)
     sp.add_argument("--force", action="store_true", help="rewrite existing drafts (clears approval)")
+    sp.add_argument("--discard-edits", action="store_true", help="also rewrite emails you edited by hand (your edits are lost)")
     add("review", cmd_review, "make the HTML review page (exports/review_latest.html)")
     sp = add("preview", cmd_preview, "preview emails for the best UNVERIFIED leads (read-only; nothing is saved or sent)")
     sp.add_argument("--limit", type=int, default=20)

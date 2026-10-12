@@ -94,6 +94,11 @@ class Settings:
         return self.workspace_dir / "tracker.csv"
 
     @property
+    def evidence_dir(self) -> Path:
+        """Snapshots of the official pages as they were when checked (private; never uploaded)."""
+        return self.workspace_dir / "evidence"
+
+    @property
     def suppression_path(self) -> Path:
         return self.workspace_dir / "suppression_list.csv"
 

@@ -17,6 +17,7 @@ from datetime import date
 
 from . import models as m
 from .scoring import _intake_available
+from .page_facts import research_items, same_phrase
 from .textutil import clean, collapse_spaces, last_name, meaningful, normalize_email, normalize_university, short_hash, split_multi
 from .topics import TOPICS, match_topics
 from .validate import contact_discouraged
@@ -150,40 +151,30 @@ def intake_label(record: dict, today: date) -> tuple[str, str]:
     return "Fall 2027", "Fall 2027"
 
 
-def _split_interests(raw: str) -> list[str]:
-    """Split research interests on ';', '|' or new lines, but never inside brackets."""
-    items, depth, current = [], 0, []
-    for ch in raw:
-        if ch in "([":
-            depth += 1
-        elif ch in ")]":
-            depth = max(0, depth - 1)
-        if ch in ";|\n" and depth == 0:
-            items.append("".join(current))
-            current = []
-        else:
-            current.append(ch)
-    items.append("".join(current))
-    seen, out = set(), []
-    for item in (clean(i) for i in items):
-        if item and item.lower() not in seen:
-            seen.add(item.lower())
-            out.append(item)
-    return out
+def research_items_for_email(record: dict) -> list[str]:
+    """The professor's research phrases this email may quote.
+
+    After an automatic check, only the phrases found on the official page; nothing at all when the check
+    found none (the record then is not verified and cannot be drafted). Everything when you confirmed the
+    research yourself, or for records checked under the earlier rules (shown as "not checked" for review).
+    """
+    from .checks import CONFIRMED, PASSED, get_check, load_checks
+
+    items = research_items(meaningful(record.get("research_interests", "")))
+    entry = get_check(load_checks(record), "research")
+    status = entry.get("status")
+    if status == PASSED:
+        supported = entry.get("supported") or []
+        return [i for i in items if any(same_phrase(i, p) for p in supported)]
+    if status and status != CONFIRMED and status != "not_checked":
+        return []
+    return items
 
 
 def focus_parts(record: dict, applicant_topics: set[str]) -> list[tuple[str, list[str], int]]:
     """Up to two of the professor's own research phrases that match the applicant's interests:
     [(phrase, applicant topics it matches, rank)] in the professor's own order. Rank 0 = strong match."""
-    items = _split_interests(meaningful(record.get("research_interests", "")))
-    if len(items) == 1 and len(items[0]) > 140:
-        chunks, current = [], ""
-        for part in items[0].split(", "):
-            if len(current) + len(part) > 120 and current:
-                break
-            current = f"{current}, {part}" if current else part
-        chunks.append(current)
-        items = chunks
+    items = research_items_for_email(record)
     scored = []
     for position, item in enumerate(items):
         matches = {k: v for k, v in match_topics(item).items() if k in applicant_topics}
@@ -301,12 +292,27 @@ def _join_topics(keys: list[str], research_text: str = "") -> str:
     return f"{labels[0]}{joiner}{labels[1]}"
 
 
+def _paper_checked_ok(record: dict, n: int) -> bool:
+    """Once papers have been checked, only a paper whose check passed (or that you confirmed) may be mentioned.
+    Records checked under the earlier rules have no paper check; their papers show as 'not checked' for review."""
+    from .checks import CONFIRMED, PASSED, get_check, load_checks
+
+    entry = get_check(load_checks(record), "publication")
+    if not entry:
+        return True
+    if entry.get("status") == CONFIRMED:
+        return True
+    return any(i.get("n") == n and i.get("status") == PASSED for i in entry.get("items") or [])
+
+
 def _publication(record: dict, today: date, applicant_topics: set[str] | None = None) -> tuple[str, str]:
     """(year, title) of the most recent recorded publication on one of the applicant's topics, or ('', '')."""
     for n in (1, 2):
         title = clean(record.get(f"relevant_publication_{n}")).rstrip(".")
         if title and applicant_topics is not None and not (set(match_topics(title)) & applicant_topics):
             continue  # a paper outside the applicant's interests is not mentioned
+        if title and not _paper_checked_ok(record, n):
+            continue  # the paper check failed or could not confirm it: not mentioned
         title = title.replace("\u201c", "\u2018").replace("\u201d", "\u2019").replace('"', "'")
         year_text = clean(record.get(f"publication_{n}_year"))
         try:
@@ -399,7 +405,10 @@ def _evidence_sentences(evidence: list[dict]) -> str:
     return " ".join(parts)
 
 
-def can_draft(record: dict, today: date, min_fit: int, suppressed: bool = False, force: bool = False) -> tuple[bool, str]:
+def can_draft(record: dict, today: date, min_fit: int, suppressed: bool = False, force: bool = False,
+              discard_edits: bool = False) -> tuple[bool, str]:
+    from .checks import FAILED, WARNING, status_of, load_checks
+
     status = clean(record.get("workflow_status"))
     if suppressed or status in m.SUPPRESSED_STATUSES:
         return False, "on the suppression list (opted out, bounced, or do-not-contact)"
@@ -407,6 +416,8 @@ def can_draft(record: dict, today: date, min_fit: int, suppressed: bool = False,
         return False, f"already contacted (status '{status}')"
     if clean(record.get("last_contact_date")):
         return False, f"already contacted on {clean(record.get('last_contact_date'))} - only a follow-up is possible (followups --draft)"
+    if clean(record.get("draft_edited_on")) and clean(record.get("email_draft")) and not discard_edits:
+        return False, f"you edited this email by hand on {clean(record.get('draft_edited_on'))}; it is kept (use --discard-edits to rewrite it)"
     if status == m.DRAFT_READY and not force:
         return False, "already has a draft (use --force to rewrite it)"
     if status == m.APPROVED and not force:
@@ -419,6 +430,9 @@ def can_draft(record: dict, today: date, min_fit: int, suppressed: bool = False,
         return False, "email not confirmed on an official page"
     if not meaningful(record.get("research_interests", "")):
         return False, "no research interests recorded"
+    research = status_of(load_checks(record), "research")
+    if research in (FAILED, WARNING):
+        return False, "the recorded research does not match the official page (see the research check)"
     if contact_discouraged(record):
         return False, "department discourages contacting faculty before review"
     try:
@@ -452,7 +466,7 @@ def build_draft(record: dict, profile: dict, today: date) -> Draft:
     degree = degree_label(record, profile)
     intake_long, intake_short = intake_label(record, today)
     parts = focus_parts(record, applicant_topics)
-    research_text = meaningful(record.get("research_interests", ""))
+    research_text = "; ".join(research_items_for_email(record))  # only what the email may present as their research
     record_topics = [t for t in split_multi(record.get("matched_topics", "")) if t in applicant_topics]
     pub_topics = match_topics(" ".join(clean(record.get(f"relevant_publication_{n}")) for n in (1, 2)))
     pub_year, pub_title = _publication(record, today, applicant_topics)
@@ -587,10 +601,16 @@ def build_follow_up(record: dict, profile: dict, today: date) -> Draft:
 
 
 def apply_draft(record: dict, draft: Draft, today: date) -> None:
+    from .checks import load_checks, save_checks
+
     record["email_subject"] = draft.subject
     record["email_draft"] = draft.body
     record["approval_hash"] = ""
     record["approved_on"] = ""
+    record["draft_edited_on"] = ""
+    checks = load_checks(record)
+    if checks.pop("edited_text", None) is not None:  # that note was about the previous, hand-edited text
+        save_checks(record, checks)
     if clean(record.get("workflow_status")) in {m.VERIFIED, m.APPROVED, m.DRAFT_READY}:
         record["workflow_status"] = m.DRAFT_READY
     tips = "; ".join(draft.warnings)

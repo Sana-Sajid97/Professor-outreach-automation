@@ -159,9 +159,13 @@ def run(
     if verify_live:
         from .verify import verify_record
 
+        try:
+            applicant_ielts = float((profile.get("english_test") or {}).get("overall"))
+        except (TypeError, ValueError):
+            applicant_ielts = None
         todo = [r for r in records if clean(r.get("workflow_status")) in {m.DISCOVERED, m.NEEDS_VERIFICATION}][:verify_limit]
         for r in todo:
-            outcome = verify_record(r, client, today)
+            outcome = verify_record(r, client, today, evidence_dir=settings.evidence_dir, applicant_ielts=applicant_ielts)
             if outcome.status == m.VER_VERIFIED:
                 report.verified_now += 1
             print_fn(f"  verify {outcome.record_id}: {outcome.status} - {' '.join(outcome.messages)[:160]}")

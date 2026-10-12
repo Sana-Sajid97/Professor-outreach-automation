@@ -101,6 +101,8 @@ def test_import_profile_from_pdf(tmp_path):
 # ------------------------------------------------------------------ email extraction
 PROFILE_HTML = """
 <html><body><h1>Jamie Testperson, PhD</h1><p>Associate Professor of Nutrition</p>
+<h2>Research interests</h2><ul><li>Household food insecurity</li><li>Maternal diet quality during pregnancy</li>
+<li>Evaluation of the SNAP program</li></ul>
 <p>Contact: <a href="mailto:jamie.testperson@testing.edu?subject=Hello">Email me</a></p>
 <p>Department office: <a href="mailto:nutrition@testing.edu">nutrition@testing.edu</a></p>
 <script>var x = "tracking@ads.example.com";</script>
@@ -172,7 +174,7 @@ def test_verify_record_missing_page_and_hidden_email(today):
     hidden = "<h1>Jamie Testperson</h1><p>Email: use the contact form</p>"
     rec2 = make_record(faculty_profile_url="https://testing.edu/jt", email_source_url="", lab_url="", institutional_email="", workflow_status="needs_verification", verification_status="not_verified")
     outcome = verify_record(rec2, StubClient({"https://testing.edu/jt": hidden}), today)
-    assert outcome.status == m.VER_PARTIAL
+    assert outcome.status == m.VER_PARTIAL  # the profile exists, but that alone is never "verified"
     assert "confirm-email" in rec2["next_action"]
 
 
@@ -187,7 +189,9 @@ def test_manual_confirmation_requires_official_source(today):
     confirm_email_manually(rec, "JT@testing.edu", "https://testing.edu/people/jt", today)
     assert rec["institutional_email"] == "jt@testing.edu"
     assert rec["email_verification"] == m.EMAIL_CONFIRMED_MANUALLY
-    assert rec["workflow_status"] == m.VERIFIED
+    # A confirmed email alone does not make the record verified: profile and research must pass too.
+    assert rec["verification_status"] == m.VER_PARTIAL and rec["workflow_status"] == m.NEEDS_VERIFICATION
+    assert "--check research" in rec["next_action"]
 
 
 # ------------------------------------------------------------------ polite client
