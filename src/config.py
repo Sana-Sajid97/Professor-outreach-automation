@@ -99,6 +99,11 @@ class Settings:
         return self.workspace_dir / "evidence"
 
     @property
+    def old_drafts_dir(self) -> Path:
+        """Emails set aside when a new check means they must be written again (kept so no text is ever lost)."""
+        return self.workspace_dir / "old_drafts"
+
+    @property
     def suppression_path(self) -> Path:
         return self.workspace_dir / "suppression_list.csv"
 

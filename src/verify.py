@@ -19,6 +19,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from datetime import date
+from pathlib import Path
 from urllib.parse import unquote
 
 from . import models as m
@@ -73,6 +74,7 @@ class VerifyOutcome:
     email: str = ""
     email_source_url: str = ""
     messages: list[str] = field(default_factory=list)
+    email_refresh: str = ""  # what happened to an email written before this check (see refresh_existing_email)
 
 
 def decode_cloudflare(hex_string: str) -> str:
@@ -287,8 +289,18 @@ def next_steps(record: dict, all_checks: dict) -> str:
     return "Still needed before a draft: " + " | ".join(steps) + " (the editor page has buttons for these too)."
 
 
-def verify_record(record: dict, client, today: date, evidence_dir=None, applicant_ielts: float | None = None) -> VerifyOutcome:
-    """Run every check for one record against its official pages and update it in place."""
+def verify_record(record: dict, client, today: date, evidence_dir=None, applicant_ielts: float | None = None,
+                  old_drafts_dir=None) -> VerifyOutcome:
+    """Run every check for one record against its official pages and update it in place.
+    An unsent email written before this check is then brought in line with it (refresh_existing_email)."""
+    outcome = _run_checks(record, client, today, evidence_dir, applicant_ielts)
+    outcome.email_refresh = refresh_existing_email(record, today, evidence_dir, old_drafts_dir)
+    if outcome.email_refresh:
+        outcome.messages.append(outcome.email_refresh)
+    return outcome
+
+
+def _run_checks(record: dict, client, today: date, evidence_dir, applicant_ielts: float | None) -> VerifyOutcome:
     from . import checks as ck
     from .evidence import save_snapshot
     from .page_facts import funding_evidence, funding_level, page_blocks, program_facts, research_excerpt, research_items, research_support
@@ -494,6 +506,66 @@ def verify_record(record: dict, client, today: date, evidence_dir=None, applican
     note = f"{today.isoformat()} verify: " + " ".join(outcome.messages)
     record["notes"] = f"{clean(record.get('notes'))} | {note}".strip(" |")[-2000:]
     return outcome
+
+
+def _save_old_email(record: dict, folder: Path, today: date) -> Path:
+    folder.mkdir(parents=True, exist_ok=True)
+    stem = re.sub(r"[^A-Za-z0-9_-]", "_", clean(record.get("record_id")) or "record") + f"_{today.isoformat()}"
+    path, n = folder / f"{stem}.txt", 2
+    while path.exists():
+        path, n = folder / f"{stem}_{n}.txt", n + 1
+    approved = clean(record.get("approved_on"))
+    lines = [
+        f"{clean(record.get('record_id'))}  {clean(record.get('professor_name'))} <{clean(record.get('institutional_email'))}>",
+        f"Set aside on {today.isoformat()} after a new check (status was '{clean(record.get('workflow_status'))}'"
+        + (f", approved on {approved}" if approved else "") + ").",
+        f"SUBJECT: {clean(record.get('email_subject'))}",
+        "",
+        record.get("email_draft", "") or "",
+    ]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def refresh_existing_email(record: dict, today: date, evidence_dir=None, old_drafts_dir=None) -> str:
+    """Keep an unsent email in line with the latest checks. Returns what happened ('' when there is no email).
+
+    - An email the tool wrote is set aside (saved as a text file in old_drafts_dir, so nothing is lost) and the
+      record goes back to 'verified' (or 'needs_verification'): the pipeline writes it again from the checked facts.
+    - An email you edited is kept and compared with the official page again. If it was approved and the checks
+      now show problems, the approval is cancelled so you see them before approving again.
+    """
+    from . import checks as ck
+    from .editing import recheck_edited_text
+    from .tracker import set_status
+
+    status = clean(record.get("workflow_status"))
+    if status not in {m.DRAFT_READY, m.APPROVED} or not clean(record.get("email_draft")):
+        return ""
+    verified = clean(record.get("verification_status")) == m.VER_VERIFIED
+    if not clean(record.get("draft_edited_on")) and old_drafts_dir is not None:
+        saved = _save_old_email(record, Path(old_drafts_dir), today)
+        if status == m.APPROVED:
+            set_status(record, m.DRAFT_READY, today)
+        message = f"The email written before this check was set aside (kept in {saved})"
+        set_status(record, m.VERIFIED if verified else m.NEEDS_VERIFICATION, today, note=message)
+        for name in ("email_subject", "email_draft", "approval_hash", "approved_on", "cv_fingerprint"):
+            record[name] = ""
+        if verified:
+            record["next_action"] = "Verified. Run 4_run_pipeline.bat: it writes this email again from the checked facts."
+            return message + "; 4_run_pipeline.bat writes it again from the checked facts."
+        return message + "; it is written again once the missing checks pass."
+    recheck_edited_text(record, today, evidence_dir)
+    if status == m.APPROVED and (not verified or ck.problems(record)):
+        set_status(record, m.DRAFT_READY, today, note="approval cancelled: the new checks found problems")
+        for name in ("approval_hash", "approved_on", "cv_fingerprint"):
+            record[name] = ""
+        record["next_action"] = "The new checks found problems: look at them in the editor (edit_drafts.bat), then approve again."
+        return "Your approval was cancelled because the new checks found problems: look at them in the editor, then approve again."
+    kept = "Your edited email" if clean(record.get("draft_edited_on")) else "The email"
+    if verified and status == m.DRAFT_READY:
+        record["next_action"] = f"{kept} was kept and checked again. Review it in the editor, then approve it (5_approve_drafts.bat)."
+    return f"{kept} was kept and compared with the official page again."
 
 
 def recheck_research_offline(record: dict, today: date, evidence_dir) -> str:

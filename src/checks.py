@@ -125,6 +125,19 @@ def apply_derived_status(record: dict) -> str:
     return status
 
 
+EARLIER_RULES_NOTE = ("Marked verified under the earlier, simpler rules (email only). Run 3_verify_professors.bat: it checks "
+                      "these again first, and an email written before the checks is then rewritten from the checked facts.")
+
+
+def checked_under_earlier_rules(record: dict) -> bool:
+    """Marked verified before these checks existed (email only), and not contacted yet: verify checks it again."""
+    return (not load_checks(record)
+            and clean(record.get("verification_status")) == m.VER_VERIFIED
+            and clean(record.get("workflow_status")) in {m.VERIFIED, m.DRAFT_READY, m.APPROVED}
+            and clean(record.get("record_source")) != "sample"
+            and clean(record.get("email_verification")) != m.EMAIL_SAMPLE)
+
+
 def missing_for_verified(checks: dict) -> list[str]:
     """Plain-language list of the required checks that have not passed yet."""
     return [f"{LABELS[n]}: {STATUS_WORDS[status_of(checks, n)]}" for n in REQUIRED_FOR_VERIFIED if status_of(checks, n) not in OK_STATUSES]
@@ -168,8 +181,8 @@ def attention(record: dict) -> list[str]:
             out.append(f"{LABELS[name]}: {entry.get('detail') or 'needs a look'}")
         elif status == NOT_CHECKED and name in REQUIRED_FOR_VERIFIED:
             out.append(f"{LABELS[name]}: not checked yet")
-    if not checks and clean(record.get("verification_status")) == m.VER_VERIFIED:
-        out.append("Marked verified under the earlier, simpler rules (email only). Run verify again to check the research claims.")
+    if checked_under_earlier_rules(record):
+        out.append(EARLIER_RULES_NOTE)
     return out
 
 

@@ -163,12 +163,19 @@ def run(
             applicant_ielts = float((profile.get("english_test") or {}).get("overall"))
         except (TypeError, ValueError):
             applicant_ielts = None
-        todo = [r for r in records if clean(r.get("workflow_status")) in {m.DISCOVERED, m.NEEDS_VERIFICATION}][:verify_limit]
-        for r in todo:
-            outcome = verify_record(r, client, today, evidence_dir=settings.evidence_dir, applicant_ielts=applicant_ielts)
+        from .checks import checked_under_earlier_rules
+
+        todo = [r for r in records if checked_under_earlier_rules(r)]  # marked verified under the earlier rules: first
+        todo += [r for r in records if clean(r.get("workflow_status")) in {m.DISCOVERED, m.NEEDS_VERIFICATION}]
+        for r in todo[:verify_limit]:
+            outcome = verify_record(r, client, today, evidence_dir=settings.evidence_dir, applicant_ielts=applicant_ielts,
+                                    old_drafts_dir=settings.old_drafts_dir)
             if outcome.status == m.VER_VERIFIED:
                 report.verified_now += 1
             print_fn(f"  verify {outcome.record_id}: {outcome.status} - {' '.join(outcome.messages)[:160]}")
+            if outcome.email_refresh:
+                print_fn(f"      {outcome.email_refresh}")
+                log_event(settings, r, "email_rechecked", outcome.email_refresh)
 
     # 4. suppression, follow-ups
     suppression = SuppressionList.load(settings.suppression_path)

@@ -108,8 +108,8 @@ def checks_html(record: dict, confirm_form=None) -> str:
         form = confirm_form(name, status) if confirm_form else ""
         rows.append(f'<li class="{_check_class(name, status)}"><strong>{html.escape(ck.LABELS[name])}:</strong> {" ".join(parts)}{detail_html}{form}</li>')
     legacy = ""
-    if not checks and clean(record.get("verification_status")) == m.VER_VERIFIED:
-        legacy = '<li class="ck-warn"><span class="st">needs a look</span> Marked verified under the earlier, simpler rules (email only). Run verify again to check the research, papers, program and funding.</li>'
+    if ck.checked_under_earlier_rules(record):
+        legacy = f'<li class="ck-warn"><span class="st">needs a look</span> {html.escape(ck.EARLIER_RULES_NOTE)}</li>'
     return f'<ul class="checks">{legacy}{"".join(rows)}</ul>'
 
 

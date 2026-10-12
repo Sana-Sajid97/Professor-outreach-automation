@@ -235,19 +235,24 @@ def cmd_status(settings: Settings, args) -> int:
 
 def cmd_verify(settings: Settings, args) -> int:
     from .textutil import clean
+    from .checks import checked_under_earlier_rules, load_checks, summary_text
     from .http_client import PoliteClient, default_user_agent
+    from .tracker import log_event
     from .verify import verify_record
 
     records = _load(settings)
     wanted = {i.upper() for i in _ids(args.ids)}
-    todo = [r for r in records if (r.get("record_id", "").upper() in wanted) if wanted] or [
-        r for r in records if r.get("workflow_status") in {m.DISCOVERED, m.NEEDS_VERIFICATION} and not wanted
-    ]
+    if wanted:
+        todo = [r for r in records if r.get("record_id", "").upper() in wanted]
+    else:
+        earlier = [r for r in records if checked_under_earlier_rules(r)]
+        todo = earlier + [r for r in records if r.get("workflow_status") in {m.DISCOVERED, m.NEEDS_VERIFICATION}]
+        if earlier:
+            print(f"{len(earlier)} record(s) were marked verified under the earlier, email-only rules: they are checked again first.")
     todo = todo[: args.limit]
     if not todo:
         print("Nothing to verify.")
         return 0
-    from .checks import load_checks, summary_text
 
     client = PoliteClient(default_user_agent(settings.contact_email), settings.request_delay_seconds, settings.cache_dir)
     applicant_ielts = _applicant_ielts(settings)
@@ -256,10 +261,14 @@ def cmd_verify(settings: Settings, args) -> int:
     counts = {m.VER_VERIFIED: 0, m.VER_PARTIAL: 0, m.VER_NOT: 0}
     try:
         for r in todo:
-            outcome = verify_record(r, client, date.today(), evidence_dir=settings.evidence_dir, applicant_ielts=applicant_ielts)
+            outcome = verify_record(r, client, date.today(), evidence_dir=settings.evidence_dir, applicant_ielts=applicant_ielts,
+                                    old_drafts_dir=settings.old_drafts_dir)
             counts[outcome.status] = counts.get(outcome.status, 0) + 1
             print(f"  {outcome.record_id} {clean(r.get('professor_name'))}: {outcome.status}")
             print(f"      {summary_text(load_checks(r))}")
+            if outcome.email_refresh:
+                print(f"      {outcome.email_refresh}")
+                log_event(settings, r, "email_rechecked", outcome.email_refresh)
     finally:
         _save(settings, records)
     print(f"Verified (profile, email and research all checked): {counts[m.VER_VERIFIED]}; "
