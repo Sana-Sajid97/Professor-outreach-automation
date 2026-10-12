@@ -116,6 +116,20 @@ def cmd_doctor(settings: Settings, args) -> int:
     print(f"  email mode:  {settings.email_mode} (sending {'ENABLED' if settings.sending_enabled else 'disabled - drafts only'})")
     print(f"  daily limit: {settings.daily_send_limit}")
     print(f"  OpenAlex key: {'set' if settings.openalex_api_key else 'not set (optional discovery)'}")
+    from .cv_check import inspect_cv
+
+    profile = {}
+    if settings.profile_path.exists():
+        try:
+            profile = _profile(settings)
+        except UserFacingError:
+            profile = {}
+    report = inspect_cv(settings, profile)
+    print(f"  CV:          {report.summary()}")
+    for problem in report.problems:
+        print(f"     PROBLEM: {problem}")
+    for warning in report.warnings:
+        print(f"     check:   {warning}")
     for w in settings.warnings:
         print("WARNING: " + w)
     print("Everything looks ready." if ok else "Please fix the problems above.")
@@ -462,7 +476,8 @@ def cmd_approve(settings: Settings, args) -> int:
     _editor_must_be_closed(settings)
     records = _load(settings)
     try:
-        n = approve(records, settings, SuppressionList.load(settings.suppression_path), date.today(), _ids(args.ids))
+        n = approve(records, settings, SuppressionList.load(settings.suppression_path), date.today(), _ids(args.ids),
+                    profile=_profile(settings) if settings.profile_path.exists() else {})
     finally:
         _save(settings, records)
     print(f"{n} email(s) approved. Next:  python -m src.cli send   (or --method gmail-drafts)")
@@ -479,6 +494,7 @@ def cmd_send(settings: Settings, args) -> int:
         report = send(
             records, settings, SuppressionList.load(settings.suppression_path), date.today(), args.method, args.limit,
             _ids(args.ids), save_fn=lambda: _save(settings, records, backup=False),  # quick save after each email
+            profile=_profile(settings) if settings.profile_path.exists() else {},
         )
     except BaseException:
         try:
@@ -495,6 +511,8 @@ def cmd_send(settings: Settings, args) -> int:
         print(f"  skipped {rid}: {why}")
     for rid, why in report.failed:
         print(f"  FAILED {rid}: {why} (not marked as sent)")
+    for rid, note in report.attachment_notes:
+        print(f"  CV {rid}: {note}")
     return 0 if not report.failed else 1
 
 
@@ -506,7 +524,8 @@ def cmd_mark_sent(settings: Settings, args) -> int:
     _editor_must_be_closed(settings)
     records = _load(settings)
     n = mark_sent(records, _ids(args.ids), settings, date.today(), sent_on=_today(args.date) if args.date else None,
-                  suppression=SuppressionList.load(settings.suppression_path))
+                  suppression=SuppressionList.load(settings.suppression_path),
+                  profile=_profile(settings) if settings.profile_path.exists() else {})
     _save(settings, records)
     print(f"{n} email(s) recorded as sent. Follow-up reminders were scheduled.")
     return 0

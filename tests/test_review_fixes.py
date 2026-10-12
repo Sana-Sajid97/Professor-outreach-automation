@@ -27,6 +27,16 @@ from src.verify import NO_MATCH, STRONG, SURNAME_ONLY, choose_email, email_match
 
 from .conftest import ROOT, FakeResponse, FakeSession, make_record, write_profile
 
+@pytest.fixture(autouse=True)
+def _cv_ready(settings, tmp_path):
+    """Emails here say 'I have attached my CV', so approving them needs a real CV file."""
+    from src.cv_check import set_cv
+
+    from .conftest import make_pdf
+
+    set_cv(settings, make_pdf(tmp_path / "cv_source" / "Test_Applicant_CV.pdf", ["Test Applicant", "applicant@example.com"]))
+
+
 QUIET = {"print_fn": lambda *a: None}
 
 

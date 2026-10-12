@@ -22,6 +22,16 @@ from src.tracker import refresh_follow_ups, sent_count_on, set_status
 from .conftest import ROOT, make_record, write_profile
 
 
+@pytest.fixture(autouse=True)
+def _cv_ready(settings, tmp_path):
+    """Emails here say 'I have attached my CV', so approving them needs a real CV file."""
+    from src.cv_check import set_cv
+
+    from .conftest import make_pdf
+
+    set_cv(settings, make_pdf(tmp_path / "cv_source" / "Test_Applicant_CV.pdf", ["Test Applicant", "applicant@example.com"]))
+
+
 def drafted(profile, today, **overrides):
     rec = make_record(**overrides)
     apply_draft(rec, build_draft(rec, profile, today), today)
