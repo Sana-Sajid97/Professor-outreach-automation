@@ -24,13 +24,19 @@ If Windows shows "Windows protected your PC", click **More info** and then **Run
 1. Put your CV or portfolio PDF into the **`private_profile`** folder. This folder is private and never uploaded to GitHub.
 2. Double-click **`2_import_profile.bat`**. It reads your CV into `private_profile\profile.json`, then starts your tracker from the researched professor leads.
 3. Open `private_profile\profile.json` in Notepad and check your details. Emails will only use facts from this file.
+4. Choose the CV that goes with every email (ideally a 2-page PDF named like `Sana_Sajid_CV.pdf`). Open the project folder, click the address bar, type `cmd`, press Enter, and type:
+   ```
+   outreach cv --set "C:\Users\You\Documents\Sana_Sajid_CV.pdf"
+   ```
+   It copies the file into `private_profile\cv\` and checks it: a readable PDF, your name and email inside, the number of pages, the size and the file name. Run `outreach cv` any time to check it again.
 
 ## 5. Daily use
 | Double-click | What it does |
 |---|---|
-| `3_verify_professors.bat` | Opens each professor's **official** university page and confirms the email. It goes slowly on purpose (a few seconds between requests) and respects each site's rules. |
-| `4_run_pipeline.bat` | One-click run: checks the data, removes duplicates, scores fit, writes email drafts and exports Excel. It then opens the review page. **It never sends email.** |
-| `5_approve_drafts.bat` | Shows each draft. Type `yes` to approve it. Then it makes an "outbox" page with **Open in Gmail** buttons, so you send each email yourself. |
+| `3_verify_professors.bat` | Opens each professor's **official** pages and records separate checks: profile, email, research, papers, program page (degree, Spring/Fall 2027, deadlines, IELTS, requirements) and funding. It goes slowly on purpose (a few seconds between requests) and respects each site's rules. |
+| `4_run_pipeline.bat` | One-click run: checks the data, removes duplicates, scores fit, writes email drafts and exports Excel. It then opens the **email editor** in your browser. **It never sends email.** |
+| `edit_drafts.bat` | Opens the email editor any time: every email with its checks and evidence; edit the recipient, subject and text and press **Save**. Professors who still need a check are listed under "Waiting for checks", where you can record checks you did yourself or correct their research interests. Keep the black window open while you edit, then close it. |
+| `5_approve_drafts.bat` | Shows each draft with its checks and the CV that will be attached. Type `yes` to approve it (`approve anyway` if a check failed). Then it makes an "outbox" page with **Open in Gmail** buttons, so you send each email yourself with your CV attached. |
 
 To run any other command, open the folder, click the address bar, type `cmd` and press Enter. Then type, for example:
 ```
@@ -62,6 +68,11 @@ You can open `workspace\tracker.csv` in Excel. **Close Excel before running the 
 | `pip install` fails | Check your internet connection. On university or office networks a firewall may block it; try a home network. |
 | Accented names look wrong in Excel | Open the **.xlsx** export instead of the .csv, or use Excel's *Data → From Text/CSV* and choose UTF-8. |
 | `verify` says "robots.txt does not allow automated access" or "Access denied" | That university does not allow automated checks. Open the profile link yourself, find the email, then run `outreach confirm-email --id R0007 --email "name@uni.edu" --source-url "https://…official page…"`. |
+| The editor did not open in the browser | Copy the link shown in the black window into your browser. The link only works while that window is open. |
+| "The email editor is still open" when approving | Save your edits in the editor, close its black window, then run `5_approve_drafts.bat` again. |
+| "The tracker was changed by another window" | Two windows tried to change the tracker at once. Nothing was overwritten: close the other window and run the command again. |
+| A check says "not checked yet" or "could not open the page automatically" | Some university sites block automated checks. Open the link yourself; if it is right, use **I checked this myself** in the editor (or `outreach confirm --id R0007 --check research --source-url "https://…"`). |
+| "the CV is not ready" | Run `outreach cv` to see why (for example, the PDF does not contain your name). Fix it, or choose another file with `outreach cv --set "…"`. |
 | Something went wrong (a bug) | Details are saved in `workspace\logs\`. Your data is safe in `workspace\backups\`. |
 
 To check your setup at any time: `outreach doctor`. To run the tests: `.venv\Scripts\python -m pytest`.

@@ -18,10 +18,11 @@ A beginner-friendly tool, built for Sana Sajid, that helps find **assistantship-
 1. Install Python from python.org (tick **Add python.exe to PATH**).
 2. Double-click **`1_setup_windows.bat`**.
 3. Put your CV/portfolio PDF in **`private_profile\`**, then double-click **`2_import_profile.bat`**.
-4. Double-click **`3_verify_professors.bat`**. It checks professors on their official university pages.
-5. Double-click **`4_run_pipeline.bat`**. It scores and drafts, then opens the review page. **It never sends.**
-6. Double-click **`5_approve_drafts.bat`**. Type `yes` for each email you approve, then send each one from Gmail yourself using the **Open in Gmail** button.
-7. Record what you sent: `outreach mark-sent --ids R0012,R0015`.
+4. Choose the CV that is attached to every email (a 2-page PDF is best): `outreach cv --set "C:\path\to\Sana_Sajid_CV.pdf"`. It is checked straight away.
+5. Double-click **`3_verify_professors.bat`**. For each professor it checks, on official pages: the profile, the email, the research the email will describe, the papers it may mention, the program page (degree, Spring/Fall 2027, deadlines, IELTS) and assistantship funding. Professors verified with the earlier version are checked again first, and their emails are rewritten from the checked facts (the old text is kept in `workspace\old_drafts\`).
+6. Double-click **`4_run_pipeline.bat`**. It scores and drafts, then opens the **email editor** in your browser: read every email with its checks and evidence, edit the recipient, subject or text, and press **Save**. **It never sends.**
+7. Close the editor window, then double-click **`5_approve_drafts.bat`**. Type `yes` for each email you approve (emails with failed checks need `approve anyway`), then send each one from Gmail yourself with your CV attached.
+8. Record what you sent: `outreach mark-sent --ids R0012,R0015`.
 
 Full guides:
 - [docs/WINDOWS_SETUP.md](docs/WINDOWS_SETUP.md): setup and troubleshooting
@@ -41,15 +42,18 @@ python -m src.run_pipeline --intake "Spring 2027" --limit 30 --mode drafts
 - Validation of names, URLs, institutional emails, official (.edu) domains, stale dates, placeholders, IELTS requirements, and "do not contact" department policies.
 - Duplicate detection by institutional email, profile URL, and name + university, keeping outreach history.
 - A transparent **0–10 fit score**, where every point is explained (topic 0–3, background 0–2, program 0–2, funding 0–2, recent paper 0–1). It is a prioritisation aid, **not an admission probability**.
-- Personalised drafts built **only** from the record's own fields (research interests and publications, each with a source link to confirm on the official profile) and your own CV sentences. Nothing else is added. At most one polite follow-up, which must be approved like any email.
+- **Verification you can see**: every professor gets separate checks (profile, email, research, paper, program page, funding), each with its official link, date and a quote from the page, and a status: passed, confirmed by you, needs a look, failed, or not checked yet. A professor counts as **verified only when the profile, email and research checks pass** (automatically, or confirmed by you with the official link); a profile that exists, or a draft that was generated, is never enough. Program facts that cannot be found on the official page are flagged, not assumed, and funding is graded **confirmed** (an official page guarantees funding or a professor is recruiting a funded student), **possible** (general statements or an active grant) or **not verified**.
+- Personalised drafts built **only** from what the checks support: the email describes only research phrases found on the official page, and mentions a paper only when Crossref or PubMed confirms the paper and that the professor is an author (or you confirmed these yourself). Your own CV sentences describe you. At most one polite follow-up, which must be approved like any email.
+- **An email editor** (`edit_drafts.bat`, also opened by the pipeline): change the recipient, subject and text in your browser; saved to your tracker and kept. Changing the recipient needs the official page where you saw it; editing an approved email cancels its approval; new claims about the professor are compared with the saved official page and flagged.
+- **CV checks**: the CV must be a readable PDF containing your name; long files, big files and informal file names are flagged. Approval records which CV file you approved, sending stops if it changed, and Gmail drafts are read back to confirm the CV is attached.
 - Statuses: discovered, needs_verification, verified, draft_ready, approved, sent, follow_up_due, replied, closed, not_a_fit, bounced, opted_out, do_not_contact. Opt-outs and bounces are **suppressed forever**.
 - Safe sending: approval of the exact text, a daily limit (default 30), and Gmail API sending **off by default**. Send buttons appear only on the outbox page, only for approved emails that pass every check.
 - No double sends: every send is written to the outreach log at once. An email with the same address and subject is never sent twice, and if the tracker could not be saved after a send, the next run restores the record to `sent` from the log.
 - Safe editing without Excel: `outreach set --id R0012 --field research_interests --value "..."` and `outreach note --id R0012 --text "..."`. If the tracker was re-saved in Excel, readable dates (21/10/2026) are repaired on load, and ambiguous ones are flagged.
-- **165 automated tests** (`python -m pytest`), including regression tests for every issue found in an independent code review and checks of the drafts written for all 186 researched leads.
+- **208 automated tests** (`python -m pytest`), including the editor running as a real local server, the CV checks, every verification check on sample pages, regression tests for every issue found in an independent code review, and checks of the drafts written for all 186 researched leads.
 
 ## What needs your PC or credentials (not tested live yet)
-- `verify` (official-page checks), `discover` (OpenAlex; needs a free API key) and `check-funding` (NIH RePORTER) need internet on your PC. The cloud environment where this was built blocks outside websites, so they were tested only with sample data.
+- `verify` (official pages, plus the free Crossref and PubMed APIs for papers), `discover` (OpenAlex; needs a free API key) and `check-funding` (NIH RePORTER) need internet on your PC. The cloud environment where this was built blocks outside websites, so they were tested only with sample pages and sample API answers. Reading program and funding facts from real university pages is heuristic: always read the quoted evidence before relying on it.
 - Gmail drafts/sending need a one-time Google setup ([docs/GMAIL_SETUP.md](docs/GMAIL_SETUP.md)). They have not been tested with a real account; test on yourself first.
 - There is **no automatic web search** in the tool. The leads came from a one-time research run (see `data/research/README.md`). Add more with `discover` or by importing your own spreadsheet.
 

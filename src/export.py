@@ -25,14 +25,18 @@ SUMMARY_COLUMNS = [
     "graduate_program",
     "spring_2027_status",
     "fall_2027_status",
+    "funding_level",
     "funding_or_assistantship_evidence",
     "verification_status",
+    "checks_summary",
     "next_action",
     "follow_up_date",
     "fit_score_breakdown",
 ]
-DRAFT_COLUMNS = ["record_id", "professor_name", "university", "institutional_email", "email_subject", "email_draft", "workflow_status"]
-WIDE = {"research_interests", "research_fit_explanation", "fit_score_breakdown", "email_draft", "notes", "funding_or_assistantship_evidence", "next_action", "eligibility_notes", "source_urls"}
+DRAFT_COLUMNS = ["record_id", "professor_name", "university", "institutional_email", "email_subject", "email_draft", "workflow_status",
+                 "checks_summary", "draft_edited_on", "cv_fingerprint"]
+WIDE = {"research_interests", "research_fit_explanation", "fit_score_breakdown", "email_draft", "notes", "funding_or_assistantship_evidence",
+        "next_action", "eligibility_notes", "source_urls", "checks_summary", "verification_checks"}
 
 
 def _safe_cell(value: str) -> str:

@@ -1,7 +1,7 @@
 # Emailing professors: what works, and how the drafts are built
 
 ## How the tool writes each draft
-- **Their research** is quoted from the record's `research_interests` and recorded publications. For the researched leads these were collected from search results of official pages and publication records, with source links. They are not checked again automatically, so open the official profile and confirm them before you approve. A paper is mentioned only if its title matches one of your topics. Leads found with OpenAlex start with no research interests: copy them from the official profile with `outreach set --id R0123 --field research_interests --value "..."`.
+- **Their research** is quoted only from phrases that `verify` found on the professor's official profile or lab page, or that you confirmed yourself with **I checked this myself**; recorded phrases that are not on the page are left out (the editor lists them as "not found"). A paper is mentioned only when Crossref or PubMed confirms the link is that paper and the professor is an author (or you confirmed it yourself), and only if its title matches one of your topics. Leads found with OpenAlex start with no research interests: copy them from the official profile in the editor ("Correct the research interests") or with `outreach set --id R0123 --field research_interests --value "..."`.
 - **Your experience** is copied word for word from your CV (`private_profile/profile.json`). The tool picks the one or two lines that best match the professor's topics. For data-heavy labs it adds your machine-learning project.
 - **The request** asks politely whether they expect to take a new student for Spring or Fall 2027, and whether a research or teaching assistantship might be available. It **never assumes** either.
 - **It never says "I read your paper".** It only mentions that the paper exists. Read at least the abstract before you send. If you have a genuine comment, add it as one sentence in `personal_note`.
@@ -49,3 +49,10 @@ Thank you very much for your time and consideration.
 Sincerely,
 <signature from profile.json: name, degree/university, email, LinkedIn>
 ```
+
+## Editing a draft
+Open `edit_drafts.bat`. You can change the recipient, the subject and the text; press **Save changes** and the new text is stored in your tracker.
+- Your edited text is never replaced when drafts are regenerated (only `outreach draft --discard-edits` would do that).
+- Changing the recipient needs the official page where the new address is shown.
+- Editing an approved email cancels the approval, so you always approve the exact text that is sent.
+- Sentences about the professor ("your research on …") are compared with the saved copy of their official page; words that are not there are listed for you to double-check. Nothing about a professor's work should appear in an email unless their official page or paper says it.

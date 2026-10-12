@@ -17,11 +17,15 @@
 | Gmail drafts with your CV attached (`send --method gmail-drafts`) | A Google Cloud project with the Gmail API enabled, an OAuth **Desktop app** client file, and a one-time browser sign-in | `private_profile\credentials.json`; the token is saved to `private_profile\token.json`. See `docs/GMAIL_SETUP.md`. |
 | Automatic sending (`send --method gmail-api`) | The Gmail setup above, **plus** `EMAIL_MODE=send_enabled` in `.env`. You still approve every email and type `SEND <n>` for each batch. | `.env` |
 
-## Honest status of each feature (11 Oct 2026)
+## Honest status of each feature (12 Oct 2026)
 | Feature | Status |
 |---|---|
-| Core workflow (import, validate, dedupe, score, draft, review, approve, outbox, mark-sent, follow-ups, suppression, export) | **Implemented and tested.** 165 automated tests pass, including an end-to-end run on sample data. |
-| `verify` | Implemented and tested against realistic sample web pages, including mailto links, "[at]/[dot]" anti-spam text, Cloudflare-protected emails, robots.txt, rate limits and 404 errors. **Not yet run against live university websites**, because the cloud build environment blocks outside websites. The first real run on your PC is its first live test, so start with `--limit 5`. |
+| Core workflow (import, validate, dedupe, score, draft, edit, review, approve, outbox, mark-sent, follow-ups, suppression, export) | **Implemented and tested.** 208 automated tests pass, including an end-to-end run on sample data and the email editor running as a real local server. |
+| `verify`: profile and email | Implemented and tested against realistic sample web pages, including mailto links, "[at]/[dot]" anti-spam text, Cloudflare-protected emails, robots.txt, redirects, rate limits and 404 errors. **Not yet run against live university websites**, because the cloud build environment blocks outside websites. The first real run on your PC is its first live test, so start with `--limit 5`. |
+| `verify`: research, program and funding checks | Implemented and tested on sample pages. They read page text with transparent keyword rules (each result quotes the sentence it came from). Real university pages vary a lot, so these checks can miss facts (shown as "not stated" / "not checked yet") or occasionally misread one: **always read the quote** before relying on it, and use "I checked this myself" when you have checked by hand. Pages that load their content with JavaScript may show little text to the tool. |
+| Paper check (Crossref and PubMed) | Uses two free official APIs; **no key needed**. Tested with sample answers shaped like the documented responses; **not yet run live**. Papers without a DOI or PubMed link are not checked automatically and are then not mentioned in emails. |
+| Email editor (`edit_drafts.bat`) | Runs only on your own computer (127.0.0.1) with a secret link; tested in the automated tests with a real local server. |
+| CV checks | Tested with real PDF files: readable PDF, your name and email inside, pages, size, file name and fingerprint. |
 | `discover` (OpenAlex) and `check-funding` (NIH) | Implemented from the official API documentation and tested with sample responses. **Not yet run live** (same reason). Try them with a small `--limit`. |
 | Gmail drafts and sending | Implemented and tested with a fake Gmail service. **Not yet tested with a real Google account.** Test by sending to yourself first. |
 | Web search for new professors | **Not built into the tool.** The researched leads in `data/seed/` came from a one-time AI-assisted research run. To add more, use `discover` (OpenAlex) or add professors yourself with `import`. |
