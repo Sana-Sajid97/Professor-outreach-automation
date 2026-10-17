@@ -55,6 +55,15 @@ outreach programs
 
 You can open `workspace\tracker.csv` in Excel. **Close Excel before running the tool**: Windows locks files that are open in Excel, and the tool will tell you to close it. A backup is made every time the tracker is saved (`workspace\backups\`).
 
+### Updating to a newer version
+If you downloaded the ZIP, your own files stay in the old folder, so move them across:
+1. Download the new ZIP and extract it to a **new** folder (for example `Documents\Professor-outreach-automation-new`).
+2. Copy the `private_profile` folder, the `workspace` folder and the `.env` file from the old folder into the new one. They hold your profile, CV, tracker, outreach log and do-not-contact list.
+3. Double-click `1_setup_windows.bat` in the new folder. It keeps your `.env`.
+4. Double-click `edit_drafts.bat` and check that your emails are there. Then you can delete the old folder.
+
+If you used Git instead, run `git pull` in the project folder; your private folders are not touched.
+
 ## 7. Troubleshooting
 | Problem | Fix |
 |---|---|
