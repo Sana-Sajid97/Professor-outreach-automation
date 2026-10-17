@@ -1,6 +1,6 @@
 """The CV that goes with every email: the right file, readable, sensible, and the same file you approved.
 
-Set it once:   outreach cv --set "C:\\Users\\You\\Documents\\Sana_Sajid_CV.pdf"
+Set it once:   double-click choose_cv.bat (or: outreach cv --set "C:\\Users\\You\\Documents\\Sana_Sajid_CV.pdf")
 Check it:      outreach cv
 The file is copied into private_profile\\cv\\ (private; never uploaded) and CV_ATTACHMENT in .env points to it.
 
@@ -76,10 +76,10 @@ def inspect_cv(settings, profile: dict | None = None) -> CVReport:
     path = cv_path(settings)
     report = CVReport(path)
     if path is None:
-        report.problems.append('No CV is set up yet. Run:  outreach cv --set "C:\\path\\to\\Your_CV.pdf"')
+        report.problems.append("No CV is set up yet. Double-click choose_cv.bat and pick your CV (PDF).")
         return report
     if not path.exists():
-        report.problems.append(f"The CV file was not found at {path}. Set it again with: outreach cv --set \"...\"")
+        report.problems.append(f"The CV file was not found at {path}. Choose it again: double-click choose_cv.bat.")
         return report
     report.exists = True
     data = path.read_bytes()
@@ -124,6 +124,36 @@ def inspect_cv(settings, profile: dict | None = None) -> CVReport:
     if re.search(r"\(\d+\)|\bcopy\b|portfolio|untitled|\bfinal\b|\bnew\b|draft", path.stem, re.IGNORECASE):
         report.warnings.append(f"The file name '{path.name}' looks informal. The professor sees it: rename it like 'Sana_Sajid_CV.pdf'.")
     return report
+
+
+def choose_pdf(start_dir: Path | None = None, input_fn=input, dialog=None) -> str:
+    """Pick the CV in the normal "Open" window. Without a window (no desktop, or no tkinter), ask for the path.
+    Returns '' when nothing was chosen."""
+    picked = (dialog or _open_file_window)(start_dir)
+    if picked is None:
+        picked = input_fn("Type or paste the full path of your CV PDF (or drag the file into this window), then press Enter: ")
+    return (picked or "").strip().strip('"')
+
+
+def _open_file_window(start_dir: Path | None) -> str | None:
+    """The standard file chooser; None when it cannot be shown."""
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+    except ImportError:
+        return None
+    try:
+        root = tk.Tk()
+    except tk.TclError:  # no screen to show a window on
+        return None
+    try:
+        root.withdraw()
+        root.attributes("-topmost", True)  # in front of the black window
+        start = str(start_dir) if start_dir and Path(start_dir).exists() else None
+        return filedialog.askopenfilename(parent=root, title="Choose your CV (PDF) - it is attached to every email",
+                                          initialdir=start, filetypes=[("PDF files", "*.pdf")]) or ""
+    finally:
+        root.destroy()
 
 
 def set_cv(settings, source: str | Path) -> Path:

@@ -48,11 +48,11 @@ The earlier version marked a professor verified when the email check alone passe
 3. **Run the pipeline** (`4_run_pipeline.bat`). It writes emails for the verified professors and opens the **email editor**.
 4. **Check and edit each email in the editor:**
    - Read the checks. Open the official profile and read the abstract of any paper the email mentions.
-   - Edit the recipient, subject or text and press **Save changes**. Your edits are saved to the tracker, are still there next time, and are never overwritten when drafts are regenerated.
+   - Edit the recipient, subject or text and press **Save changes**. Your edits are saved to the tracker, are still there next time (in the editor and on the review page, `exports\review_latest.html`), and are never overwritten when drafts are regenerated.
    - If you add a sentence about their work, the editor compares it with their official page and lists any words it could not find there. Make sure every claim is true.
    - To change the recipient, also paste the official page where that address is shown.
    - Check the **CV to attach** line at the top and open the CV once.
-5. **Approve** (close the editor, then `5_approve_drafts.bat`). Each email is shown with its checks and the exact CV file. Type `yes` only for emails you would sign your name to. If a check **failed**, fix it in the editor first; type `approve anyway` only if you are sure the check is wrong.
+5. **Approve** (press **I'm done editing** in the editor, then double-click `5_approve_drafts.bat`). Each email is shown with its checks and the exact CV file. Type `yes` only for emails you would sign your name to. If a check **failed**, fix it in the editor first; type `approve anyway` only if you are sure the check is wrong.
 6. **Send from Gmail.** Use the **Open in Gmail** button on the outbox page, **attach the CV named at the top of the outbox**, and press Send. Then record it: `outreach mark-sent --ids R0012,R0015`. (With the optional Gmail setup, `outreach send --method gmail-drafts` puts drafts with the CV attached into Gmail and confirms the attachment.)
 7. **Replies:** `outreach mark-replied --id R0012 --note "Wants a call on Friday"`. Reply personally and quickly (within 24 hours).
 8. **Follow-ups:** `outreach followups --draft` writes one short, polite follow-up for anyone with no reply after 10 days. It goes back to `draft_ready`, so check it in the editor, approve it (`5_approve_drafts.bat`), send it from the outbox, then `outreach mark-sent --ids …`. There is never a second follow-up.

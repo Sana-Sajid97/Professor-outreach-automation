@@ -91,6 +91,8 @@ def test_edits_are_saved_logged_and_kept(editor, settings):
     assert any(r["action"] == "draft_edited" for r in read_log(settings))
     status, page, _ = get(base, f"/?t={app.token}")
     assert "My own subject line" in page and "Saved: subject, email text." in page  # still there when the page is reopened
+    review_page = (settings.exports_dir / "review_latest.html").read_text(encoding="utf-8")
+    assert "My own subject line" in review_page and "I am writing to you because" in review_page  # and on the review page
 
 
 def test_refused_save_keeps_what_you_typed(editor, settings):
@@ -225,3 +227,55 @@ def test_approving_waits_until_the_editor_is_closed(editor, settings, monkeypatc
     monkeypatch.setenv("OUTREACH_ROOT", str(settings.root))
     assert cli.main(["approve"]) == 1
     assert "editor is still open" in capsys.readouterr().err
+
+
+def test_done_button_closes_the_editor(settings, profile, today):
+    write_profile(settings, profile)
+    save_records(settings.tracker_path, [drafted(profile, today)])
+    server, app = make_server(settings, port=0, today_fn=lambda: today)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base = f"http://127.0.0.1:{server.server_address[1]}"
+    try:
+        assert "I'm done editing" in get(base, f"/?t={app.token}")[1]
+        assert post(base, "/done", {"t": "wrong"}) == 403  # only the secret link can close it
+        assert thread.is_alive()
+        with urllib.request.urlopen(urllib.request.Request(base + "/done", data=urllib.parse.urlencode({"t": app.token}).encode())) as resp:
+            assert resp.status == 200 and "5_approve_drafts.bat" in resp.read().decode("utf-8")
+        thread.join(timeout=5)
+        assert not thread.is_alive()  # the editor stopped, so approving can start
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_command_line_changes_also_update_the_review_page(settings, profile, today, monkeypatch):
+    from src import cli
+
+    write_profile(settings, profile)
+    rec = drafted(profile, today)
+    save_records(settings.tracker_path, [rec])
+    monkeypatch.setenv("OUTREACH_ROOT", str(settings.root))
+    assert cli.main(["note", "--id", "R0001", "--text", "Met at a webinar"]) == 0
+    page = (settings.exports_dir / "review_latest.html").read_text(encoding="utf-8")
+    assert rec["email_subject"] in page and "edit_drafts.bat" in page
+
+
+def test_choose_the_cv_in_a_window_or_by_dragging_it(settings, profile, tmp_path, monkeypatch, capsys):
+    from src import cli, cv_check
+    from src.cv_check import choose_pdf
+
+    write_profile(settings, profile)
+    monkeypatch.setenv("OUTREACH_ROOT", str(settings.root))
+    first = make_pdf(tmp_path / "picked" / "Test_Applicant_CV.pdf", ["Test Applicant", "applicant@example.com"])
+    monkeypatch.setattr(cv_check, "_open_file_window", lambda start: str(first))
+    assert cli.main(["cv", "--choose"]) == 0  # double-click choose_cv.bat: picked in the window
+    assert "Test_Applicant_CV.pdf" in (settings.root / ".env").read_text(encoding="utf-8")
+    dropped = make_pdf(tmp_path / "dropped" / "Applicant_CV_2026.pdf", ["Test Applicant", "applicant@example.com"])
+    assert cli.main(["cv", "--choose", str(dropped)]) == 0  # the PDF dragged onto choose_cv.bat
+    assert "Applicant_CV_2026.pdf" in (settings.root / ".env").read_text(encoding="utf-8")
+    monkeypatch.setattr(cv_check, "_open_file_window", lambda start: "")
+    assert cli.main(["cv", "--choose"]) == 1 and "No file chosen" in capsys.readouterr().out  # cancelled: nothing changes
+    assert "Applicant_CV_2026.pdf" in (settings.root / ".env").read_text(encoding="utf-8")
+    # No window can be shown (no desktop): the path is asked for instead, quotes and all.
+    assert choose_pdf(dialog=lambda start: None, input_fn=lambda prompt: '"C:\\Users\\Me\\CV.pdf"') == "C:\\Users\\Me\\CV.pdf"

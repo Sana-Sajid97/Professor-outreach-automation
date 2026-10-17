@@ -2,7 +2,7 @@
 
 It runs only on your own computer (http://127.0.0.1, on a random port) and needs the secret link it opens,
 so no other computer or website can use it. Nothing is ever sent from it: approval and sending stay in
-5_approve_drafts.bat. Keep its window open while you edit, and close it when you are done.
+5_approve_drafts.bat. Keep its window open while you edit; when you are done, press "I'm done editing" on the page.
 
 What it shows for each email: every verification check with its official link and quoted evidence, the CV
 that will be attached, and a form to edit the email. Checks you have done yourself on an official page can
@@ -17,6 +17,7 @@ import json
 import re
 import secrets
 import socket
+import threading
 import webbrowser
 from datetime import date, datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -69,6 +70,16 @@ class EditorApp:
         if file_stamp(self.settings.tracker_path) != stamp:
             raise UserFacingError("The tracker was changed by another window a moment ago. Nothing was saved: reload this page and try again.")
         save_records(self.settings.tracker_path, records, self.settings.backup_dir)
+        self._refresh_review_page(records)
+
+    def _refresh_review_page(self, records: list[dict]) -> None:
+        """The review page (exports/review_latest.html) always shows what is saved."""
+        from .review import refresh_review_page
+
+        try:
+            refresh_review_page(self.settings, records, self.today_fn(), self._profile())
+        except Exception as exc:  # the tracker is already saved; say so rather than lose the save
+            self._note("_page", "warn", f"Saved, but the review page (exports\\review_latest.html) could not be updated: {exc}")
 
     def _profile(self) -> dict:
         from .profile import load_profile
@@ -168,6 +179,14 @@ class EditorApp:
         except UserFacingError as exc:
             self._note(rid, "bad", str(exc))
         return rid
+
+    def done_page(self) -> str:
+        return ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+                f"<title>Editor closed</title><style>{CSS}</style></head><body><main><section class=\"card\">"
+                "<h1>The editor is closed</h1><p>Your saved changes are in your tracker, and the review page "
+                "(exports\\review_latest.html) shows them.</p><p><strong>Next:</strong> double-click <strong>5_approve_drafts.bat</strong> "
+                "to approve each email. You can close this tab.</p><p class=\"meta\">To edit again later, double-click edit_drafts.bat.</p>"
+                "</section></main></body></html>")
 
     def cv_file(self) -> Path | None:
         from .cv_check import cv_path
@@ -306,9 +325,10 @@ class EditorApp:
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer"><title>Edit your emails</title>
 <style>{CSS}{CHECK_CSS}{EDITOR_CSS}</style></head>
-<body><header><div class="top"><h1>Edit your emails</h1>
-<div class="meta">{len(drafts)} email(s) &middot; changes are saved to your tracker when you press Save &middot; nothing is sent from this page.
-When you are happy with them, close this window and run <strong>5_approve_drafts.bat</strong> to approve each email.</div>
+<body><header><div class="top"><div class="row"><h1>Edit your emails</h1>
+<form method="post" action="/done"><input type="hidden" name="t" value="{self.token}"><button class="btn primary" type="submit">I'm done editing</button></form></div>
+<div class="meta">{len(drafts)} email(s) &middot; changes are saved to your tracker and to the review page when you press Save &middot; nothing is sent from this page.
+When you are happy with them, press <strong>I'm done editing</strong>, then double-click <strong>5_approve_drafts.bat</strong> to approve each email.</div>
 <div><strong>CV to attach:</strong> {self._cv_html()}</div></div></header>
 <main>{page_notices}<h2>Emails ({len(drafts)})</h2>{draft_html}{waiting_section}</main>
 <script>
@@ -373,7 +393,7 @@ def make_handler(app: EditorApp):
             if parts.path == "/cv":
                 path = app.cv_file()
                 if not path:
-                    return self._send(404, "No CV is set up yet. Run:  outreach cv --set \"C:\\path\\to\\Your_CV.pdf\"")
+                    return self._send(404, "No CV is set up yet. Double-click choose_cv.bat and pick your CV (PDF).")
                 return self._send(200, path.read_bytes(), "application/pdf",
                                   {"Content-Disposition": f"inline; filename*=UTF-8''{quote(path.name)}"})
             return self._send(404, "Not found.")
@@ -391,6 +411,10 @@ def make_handler(app: EditorApp):
             if not self._token_ok(form.get("t", "")):
                 return self._send(403, "This editor link is out of date. Close this tab and start the editor again (edit_drafts.bat).")
             path = urlsplit(self.path).path
+            if path == "/done":  # "I'm done editing": answer, then stop the editor so the next step can start
+                self._send(200, app.done_page(), "text/html; charset=utf-8")
+                threading.Thread(target=self.server.shutdown, daemon=True).start()
+                return None
             if path == "/save":
                 rid = app.save_edit(form)
             elif path == "/confirm":
@@ -444,7 +468,7 @@ def serve(settings: Settings, open_browser: bool = True, port: int = 0, print_fn
     lock.write_text(json.dumps({"port": actual_port, "token": app.token, "started": datetime.now().isoformat(timespec="seconds")}), encoding="utf-8")
     print_fn("The email editor is open in your browser. If it did not open, copy this link into your browser:")
     print_fn(f"  {url}")
-    print_fn("Keep this window open while you edit. Close it (or press Ctrl+C) when you are done.")
+    print_fn("Keep this window open while you edit. When you are done, press \"I'm done editing\" on the page (or close this window).")
     if open_browser:
         webbrowser.open(url)
     try:
@@ -457,7 +481,7 @@ def serve(settings: Settings, open_browser: bool = True, port: int = 0, print_fn
             lock.unlink()
         except OSError:
             pass
-    print_fn("Editor closed. Your saved changes are in the tracker.")
+    print_fn("Editor closed. Your saved changes are in the tracker and on the review page. Next: 5_approve_drafts.bat")
     return 0
 
 

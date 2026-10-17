@@ -72,6 +72,18 @@ def _save(settings: Settings, records, backup: bool = True) -> None:
         )
     save_records(settings.tracker_path, records, settings.backup_dir if backup else None)
     _STAMPS[key] = file_stamp(settings.tracker_path)
+    _refresh_review_page(settings, records)
+
+
+def _refresh_review_page(settings: Settings, records) -> None:
+    """Keep exports/review_latest.html in step with the tracker, so it always shows what is saved."""
+    from .review import refresh_review_page
+
+    try:
+        profile = _profile(settings) if settings.profile_path.exists() else {}
+        refresh_review_page(settings, records, date.today(), profile)
+    except Exception as exc:  # the tracker is already saved; a page that could not be redrawn must not stop the command
+        print(f"(Note: the review page exports\\review_latest.html could not be updated: {exc})")
 
 
 def _profile(settings: Settings) -> dict:
@@ -473,8 +485,8 @@ def _editor_must_be_closed(settings: Settings) -> None:
 
     if editor_is_open(settings):
         raise UserFacingError(
-            "The email editor is still open. Save your changes there, close its window, then run this again "
-            "(so that what you do here and your edits cannot overwrite each other)."
+            "The email editor is still open. Save your changes, press \"I'm done editing\" at the top of the editor page "
+            "(or close the black editor window), then run this again. This stops your edits and this step from overwriting each other."
         )
 
 
@@ -709,6 +721,13 @@ def cmd_cv(settings: Settings, args) -> int:
     """Set the CV that is attached to every email, and check it."""
     from .cv_check import inspect_cv, set_cv
 
+    if args.choose is not None:
+        from .cv_check import choose_pdf
+
+        args.set = args.choose.strip().strip('"') or choose_pdf(settings.private_dir)
+        if not args.set:
+            print("No file chosen. Nothing changed.")
+            return 1
     if args.set:
         dest = set_cv(settings, args.set)
         print(f"CV set: {dest}")
@@ -823,6 +842,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--no-browser", action="store_true", help="do not open the browser (print the link instead)")
     sp = add("cv", cmd_cv, "check the CV attached to your emails (use --set to choose the file)")
     sp.add_argument("--set", metavar="PDF", help="path to your CV PDF; it is copied into private_profile\\cv")
+    sp.add_argument("--choose", nargs="?", const="", default=None, metavar="PDF",
+                    help="pick the CV in a window (choose_cv.bat does this; dragging a PDF onto it passes the file here)")
     sp = add("preview", cmd_preview, "preview emails for the best UNVERIFIED leads (read-only; nothing is saved or sent)")
     sp.add_argument("--limit", type=int, default=20)
     sp = add("approve", cmd_approve, "read each draft and approve it by typing 'yes'")

@@ -261,7 +261,7 @@ def write_run_report(report: PipelineReport, settings: Settings, today: date, st
         f"- New drafts: {len(report.drafted)} {', '.join(report.drafted)}",
         f"- Validation: {report.issues_summary}",
         "",
-        "Nothing was sent. Review drafts in exports/review_latest.html, then run `python -m src.cli approve`.",
+        "Nothing was sent. Check and edit the drafts in the editor (edit_drafts.bat), then approve them with 5_approve_drafts.bat.",
         "",
         "## Records needing manual review",
     ]
@@ -297,7 +297,8 @@ def print_summary(report: PipelineReport, print_fn=print) -> None:
     print_fn("Files:")
     for path in report.files:
         print_fn(f"  {path}")
-    print_fn("Next: open exports\\review_latest.html, check each email, then run:  python -m src.cli approve")
+    print_fn("Next: check and edit each email in the editor (edit_drafts.bat; 4_run_pipeline.bat opens it for you), "
+             "then approve them with 5_approve_drafts.bat.")
 
 
 def _safe_console() -> None:

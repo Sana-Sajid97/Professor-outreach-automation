@@ -206,10 +206,30 @@ def render_review_page(
 <title>{html.escape(title)}</title><style>{CSS}{CHECK_CSS}</style></head>
 <body><header><h1>{html.escape(title)}</h1>
 <div class="meta">{count} email(s) &middot; generated {today.isoformat()} &middot; Nothing is sent from this page.
-{"Approved emails: open each in Gmail, attach your CV, press Send yourself, then record it with <code>outreach mark-sent --ids ...</code>." if sendable_ids else "Review each draft and check the evidence links. Research details came from search results of official pages, so confirm them on the profile. Then approve the ones you are happy with (5_approve_drafts.bat). Send buttons appear only on the outbox page, after approval."}</div></header>
+{"Approved emails: open each in Gmail, attach your CV, press Send yourself, then record it with <code>outreach mark-sent --ids ...</code>." if sendable_ids else "Read each draft and its checks. To change an email, double-click <strong>edit_drafts.bat</strong>: every change you save there also appears on this page (refresh it). Then approve the ones you are happy with (5_approve_drafts.bat). Send buttons appear only on the outbox page, after approval."}</div></header>
 <main>{_cv_block(cv_report)}{''.join(cards) or '<p>No drafts to review yet. Run the pipeline first.</p>'}</main>
 <script>function copyText(id){{const t=document.getElementById(id).innerText;navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>alert('Email text copied.'),()=>alert('Copy failed: select the text and press Ctrl+C.'));}}</script>
 </body></html>"""
+
+
+def refresh_review_page(settings, records: list[dict], today: date, profile: dict | None = None) -> Path:
+    """Rewrite exports/review_latest.html from the saved tracker, so the review page always shows your saved edits."""
+    from .cv_check import inspect_cv
+    from .suppression import SuppressionList
+    from .validate import issues_by_record, validate_all
+
+    profile = profile or {}
+    suppression = SuppressionList.load(settings.suppression_path)
+    chosen = [r for r in records if clean(r.get("workflow_status")) in {m.DRAFT_READY, m.APPROVED} and clean(r.get("email_draft"))]
+    chosen.sort(key=lambda r: -float(clean(r.get("fit_score")) or 0))
+    try:
+        ielts = float((profile.get("english_test") or {}).get("overall"))
+    except (TypeError, ValueError):
+        ielts = None
+    grouped = issues_by_record(validate_all(records, today, suppression.email_set, ielts))
+    warnings_by_id = {rid: [i.message for i in items if i.severity == "warning"][:4] for rid, items in grouped.items()}
+    return write_review_page(chosen, Path(settings.exports_dir) / "review_latest.html", "Drafts to review", today,
+                             clean(profile.get("email")), warnings_by_id, cv_report=inspect_cv(settings, profile))
 
 
 def _cv_block(cv_report) -> str:
